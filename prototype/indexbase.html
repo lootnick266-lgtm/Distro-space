@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/images/Logo.jpg" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/style1.css" />
+  <title>Distro.space — Установщик дистрибутивов</title>
+</head>
+<!-- шапка -->
+<header class="header">
+  <div class="container">
+    <div class="header-container">
+
+      <div class="header-logo">
+        
+  <img src="assets/images/Logo.jpg" alt="Логотип" class="header-logo-img" width="50" loading="lazy" />
+        <span class="header-company-name">Distro.space</span>
+      </div>
+
+      <nav class="header-nav">
+        <ul class="header-nav-list">
+          <li class="headernav-item"><a href="/prototype/indexbase.html">Главная</a></li>
+          <li class="headernav-item"><a href="catalog.html">Каталог</a></li>
+          <li class="headernav-item"><a href="contacts.html">Контакты</a></li>
+          <li class="headernav-item"><a href="/public/index.html">Техподдержка</a></li>
+          <li class="headernav-item dropdown">
+            <a href="#" class="dropdown-toggle">Меню ▼</a>
+            <ul class="dropdown-menu">
+              <li><a href="auth.html">Авторизация</a></li>
+              <li><a href="#" id="dropdownThemeToggle">Сменить тему</a></li>
+              <li><a href="catalog.html">Все дистрибутивы</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button class="header-button button" id="loginBtn">Вход | Регистрация</button>
+        <button class="header-feedback-btn button">Обратная связь</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<body>
+
+
+  <!-- Интро с видео RuTube -->
+  <section class="intro">
+    <div class="container intro-container">
+      <div class="intro-video">
+     <iframe src="https://rutube.ru/play/embed/130faa703d592a8a2435041a557154e7/"
+          style="border: none;" allow="clipboard-write; autoplay" allowFullScreen></iframe>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="about">
+    <div class="container about-container">
+      <div class="about-content">
+        <h2 class="about-title">О нашем сервисе</h2>
+        <p class="about-text">Мы помогаем легко установить любой дистрибутив Linux — через официальные ссылки или наш
+          универсальный установщик. Ваш выбор, ваша скорость, ваша свобода.</p>
+        <div class="about-text-full" id="aboutFullText">
+          Distro.space — это удобный сервис для установки Linux-дистрибутивов. Вы можете перейти на официальный сайт и
+          скачать образ самостоятельно, либо воспользоваться нашим установщиком: он автоматически загрузит выбранную
+          систему, создаст загрузочную флешку или настроит двойную загрузку.
+          Мы поддерживаем все популярные дистрибутивы: Ubuntu, Debian, Fedora, Arch, Kali, Gentoo и другие. Никакой
+          сложной настройки — просто выберите дистрибутив и следуйте инструкциям. Присоединяйтесь к сообществу
+          Linux-энтузиастов и ставьте системы без головной боли!
+        </div>
+        <button class="about-button button" id="aboutMoreBtn">Узнать больше</button>
+      </div>
+    </div>
+  </section>
+
+<!-- ГАЛЕРЕЯ (популярные дистрибутивы) -->
+<section class="gallery">
+  <div class="container gallery-container">
+    <h2 class="gallery-title">Популярные дистрибутивы</h2>
+    <div class="gallery-grid">
+      <div class="gallery-card">
+        <div class="gallery-image">
+          <img src="assets/images/ubuntu-svgrepo-com.svg" alt="Ubuntu" loading="lazy" />
+        </div>
+        <h3 class="gallery-card-title">Ubuntu Linux</h3>
+        <p class="gallery-card-text">User-friendly дистрибутив, хорош для новичков</p>
+        <button class="gallery-card-button button" data-distro="ubuntu">Смотреть</button>
+      </div>
+      <div class="gallery-card">
+        <div class="gallery-image">
+          <img src="assets/images/debian-svgrepo-com.svg" alt="Debian" loading="lazy" />
+        </div>
+        <h3 class="gallery-card-title">Debian Linux</h3>
+        <p class="gallery-card-text">Основа многих дистрибутивов</p>
+        <button class="gallery-card-button button" data-distro="debian">Смотреть</button>
+      </div>
+      <div class="gallery-card">
+        <div class="gallery-image">
+          <img src="assets/images/kalilinux-svgrepo-com.svg" alt="Kali" loading="lazy" />
+        </div>
+        <h3 class="gallery-card-title">Kali Linux</h3>
+        <p class="gallery-card-text">Специализированный дистрибутив</p>
+        <button class="gallery-card-button button" data-distro="kali">Смотреть</button>
+      </div>
+      <div class="gallery-card">
+        <div class="gallery-image">
+          <img src="assets/images/arch-linux-svgrepo-com.svg" alt="Arch" loading="lazy" />
+        </div>
+        <h3 class="gallery-card-title">Arch Linux</h3>
+        <p class="gallery-card-text">Выбор многих</p>
+        <button class="gallery-card-button button" data-distro="arch">Смотреть</button>
+      </div>
+      <div class="gallery-card">
+        <div class="gallery-image">
+          <img src="assets/images/gentoo-svgrepo-com.svg" alt="Gentoo" loading="lazy" />
+        </div>
+        <h3 class="gallery-card-title">Gentoo Linux</h3>
+        <p class="gallery-card-text">Для любителей создавать с нуля</p>
+        <button class="gallery-card-button button" data-distro="gentoo">Смотреть</button>
+      </div>
+      <div class="gallery-card">
+        <div class="gallery-image">
+          <img src="assets/images/fedora-svgrepo-com.svg" alt="Fedora" loading="lazy" />
+        </div>
+        <h3 class="gallery-card-title">Fedora Linux</h3>
+        <p class="gallery-card-text">Надёжный вариант</p>
+        <button class="gallery-card-button button" data-distro="fedora">Смотреть</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Модальное окно для дистрибутивов -->
+<div class="distro-modal" id="distroModal">
+  <div class="distro-modal-content">
+    <div class="distro-modal-header">
+      <h3 class="distro-modal-title" id="distroModalTitle">Ubuntu Linux</h3>
+      <span class="distro-modal-close">&times;</span>
+    </div>
+    <div class="distro-modal-body">
+      <p id="distroModalDesc">Описание дистрибутива</p>
+      <div class="distro-modal-buttons">
+        <button class="distro-install-btn button" id="installViaInstaller">Скачать через установщик</button>
+        <button class="distro-official-btn button" id="goToOfficialSite">Перейти на официальный сайт</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Аккордеон FAQ (3 секции) -->
+  <section class="faq">
+    <div class="container faq-container">
+      <h2 class="faq-title">Часто задаваемые вопросы</h2>
+      <div class="accordion">
+        <div class="accordion-item">
+          <div class="accordion-header">Как установить дистрибутив через ваш установщик?</div>
+          <div class="accordion-content">
+            <p>Скачайте установщик, выберите нужный дистрибутив из списка, нажмите «Установить» — и система
+              автоматически настроит загрузку и установку.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">Поддерживает ли установщик Windows?</div>
+          <div class="accordion-content">
+            <p>Да, наш установщик работает на Windows, macOS и Linux. Достаточно запустить исполняемый файл.</p>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">Бесплатно ли пользоваться?</div>
+          <div class="accordion-content">
+            <p>Базовая версия установщика бесплатна. Расширенные функции (автоматическое резервное копирование, priority
+              support) доступны по подписке.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<footer class="footer">
+    <div class="container footer-container">
+        <div class="footer-col">
+            <h4>О проекте</h4>
+            <p>Distro.space — установщик Linux-дистрибутивов. Быстро, просто, бесплатно.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Навигация</h4>
+            <p><a href="indexbase.html">Главная</a></p>
+            <p><a href="catalog.html">Каталог</a></p>
+            <p><a href="contacts.html">Контакты</a></p>
+            <p><a href="auth.html">Авторизация</a></p>
+        </div>
+        <div class="footer-col">
+            <h4>Соцсети</h4>
+            <div class="footer-social">
+                <a href="#"><img src="assets/images/Telegram_logo.svg.png" alt="Telegram"></a>
+                <a href="#"><img src="assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK"></a>
+                <a href="#"><img src="assets/images/Octicons-mark-github.svg.png" alt="GitHub"></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2026 Димитриев Герман. Все права защищены.
+        </div>
+    </div>
+</footer>
+
+  <!-- Модальное окно обратной связи -->
+  <div class="modal" id="feedbackModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Форма обратной связи</h3>
+        <span class="modal-close">&times;</span>
+      </div>
+      <form class="modal-form" id="modalFeedbackForm">
+        <input type="text" class="modal-input" placeholder="Ваше имя *" required>
+        <input type="tel" class="modal-input" placeholder="Ваш телефон *" required>
+        <input type="email" class="modal-input" placeholder="Ваш Email *" required>
+        <button type="submit" class="modal-submit button">Отправить</button>
+        <div class="gif-spinner" style="display: none;"> Отправка...</div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/script1.js"></script>
+</body>
+
+</html>

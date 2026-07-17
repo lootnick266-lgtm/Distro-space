@@ -1,0 +1,16 @@
+#   1. Настройка ЧПУ и безопасность
+
+Options -Indexes
+Options +FollowSymLinks
+
+RewriteEngine On
+RewriteBase /
+
+# Защита config.php
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# ЧПУ для API
+RewriteRule ^api/(.*)$ api.php?route=$1 [QSA,L]
