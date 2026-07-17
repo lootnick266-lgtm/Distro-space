@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/images/Logo.jpg" type="image/x-icon">
+  <link rel="stylesheet" href="/css/style1.css">
+  <title>Авторизация — Distro.space</title>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-container">
+        <div class="burger"><span class="burger-line"></span><span class="burger-line"></span><span class="burger-line"></span></div>
+        <div class="header-logo">
+          <img src="assets/images/Logo.jpg" alt="Логотип" class="header-logo-img" width="50">
+          <span class="header-company-name">Distro.space</span>
+        </div>
+        <nav class="header-nav">
+          <ul class="header-nav-list">
+            <li class="headernav-item"><a href="indexbase.html">Главная</a></li>
+            <li class="headernav-item"><a href="catalog.html">Каталог</a></li>
+            <li class="headernav-item"><a href="contacts.html">Контакты</a></li>
+            <li class="headernav-item dropdown">
+              <a href="#" class="dropdown-toggle">Меню ▼</a>
+              <ul class="dropdown-menu">
+                <li><a href="auth.html">Авторизация</a></li>
+                <li><a href="#" id="dropdownThemeToggle">Сменить тему</a></li>
+                <li><a href="catalog.html">Все дистрибутивы</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <section class="auth-section">
+    <div class="container auth-container">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Вход</button>
+        <button class="auth-tab" data-tab="register">Регистрация</button>
+      </div>
+      <!-- Форма логина -->
+      <form class="auth-form" id="loginForm" data-form="login">
+        <h3>Войти в аккаунт</h3>
+        <div class="form-group">
+          <input type="email" class="auth-input" placeholder="Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+          <span class="form-error">Некорректный email</span>
+        </div>
+        <div class="form-group">
+          <input type="password" class="auth-input" placeholder="Пароль" required minlength="4">
+        </div>
+        <button type="submit" class="button auth-submit">Войти</button>
+      </form>
+      <!-- Форма регистрации -->
+      <form class="auth-form hidden" id="registerForm" data-form="register">
+        <h3>Создать аккаунт</h3>
+        <div class="form-group">
+          <input type="text" class="auth-input" placeholder="Имя" required>
+        </div>
+        <div class="form-group">
+          <input type="email" class="auth-input" placeholder="Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+          <span class="form-error">Некорректный email</span>
+        </div>
+        <div class="form-group">
+          <input type="password" class="auth-input" placeholder="Пароль" required minlength="6">
+        </div>
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" class="agree-checkbox"> Я согласен с правилами
+          </label>
+        </div>
+        <button type="submit" class="button auth-submit" disabled>Зарегистрироваться</button>
+      </form>
+    </div>
+  </section>
+
+<footer class="footer">
+    <div class="container footer-container">
+        <div class="footer-col">
+            <h4>О проекте</h4>
+            <p>Distro.space — установщик Linux-дистрибутивов. Быстро, просто, бесплатно.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Навигация</h4>
+            <p><a href="indexbase.html">Главная</a></p>
+            <p><a href="catalog.html">Каталог</a></p>
+            <p><a href="contacts.html">Контакты</a></p>
+            <p><a href="auth.html">Авторизация</a></p>
+        </div>
+        <div class="footer-col">
+            <h4>Соцсети</h4>
+            <div class="footer-social">
+                <a href="#"><img src="assets/images/Telegram_logo.svg.png" alt="Telegram"></a>
+                <a href="#"><img src="assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK"></a>
+                <a href="#"><img src="assets/images/Octicons-mark-github.svg.png" alt="GitHub"></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2026 Димитриев Герман. Все права защищены.
+        </div>
+    </div>
+</footer>
+  <script src="/js/script1.js"></script>
+</body>
+</html>

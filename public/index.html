@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Чатбот техподдержки — SmartSupport</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <!-- ХЕДЕР -->
+    <header class="main-header">
+        <div class="container header-container">
+            <div class="logo">
+                <span>Smart<span class="highlight">Support</span></span>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/localhost/prototype/indexbase.html">Главная</a></li>
+                    <li><a href="#" id="chatLink">Чат с ботом</a></li>
+                    <li><a href="#" id="faqLink">FAQ</a></li>
+                    <li><a href="dashboard.php" id="dashboardLink" class="hidden">Дашборд</a></li>
+                    <li><a href="admin.php" id="adminLink" class="hidden">Админ-панель</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <button id="loginBtn" class="btn-outline"><i class="fas fa-sign-in-alt"></i> Вход</button>
+                <button id="registerBtn" class="btn-outline"><i class="fas fa-user-plus"></i> Регистрация</button>
+                <button id="logoutBtn" class="btn-outline hidden"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+                <span id="userNameDisplay" class="user-greeting hidden"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНАЯ   -->
+    <main class="main-content" id="mainContent">
+        <!-- Секция приветствия -->
+        <section class="hero-section" id="heroSection">
+            <div class="container">
+                <h1>24/7 Чат-бот техподдержки</h1>
+                <p>Мгновенные ответы на вопросы по установке Linux и работе с Distro.space</p>
+                <div class="hero-buttons">
+                    <button id="startChatHero" class="btn-primary"><i class="fas fa-comment-dots"></i> Начать диалог</button>
+                    <button id="learnMoreBtn" class="btn-secondary">Как это работает?</button>
+                </div>
+                <div class="status-badge">
+                    <i class="fas fa-circle online"></i> Онлайн / 3 оператора в сети
+                </div>
+            </div>
+        </section>
+
+        <!-- Чат-интерфейс (скрыт по умолчанию) -->
+        <section class="chat-interface hidden" id="chatInterface">
+            <div class="container chat-container">
+                <!-- Левая панель с подсказками -->
+                <div class="chat-sidebar">
+                    <div class="bot-info">
+                        <i class="fas fa-headset"></i>
+                        <h3>Технический бот</h3>
+                        <p>Отвечает на вопросы по установке Linux</p>
+                    </div>
+                    
+                    <!-- Быстрые подсказки -->
+                    <div class="quick-tips">
+                        <div class="tips-title"><i class="fas fa-lightbulb"></i> Частые вопросы</div>
+                        <div class="tips-grid" id="tipsGrid"></div>
+                        <button id="showMoreTipsBtn" class="tips-more-btn">
+                            <i class="fas fa-chevron-down"></i> Ещё вопросы
+                        </button>
+                        <div id="moreTipsList" class="more-tips-list hidden"></div>
+                    </div>
+                    
+                    <!-- Кнопка обратной связи -->
+                    <button id="supportRequestBtn" class="quick-btn" style="background:#2c7da0; color:white; margin-top:20px;">
+                        <i class="fas fa-headset"></i> Написать в поддержку
+                    </button>
+                </div>
+                
+                <!-- Правая панель с сообщениями -->
+                <div class="chat-messages-area">
+                    <div class="messages-list" id="messagesList">
+                        <div class="message bot-message">
+                            <div class="avatar"><i class="fas fa-robot"></i></div>
+                            <div class="bubble">Здравствуйте! Я бот техподдержки. Чем могу помочь?</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="userMessageInput" placeholder="Напишите ваш вопрос..." autocomplete="off">
+                        <button id="sendMsgBtn" class="send-btn"><i class="fas fa-paper-plane"></i> Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ секция -->
+        <section class="faq-section hidden" id="faqSection">
+            <div class="container">
+                <h2>Часто задаваемые вопросы</h2>
+                <div class="faq-grid" id="faqGrid"></div>
+            </div>
+        </section>
+    </main>
+
+<!-- ФУТЕР -->
+<footer class="main-footer">
+    <div class="container footer-container">
+        <div class="footer-col">
+            <h4>SmartSupport</h4>
+            <p>Чат-бот техподдержки 24/7</p>
+        </div>
+        <div class="footer-col">
+            <h4>Контакты</h4>
+            <p><i class="fas fa-envelope"></i> help@smartsupport.com</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Support</p>
+    </div>
+</footer>
+
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="loginModal">&times;</span>
+            <h2><i class="fas fa-key"></i> Авторизация</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="loginEmail" placeholder="user@example.com" autocomplete="off">
+                    <div class="error-message" id="loginEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Пароль:</label>
+                    <input type="password" id="loginPassword" placeholder="Не менее 4 символов">
+                    <div class="error-message" id="loginPasswordError"></div>
+                </div>
+                <button type="submit" class="btn-primary full-width">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="registerModal">&times;</span>
+            <h2><i class="fas fa-user-plus"></i> Регистрация</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Имя:</label>
+                    <input type="text" id="regName" placeholder="Иван Иванов" autocomplete="off">
+                    <div class="error-message" id="regNameError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="regEmail" placeholder="user@example.com" autocomplete="off">
+                    <div class="error-message" id="regEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Пароль:</label>
+                    <input type="password" id="regPassword" placeholder="Не менее 4 символов">
+                    <div class="error-message" id="regPasswordError"></div>
+                </div>
+                <button type="submit" class="btn-primary full-width">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="supportModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="supportModal">&times;</span>
+            <h2><i class="fas fa-envelope"></i> Обратная связь</h2>
+            <form id="supportForm">
+                <div class="form-group">
+                    <label>Тема обращения</label>
+                    <input type="text" id="supportSubject" placeholder="Кратко опишите проблему" autocomplete="off">
+                    <div class="error-message" id="supportSubjectError"></div>
+                </div>
+                <div class="form-group">
+                    <label>Сообщение</label>
+                    <textarea id="supportMessage" rows="5" placeholder="Подробно опишите вашу проблему..."></textarea>
+                    <div class="error-message" id="supportMessageError"></div>
+                </div>
+                <button type="submit" class="btn-primary full-width">Отправить заявку</button>
+            </form>
+            <p class="demo-hint">Ваша заявка будет передана администратору. Ответ придёт на email.</p>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>

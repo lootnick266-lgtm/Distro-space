@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/images/Logo.jpg" type="image/x-icon">
+  <link rel="stylesheet" href="/css/style1.css">
+  <title>Каталог — Distro.space</title>
+</head>
+<body>
+
+  <!-- шапка -->
+  <header class="header">
+    <div class="container">
+      <div class="header-container">
+        <div class="burger">
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+        </div>
+
+        <div class="header-logo">
+           <img src="assets/images/Logo.jpg" alt="Логотип" class="header-logo-img" width="50" loading="lazy" />
+        <span class="header-company-name">Distro.space</span>
+        </div>
+
+        <nav class="header-nav">
+          <ul class="header-nav-list">
+            <li class="headernav-item"><a href="indexbase.html">Главная</a></li>
+            <li class="headernav-item"><a href="catalog.html">Каталог</a></li>
+            <li class="headernav-item"><a href="contacts.html">Контакты</a></li>
+            <li class="headernav-item dropdown">
+              <a href="#" class="dropdown-toggle">Меню ▼</a>
+              <ul class="dropdown-menu">
+                <li><a href="auth.html">Авторизация</a></li>
+                <li><a href="#" id="dropdownThemeToggle">Сменить тему</a></li>
+                <li><a href="catalog.html">Все дистрибутивы</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <button class="header-button button" id="loginBtn">Вход | Регистрация</button>
+          <button class="header-feedback-btn button">Обратная связь</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Основной контент каталога -->
+  <main>
+    <section class="catalog-hero">
+      <div class="container">
+        <h1 class="catalog-title">Каталог дистрибутивов Linux</h1>
+        <p class="catalog-subtitle">Выберите свой идеальный дистрибутив для установки</p>
+      </div>
+    </section>
+
+    <section class="catalog-filters">
+      <div class="container">
+        <div class="filter-buttons">
+          <button class="filter-btn active" data-filter="all">Все</button>
+          <button class="filter-btn" data-filter="beginner">Для начинающих</button>
+          <button class="filter-btn" data-filter="advanced">Для опытных</button>
+          <button class="filter-btn" data-filter="special">Специализированные</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="catalog-grid-section">
+      <div class="container">
+        <div class="catalog-grid" id="catalogGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- футер -->
+<footer class="footer">
+    <div class="container footer-container">
+        <div class="footer-col">
+            <h4>О проекте</h4>
+            <p>Distro.space — установщик Linux-дистрибутивов. Быстро, просто, бесплатно.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Навигация</h4>
+            <p><a href="indexbase.html">Главная</a></p>
+            <p><a href="catalog.html">Каталог</a></p>
+            <p><a href="contacts.html">Контакты</a></p>
+            <p><a href="auth.html">Авторизация</a></p>
+        </div>
+        <div class="footer-col">
+            <h4>Соцсети</h4>
+            <div class="footer-social">
+                <a href="#"><img src="assets/images/Telegram_logo.svg.png" alt="Telegram"></a>
+                <a href="#"><img src="assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK"></a>
+                <a href="#"><img src="assets/images/Octicons-mark-github.svg.png" alt="GitHub"></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2026 Димитриев Герман. Все права защищены.
+        </div>
+    </div>
+</footer>
+
+  <script src="/js/script1.js"></script>
+</body>
+</html>

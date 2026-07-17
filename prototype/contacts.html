@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/images/linux.png" type="image/x-icon">
+  <link rel="stylesheet" href="/css/style1.css">
+  <title>Контакты — Distro.space</title>
+</head>
+ <header class="header">
+    <div class="container">
+        <div class="header-container">
+
+         <div class="header-logo">
+           <img src="assets/images/Logo.jpg" alt="Логотип" class="header-logo-img" width="50" loading="lazy" />
+        <span class="header-company-name">Distro.space</span>
+        </div>
+
+          <nav class="header-nav">
+            <ul class="header-nav-list">
+              <li class="headernav-item"><a href="indexbase.html">Главная</a></li>
+              <li class="headernav-item"><a href="catalog.html">Каталог</a></li>
+              <li class="headernav-item"><a href="contacts.html">Контакты</a></li>
+              <li class="headernav-item dropdown">
+                <a href="#" class="dropdown-toggle">Меню ▼</a>
+                <ul class="dropdown-menu">
+                  <li><a href="auth.html">Авторизация</a></li>
+                  <li><a href="#" id="dropdownThemeToggle">Сменить тему</a></li>
+                  <li><a href="catalog.html">Все дистрибутивы</a></li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+
+          <div class="header-actions">
+            <button class="header-button button" id="loginBtn">Вход | Регистрация</button>
+            <button class="header-feedback-btn button">Обратная связь</button>
+          </div>
+        </div>
+      </div>
+  </header>
+<body>
+  
+
+  <section class="contact">
+    <div class="container">
+      <h2 class="contact-title">Свяжитесь с нами</h2>
+      <div class="contact-wrapper">
+        <div class="contact-info">
+          <h3>Контакты</h3>
+          <p>📍 г. Москва</p>
+          <p>📞 телеграм бот: @WITHARDBot</p>
+        </div>
+        <form class="contact-form" id="mainContactForm">
+          <input type="text" placeholder="Ваше имя" class="contact-input" required>
+          <input type="email" placeholder="Ваш Email" class="contact-input" required>
+          <textarea placeholder="Ваше сообщение" class="contact-textarea" rows="5" required></textarea>
+          <button type="submit" class="contact-button button">Отправить</button>
+          <div class="gif-spinner" style="display: none;">Отправка...</div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+
+ <footer class="footer">
+    <div class="container footer-container">
+        <div class="footer-col">
+            <h4>О проекте</h4>
+            <p>Distro.space — установщик Linux-дистрибутивов. Быстро, просто, бесплатно.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Навигация</h4>
+            <p><a href="indexbase.html">Главная</a></p>
+            <p><a href="catalog.html">Каталог</a></p>
+            <p><a href="contacts.html">Контакты</a></p>
+            <p><a href="auth.html">Авторизация</a></p>
+        </div>
+        <div class="footer-col">
+            <h4>Соцсети</h4>
+            <div class="footer-social">
+                <a href="#"><img src="assets/images/Telegram_logo.svg.png" alt="Telegram"></a>
+                <a href="#"><img src="assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK"></a>
+                <a href="#"><img src="assets/images/Octicons-mark-github.svg.png" alt="GitHub"></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2026 Димитриев Герман. Все права защищены.
+        </div>
+    </div>
+</footer>
+  <script src="/js/script1.js"></script>
+</body>
+</html>
