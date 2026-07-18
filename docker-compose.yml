@@ -1,6 +1,7 @@
 services:
   nginx:
     image: nginx:alpine
+    container_name: nginx
     ports:
       - "8080:80"
     networks:
@@ -14,16 +15,16 @@ services:
 
   php:
     image: php:8.2-fpm
+    container_name: php
     networks:
       - localhost_default
     volumes:
       - ./:/var/www/html
     working_dir: /var/www/html
 
-  # 👇 ДОБАВЛЯЕМ БД
   db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: db
     restart: always
     ports:
       - "3306:3306"
@@ -37,7 +38,6 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
-  # 👇 ДОБАВЛЯЕМ phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
@@ -53,8 +53,105 @@ services:
     depends_on:
       - db
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    command:
+      - -nginx.scrape-uri=http://nginx/nginx_status
+    networks:
+      - localhost_default
+    depends_on:
+      - nginx
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysqld-exporter
+    restart: unless-stopped
+    networks:
+      - localhost_default
+    depends_on:
+      - db
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: mypass
+    command:
+      - "--mysqld.address=db:3306"
+      - "--mysqld.username=myuser"
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-exporter
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    command:
+      - --config.file=/etc/blackbox_exporter/config.yml
+    networks:
+      - localhost_default
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    networks:
+      - localhost_default
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - localhost_default
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    networks:
+      - localhost_default
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - localhost_default
+
 volumes:
   db_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   localhost_default:
