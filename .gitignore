@@ -1,16 +1,33 @@
- Секреты и конфиги
+# Secrets
 .env
+config.php
+src/controlls/php/config.php
+
+# Database dump / local data
 database.sql
+
+# Logs / runtime
 *.log
 *.pid
-*.lock
+*.tmp
 
- Системные папки
+# Dependencies
 node_modules/
 vendor/
+
+# IDE / editor
 .idea/
 .vscode/
 
- Docker
+# Docker local overrides
 docker-compose.override.yml
-src/controlls/php/config.php
+
+# Cache / build
+cache/
+tmp/
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db

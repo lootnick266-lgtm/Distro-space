@@ -31,10 +31,10 @@ services:
     networks:
       - localhost_default
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
 
@@ -72,10 +72,10 @@ services:
     depends_on:
       - db
     environment:
-      MYSQLD_EXPORTER_PASSWORD: mypass
+      - DATA_SOURCE_NAME=${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(db:3306)/
     command:
       - "--mysqld.address=db:3306"
-      - "--mysqld.username=myuser"
+      - "--mysqld.username=${MYSQL_USER}"
 
   blackbox-exporter:
     image: prom/blackbox-exporter:latest
