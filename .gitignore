@@ -1,0 +1,15 @@
+ Секреты и конфиги
+.env
+database.sql
+*.log
+*.pid
+*.lock
+
+ Системные папки
+node_modules/
+vendor/
+.idea/
+.vscode/
+
+ Docker
+docker-compose.override.yml
