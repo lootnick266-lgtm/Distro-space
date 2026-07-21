@@ -1,0 +1,34 @@
+groups:
+  - name: alerts
+    rules:
+      - alert: SiteDown
+        expr: probe_success{job="blackbox", instance="http://nginx"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сайт недоступен"
+
+      - alert: ServerOffline
+        expr: probe_success{job="blackbox", instance="http://nginx"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сервер {{ $labels.instance }} не отвечает"
+
+      - alert: ContainerDown
+        expr: time() - container_last_seen{job="cadvisor"} > 60
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Контейнер остановлен"
+
+      - alert: ContainerRestarting
+        expr: changes(container_start_time_seconds{job="cadvisor"}[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Контейнер перезапускается"
