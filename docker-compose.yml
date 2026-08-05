@@ -155,7 +155,7 @@ services:
     volumes:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     environment:
-      - WINDOWS_IP=${WINDOWS_IP}
+      - LOCAL_IP=${LOCAL_IP}
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
@@ -164,6 +164,22 @@ services:
     networks:
       - localhost_default
     restart: unless-stopped
+
+  vkbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+      - localhost-vkbot:latest
+    container_name: vkbot
+    restart: unless-stopped
+    environment:
+      - VKTOKEN=${VKTOKEN}
+      - GROUP_ID=${GROUP_ID}
+      - LOCAL_USER=${LOCAL_USER}
+    networks:
+      - localhost_default
+    
 
 volumes:
   db_data:

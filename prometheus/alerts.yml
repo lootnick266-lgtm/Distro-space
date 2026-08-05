@@ -18,12 +18,13 @@ groups:
           summary: "Сервер {{ $labels.instance }} не отвечает"
 
       - alert: ContainerDown
-        expr: time() - container_last_seen{job="cadvisor"} > 60
+        expr: time() - container_last_seen{job="cadvisor", name!="", name!="cadvisor"} > 60
         for: 0s
         labels:
           severity: critical
         annotations:
-          summary: "Контейнер остановлен"
+          summary: "Контейнер {{ $labels.name }} остановлен"
+          description: "Контейнер {{ $labels.name }} не обновлял метрики более 60 секунд."
 
       - alert: ContainerRestarting
         expr: changes(container_start_time_seconds{job="cadvisor"}[5m]) > 0
