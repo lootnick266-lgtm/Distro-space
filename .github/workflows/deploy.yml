@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: Distrospace
 
     steps:
       - name: Checkout
@@ -19,6 +19,14 @@ jobs:
           registry: ghcr.io
           username: ${{ secrets.CR_USER }}
           password: ${{ secrets.CR_PAT }}
+          
+      - name: Debug
+        run: |
+          pwd
+          ls -la
+          docker --version
+          docker compose version
+          echo "CR_USER: ${{ secrets.CR_USER }}"
 
       - name: Build and push vkbot
         run: |
