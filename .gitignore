@@ -13,6 +13,7 @@ backups/
 *.pid
 *.tmp
 log.txt
+nohup.out
 
 # Dependencies
 node_modules/

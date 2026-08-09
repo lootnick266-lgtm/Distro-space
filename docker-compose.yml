@@ -179,7 +179,16 @@ services:
       - LOCAL_USER=${LOCAL_USER}
     networks:
       - localhost_default
-    
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki.yml:/etc/loki/loki.yml
+      - ./data:/loki
+    command: -config.file=/etc/loki/loki.yml
+    networks:
+      - localhost_default
 
 volumes:
   db_data:
