@@ -13,6 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Collect Go dependency licenses
+        run: |
+          go install github.com/google/go-licenses@latest
+          mkdir -p LICENSEfolder
+          go-licenses report ./VKAlerts > LICENSEfolder/licenses.txt
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
