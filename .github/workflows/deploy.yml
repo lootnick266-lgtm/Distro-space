@@ -19,10 +19,12 @@ jobs:
           go-version: "1.22"
 
       - name: Collect Go dependency licenses
+        working-directory: VKAlerts
         run: |
           go install github.com/google/go-licenses@latest
-          mkdir -p LICENSEfolder
-          go-licenses report ./VKAlerts > LICENSEfolder/licenses.txt
+          mkdir -p ../LICENSEfolder
+          go-licenses report . > ../LICENSEfolder/licenses.txt
+
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
