@@ -70,12 +70,7 @@ services:
       UPLOAD_LIMIT: 300M
     depends_on:
       - db
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost || exit 1"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+#Убран Healthcheck , по сколько работа phpmyadmin временна 
 
   nginx-exporter:
     image: nginx/nginx-prometheus-exporter:latest
@@ -88,12 +83,7 @@ services:
       - localhost_default
     depends_on:
       - nginx
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:9113/metrics || exit 1"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+#Экспортёр убран по причине не валидности. Нет Wget и Curl. Поблемы с этим решаться при переходе на Kubernetes 
 
   mysqld-exporter:
     image: prom/mysqld-exporter:latest
@@ -237,12 +227,7 @@ services:
     networks:
       - localhost_default
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "wget", "-qO-", "http://localhost:9093/-/ready || exit 1"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+#Те же причины что и сверху. Замена healthcheck - blackbox
 
   vkbot:
     build:
@@ -269,12 +254,7 @@ services:
     command: -config.file=/etc/loki/loki.yml
     networks:
       - localhost_default
-    healthcheck:
-      test: ["CMD-SHELL", "wget", "-qO-", "http://localhost:3100/-/ready || exit 1"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+#Та же самая причина
 
 volumes:
   db_data:

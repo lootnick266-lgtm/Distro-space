@@ -19,7 +19,7 @@ groups:
 
       - alert: ContainerDown
         expr: time() - container_last_seen{job="cadvisor", name!="", name!="cadvisor"} > 60
-        for: 0s
+        for: 1m
         labels:
           severity: critical
         annotations:
