@@ -7,11 +7,11 @@ $uri = strtok($uri, '?'); // отрезаем GET-параметры
 
 // Если зашли на главную (/ или /index.html) - показываем indexbase
 if ($uri == '/' || $uri == '/index.html') {
-    readfile(__DIR__ . '/prototype/indexbase.html');
+    readfile(__DIR__ . '/../../../public/Distro-space/indexbase.html');
     exit;
 }
 
-// Если зашли на техподдержку
+
 if ($uri == '/support' || $uri == '/support.html') {
     readfile(__DIR__ . '/index.html');
     exit;
