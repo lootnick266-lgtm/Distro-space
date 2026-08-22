@@ -129,7 +129,7 @@ docker ps
 - 🟨 Backend  
 - 🟦(cyan) Classes  
 - 🟪 Admin Panel  
-![Описание](docs/Architecture)  
+![Описание](docs/Architecture.png)  
 
 
 Топология сети между контейнерами и связь   
