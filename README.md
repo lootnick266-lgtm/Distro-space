@@ -119,18 +119,26 @@ docker ps
   <tr><td>Alertmanager</td><td>13895</td></tr>
   <tr><td>Prometheus</td><td>3662</td></tr>
 </table>
+  
+Архитектура проекта, выполнено в Obsidian. Визуализация файлов и их взаимодействия.  
+## Legend  
+- 🟥 Frontend  
+- ⬜ System  
+- 🟩 Database  
+- 🟦(Синий) Docker  
+- 🟨 Backend  
+- 🟦(cyan) Classes  
+- 🟪 Admin Panel  
+![Описание](docs/Architecture)  
 
-Архитектура проекта, выполнено в Obsidian. Визуализация файлов и их взаимодействия.
-![Описание](docs/Architecture)
 
-Топология сети между контейнерами и связь 
-
-## Legend
-- 🟧 Monitoring
-- ⬜ System
-- 🟩 Database
-- 🟦(Синий) Docker
-- 🟨 Exporter
-- 🟦(Голубой) Monitoring
-- 🟪 PHP
-![Описание](docs/Topology.png)
+Топология сети между контейнерами и связь   
+## Legend  
+- 🟧 Monitoring   
+- ⬜ System  
+- 🟩 Database  
+- 🟦(Синий) Docker  
+- 🟨 Exporter  
+- 🟦(Голубой) Monitoring  
+- 🟪 PHP  
+![Описание](docs/Topology.png)  
