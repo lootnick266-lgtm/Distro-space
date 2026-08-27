@@ -84,7 +84,16 @@
 
 - Ubuntu 26.04 live server
 - 2 vCPU 4096MB 30GB SSD
-![Описание](docs/GrafanaNode.png)  
+
+Скриншот Node Exporter из Grafana с включённым сервисом  
+
+Слева направо:  
+- Pressure | CPU Busy | Sys Load | RAM Used | SWAP | Used Root FS   
+- CPU Cores: 2 | RAM Total: 3GiB | SWAP total: 0B  
+- Root FS total 30GiB | Uptime  
+
+![Описание](docs/GrafanaNode.png)   
+
 # Быстрый старт: 
 
 **Запуск сервиса:**
@@ -103,7 +112,7 @@ docker compose down
 docker ps
 ```
 
-**Для Grafana**
+## **Для Grafana**
 
 используются exporter'ы
 <table border="1" cellpadding="5" style="border-collapse: collapse; text-align: left;">
@@ -120,7 +129,7 @@ docker ps
   <tr><td>Prometheus</td><td>3662</td></tr>
 </table>
   
-Архитектура проекта, выполнено в Obsidian. Визуализация файлов и их взаимодействия.  
+## Архитектура проекта, выполнено в Obsidian. Визуализация файлов и их взаимодействия.  
 ## Legend  
 - 🟥 Frontend  
 - ⬜ System  
@@ -132,7 +141,7 @@ docker ps
 ![Описание](docs/Architecture.png)  
 
 
-Топология сети между контейнерами и связь   
+## Топология сети между контейнерами и связь   
 ## Legend  
 - 🟧 Monitoring   
 - ⬜ System  
