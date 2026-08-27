@@ -84,7 +84,7 @@
 
 - Ubuntu 26.04 live server
 - 2 vCPU 4096MB 30GB SSD
-
+![Описание](docs/GrafanaNode.png)  
 # Быстрый старт: 
 
 **Запуск сервиса:**
@@ -137,8 +137,7 @@ docker ps
 - 🟧 Monitoring   
 - ⬜ System  
 - 🟩 Database  
-- 🟦(Синий) Docker  
+- 🟦 Docker  
 - 🟨 Exporter  
-- 🟦(Голубой) Monitoring  
 - 🟪 PHP  
 ![Описание](docs/Topology.png)  

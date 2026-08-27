@@ -5,7 +5,6 @@ src/controlls/php/config.php
 nginx.conf
 
 # Database dump / local data
-database.sql
 backups/
 
 # Logs / runtime
