@@ -149,3 +149,10 @@ docker ps
 - 🟨 Exporter  
 - 🟪 PHP  
 ![Описание](docs/Topology.png)  
+
+
+
+## Инструментарий:  
+VM в VirtualBox
+ssh в cmd на Windows  
+ssh remote host Расширение в Visual Studio Code  

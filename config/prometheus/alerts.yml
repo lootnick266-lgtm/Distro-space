@@ -9,16 +9,8 @@ groups:
         annotations:
           summary: "Сайт недоступен"
 
-      - alert: ServerOffline
-        expr: probe_success{job="blackbox", instance="http://nginx"} == 0
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Сервер {{ $labels.instance }} не отвечает"
-
       - alert: ContainerDown
-        expr: time() - container_last_seen{job="cadvisor", name!="", name!="cadvisor"} > 60
+        expr: time() - container_last_seen{job="cadvisor", name!="", name!~"^(cadvisor|vkbot)$"} > 120
         for: 1m
         labels:
           severity: critical
