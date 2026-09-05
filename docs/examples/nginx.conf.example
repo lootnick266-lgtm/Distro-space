@@ -1,0 +1,48 @@
+server {
+  listen 80;
+  server_name _;
+
+  root /var/www/localhost;
+  index indexbase.html index.html index.php;
+
+  location /nginx_status {
+    stub_status;
+    allow ___; #Ваш IP вместо ___
+    allow ___;
+    allow ___; #Ваша подсеть вместо ___
+    deny all;
+    access_log off;
+  }
+
+
+  location /public/TechSupport/ {
+    alias /var/www/localhost/public/TechSupport/;
+    index index.html;
+    try_files $uri $uri/ =404;
+  }
+
+  location /public/Distro-space/ {
+    alias /var/www/localhost/public/Distro-space/;
+    index indexbase.html;
+    try_files $uri $uri/ =404;
+  }
+
+  location / {
+    try_files /public/Distro-space/indexbase.html /src/controlls/php/index.php?$query_string;
+  }
+
+  location ~ \.php$ {
+    include fastcgi_params;
+    fastcgi_pass php:9000;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME /var/www/localhost$fastcgi_script_name;
+    fastcgi_param PATH_INFO $fastcgi_path_info;
+    fastcgi_param QUERY_STRING $query_string;
+  }
+
+  location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?)$ {
+    expires 30d;
+    add_header Cache-Control "public";
+    try_files $uri /public/Distro-space$uri /public$uri =404;
+  }
+}

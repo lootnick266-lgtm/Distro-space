@@ -33,8 +33,12 @@
 **Содержание проекта**
 2 сайта
 
-**1)  Distrospace** - сайт с тёмной темой, модальными окнами и встроенным плеером.  
+**1)  Distrospace** - сайт с тёмной темой, модальными окнами и встроенным плеером.
+- Стоит на [indexbase.html](indexbase.html)  
+  
 **2)  Тех поддержка** - регистрация, вход в систему и чат-бот, отвечающий на ключевые слова.   
+- Стоит на [index.html](index.html)
+- Имеется Админ-Панель 
 
 Сервис развёрнут в docker и docker compose  
 Используются 14 контейнеров на данный момент.   
@@ -69,8 +73,8 @@
 
 **Недостающие элементы в репозитории. Но используются в проекте:**
 
-- Nginx.conf  
-- .env   
+- Nginx.conf  | [nginx.conf.example](находится в /docs/examples)
+- .env        | [.env.example](находится в /docs/examples)
 
 
 **Идея:**
@@ -152,7 +156,7 @@ docker ps
 
 
 
-## Инструментарий:  
-VM в VirtualBox
-ssh в cmd на Windows  
-ssh remote host Расширение в Visual Studio Code  
+## Инструментарий    
+> VM в VirtualBox  
+> ssh в cmd на Windows  
+> ssh remote host (Расширение в Visual Studio Code)  
