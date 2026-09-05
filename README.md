@@ -101,12 +101,23 @@
 
 **Запуск сервиса:**  
 
-Установка зависимостей  
+Создать и зайти в директорию  
+
 ```bash
-chmod +x setup.sh
-sudo ./Dspace.sh
+sudo mkdir -p var/www/localhost  
+cd /var/www/localhost  
 ```  
 
+Установка зависимостей   
+```bash
+chmod +x Dspace.sh
+sudo ./Dspace.sh
+```   
+зайти в директорию проекта из localhost  
+```bash
+cd ./Distro-space
+```  
+Запустить сервис  
 ```bash
 sudo docker compose up -d
 ```
