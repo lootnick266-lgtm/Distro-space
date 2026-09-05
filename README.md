@@ -73,8 +73,8 @@
 
 **Недостающие элементы в репозитории. Но используются в проекте:**
 
-- Nginx.conf  | [nginx.conf.example](находится в /docs/examples)
-- .env        | [.env.example](находится в /docs/examples)
+- Nginx.conf  | [находится в /docs/examples](docs/examples/nginx.conf.example)
+- .env        | [находится в /docs/examples](docs/examples/.env.example)
 
 
 **Идея:**
