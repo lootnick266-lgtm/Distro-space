@@ -99,7 +99,13 @@
 
 # Быстрый старт: 
 
-**Запуск сервиса:**
+**Запуск сервиса:**  
+
+Установка зависимостей  
+```bash
+chmod +x setup.sh
+sudo ./Dspace.sh
+```  
 
 ```bash
 sudo docker compose up -d
