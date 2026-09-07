@@ -105,13 +105,24 @@
 ```bash
 cd /var/www  
 git clone https://github.com/lootnick266-lgtm/Distro-space.git
+cd /var/www/Distro-space
 ```  
+
 
 Установка зависимостей   
 ```bash
 chmod +x Dspace.sh
 sudo ./Dspace.sh
 ```   
+[!WARNING]
+> если скрипт не сработал, установить зависимости вручную,  
+> остальные зависимости ставяться при первом compose up  
+> P.S скрипт на данном моменте НЕ является главной целью проекта.  
+
+> [!CAUTION]
+> для запуска сервисов полноценно, перенести в корень всё из examples/
+> и заполнить секреты  
+
 Запустить сервис  
 ```bash
 sudo docker compose up -d
