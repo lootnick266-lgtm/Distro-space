@@ -34,10 +34,10 @@
 2 сайта
 
 **1)  Distrospace** - сайт с тёмной темой, модальными окнами и встроенным плеером.
-- Стоит на [indexbase.html](indexbase.html)  
+- Стоит на [indexbase.html](public/Distro-space/indexbase.html)  
   
 **2)  Тех поддержка** - регистрация, вход в систему и чат-бот, отвечающий на ключевые слова.   
-- Стоит на [index.html](index.html)
+- Стоит на [index.html](public/TechSupport/index.html)
 - Имеется Админ-Панель 
 
 Сервис развёрнут в docker и docker compose  
@@ -101,11 +101,10 @@
 
 **Запуск сервиса:**  
 
-Создать и зайти в директорию  
-
+Зайти в директорию    
 ```bash
-sudo mkdir -p var/www/localhost  
-cd /var/www/localhost  
+cd /var/www  
+git clone https://github.com/lootnick266-lgtm/Distro-space.git
 ```  
 
 Установка зависимостей   
@@ -113,13 +112,14 @@ cd /var/www/localhost
 chmod +x Dspace.sh
 sudo ./Dspace.sh
 ```   
-зайти в директорию проекта из localhost  
-```bash
-cd ./Distro-space
-```  
 Запустить сервис  
 ```bash
 sudo docker compose up -d
+```  
+
+**Проверка контейнеров:**
+```bash
+docker ps
 ```
 
 **Выключение сервиса:**
@@ -127,10 +127,7 @@ sudo docker compose up -d
 docker compose down
 ```
 
-**Проверка контейнеров:**
-```bash
-docker ps
-```
+
 
 ## **Для Grafana**
 
