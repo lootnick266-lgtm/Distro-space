@@ -185,3 +185,23 @@ docker compose down
 > VM в VirtualBox  
 > ssh в cmd на Windows  
 > ssh remote host (Расширение в Visual Studio Code)  
+
+заметки
+>[!CAUTION]
+>  pgdb:
+>    image: postgres:18
+>    container_name: pgsql
+>    restart: always
+>    ports:
+>      - "5432:5432"
+>    networks:
+>      - localhost_default
+>    environment:
+>      PGSQL_ROOT_PASSWORD: ${PGSQL_ROOT_PASSWORD}
+>      PGSQL_DATABASE: ${PGSQL_DATABASE}
+>      PGSQL_USER: ${PGSQL_USER}
+>      PGSQL_PASSWORD: ${PGSQL_PASSWORD}
+>    volumes:
+>      - pgdb_data:/var/lib/postgresql/data
+>
+>

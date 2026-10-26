@@ -36,3 +36,5 @@ build/
 Thumbs.db
 
 
+# k3s
+install.sh
