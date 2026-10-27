@@ -1,0 +1,15 @@
+FROM nginx:alpine
+
+WORKDIR /var/www/localhost
+
+COPY public/        /var/www/localhost/public/
+COPY src/           /var/www/localhost/src/
+COPY classes/       /var/www/localhost/classes/
+COPY exports/       /var/www/localhost/exports/
+COPY import/        /var/www/localhost/import/
+
+COPY prototype/indexbase.html /var/www/localhost/public/Distro-space/indexbase.html
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
