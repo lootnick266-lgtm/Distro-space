@@ -1,0 +1,69 @@
+# k3s: эти компоненты встроены в основной процесс, отдельных подов нет
+kubeProxy:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    retention: 6h
+    retentionSize: 2GB
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+grafana:
+  adminPassword: "admin"   # для курсовой сойдёт, в тексте отметить как учебный стенд
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+prometheusOperator:
+  admissionWebhooks:
+    enabled: false
+    patch:
+      enabled: false
+  tls:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+grafana:
+  securityContext:
+    runAsUser: 472
+    runAsGroup: 472
+    fsGroup: 472
+  initChownData:
+    enabled: false
+  sidecar:
+    dashboards:
+      enabled: false
+    datasources:
+      enabled: false
