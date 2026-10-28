@@ -1,4 +1,3 @@
-# k3s: эти компоненты встроены в основной процесс, отдельных подов нет
 kubeProxy:
   enabled: false
 kubeScheduler:
@@ -22,7 +21,7 @@ prometheus:
         memory: 1Gi
 
 grafana:
-  adminPassword: "admin"   # для курсовой сойдёт, в тексте отметить как учебный стенд
+  adminPassword: "admin" 
   resources:
     requests:
       cpu: 50m
