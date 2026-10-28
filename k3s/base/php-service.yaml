@@ -1,51 +1,14 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  name: vkbot
+  name: php
   namespace: distro-space
   labels:
-    app: vkbot
+    app: php
 spec:
-  replicas: 1
   selector:
-    matchLabels:
-      app: vkbot
-  template:
-    metadata:
-      labels:
-        app: vkbot
-    spec:
-      containers:
-        - name: vkbot
-          image: distro-vkbot:1.0
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: DB_HOST
-              value: db
-            - name: DB_PORT
-              value: "3306"
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_DATABASE
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_USER
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_PASSWORD
-          envFrom:
-            - secretRef:
-                name: vkbot-secret
-          resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              cpu: 200m
-              memory: 128Mi
+    app: php
+  ports:
+    - name: fpm
+      port: 9000
+      targetPort: 9000

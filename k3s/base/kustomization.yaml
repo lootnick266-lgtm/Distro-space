@@ -10,4 +10,5 @@ resources:
   - php-deployment.yaml
   - php-service.yaml
   - vkbot-deployment.yaml
+  - vkbot-service.yaml
   - ingress.yaml

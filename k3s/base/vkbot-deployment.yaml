@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vkbot
+  namespace: distro-space
+  labels:
+    app: vkbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vkbot
+  template:
+    metadata:
+      labels:
+        app: vkbot
+    spec:
+      containers:
+        - name: vkbot
+          image: distro-vkbot:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: vkbot-secret
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

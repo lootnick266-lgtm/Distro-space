@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vkbot
+  namespace: distro-space
+  labels:
+    app: vkbot
+spec:
+  selector:
+    app: vkbot
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
