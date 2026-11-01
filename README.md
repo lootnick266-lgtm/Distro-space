@@ -155,6 +155,7 @@ docker compose down
   <tr><td>Blackbox Exporter</td><td>13659</td></tr>
   <tr><td>Alertmanager</td><td>13895</td></tr>
   <tr><td>Prometheus</td><td>3662</td></tr>
+  <tr><td>K3S cluster monitoring</td><td>15282</td></tr>
 </table>
   
 ## Архитектура проекта, выполнено в Obsidian. Визуализация файлов и их взаимодействия.  

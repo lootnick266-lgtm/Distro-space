@@ -31,14 +31,21 @@ grafana:
       memory: 256Mi
 
 alertmanager:
-  alertmanagerSpec:
-    resources:
-      requests:
-        cpu: 50m
-        memory: 64Mi
-      limits:
-        cpu: 200m
-        memory: 128Mi
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'vk'
+    receivers:
+      - name: 'null'
+      - name: 'vk'
+        webhook_configs:
+          - url: 'http://vkbot.distro-space.svc.cluster.local:8080/webhook'
+            send_resolved: true
 
 prometheusOperator:
   admissionWebhooks:
