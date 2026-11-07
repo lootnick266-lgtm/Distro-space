@@ -30,8 +30,13 @@
 
 # Сведения о сервисе
 
-**Содержание проекта**
-2 сайта
+**Содержание проекта:**
+2 сайта, БД, мониторинг   
+сам проект разделён на  :
+[main](https://github.com/lootnick266-lgtm/Distro-space/tree/main), основная ветка — в разработке (k3s)
+[distro-space-docker](https://github.com/lootnick266-lgtm/Distro-space/tree/distro-space-docker), завершенная ветка, завершена. Рабочий docker compose с полным стеком, MVP. единственные изьяны — недоработанна вёрстка и слабый, но рабочий скрипт скачивания зависимостей для всего проекта. 
+
+но docker compose оставлен на случай локальной разработки.  
 
 **1)  Distrospace** - сайт с тёмной темой, модальными окнами и встроенным плеером.
 - Стоит на [indexbase.html](public/Distro-space/indexbase.html)  
@@ -40,10 +45,9 @@
 - Стоит на [index.html](public/TechSupport/index.html)
 - Имеется Админ-Панель 
 
-Сервис развёрнут в docker и docker compose  
-Используются 14 контейнеров на данный момент.   
+Сервис развёрнут в k3s.  
 
-Функции контейнеров: 
+Функции подов: 
 
 - хранилище базы данных  
 - запуск сервисов  
@@ -65,6 +69,7 @@
 
 **Сам сервис состоит из:**
 <ul>
+<li>Оркестрация: k3s</li>
 <li>Web часть: nginx, html, css, js</li>
 <li>Backend: php, go</li>
 <li>Администрирование: docker, linux </li>
@@ -72,7 +77,7 @@
 </ul>
 
 **Недостающие элементы в репозитории. Но используются в проекте:**
-
+Примеры:  
 - Nginx.conf  | [находится в /docs/examples](docs/examples/nginx.conf.example)
 - .env        | [находится в /docs/examples](docs/examples/.env.example)
 
@@ -111,31 +116,23 @@ cd /var/www/Distro-space
 
 Установка зависимостей   
 ```bash
-chmod +x Dspace.sh
-sudo ./Dspace.sh
+in progress...
 ```   
-> [!WARNING]
-> если скрипт не сработал, установить зависимости вручную,  
-> остальные зависимости ставяться при первом compose up  
-> P.S скрипт на данном моменте НЕ является главной целью проекта.  
 
-> [!CAUTION]
-> для запуска сервисов полноценно, перенести в корень всё из examples/
-> и заполнить секреты  
 
 Запустить сервис  
 ```bash
-sudo docker compose up -d
+sudo systemctl start k3s
 ```  
 
 **Проверка контейнеров:**
 ```bash
-docker ps
+kubectl get pods -A
 ```
 
 **Выключение сервиса:**
 ```bash
-docker compose down
+sudo systemctl stop k3s
 ```
 
 
@@ -158,27 +155,16 @@ docker compose down
   <tr><td>K3S cluster monitoring</td><td>15282</td></tr>
 </table>
   
-## Архитектура проекта, выполнено в Obsidian. Визуализация файлов и их взаимодействия.  
-## Legend  
-- 🟥 Frontend  
-- ⬜ System  
-- 🟩 Database  
-- 🟦(Синий) Docker  
-- 🟨 Backend  
-- 🟦(cyan) Classes  
-- 🟪 Admin Panel  
-![Описание](docs/Architecture.png)  
+## Архитектура проекта, выполнено в mermaid. Визуализация файлов и их взаимодействия.  
+
+
+![Описание](/docs/Distro%20Kubernetes%20Deployment%20Architecture-2026-11-07-130521.png)  
 
 
 ## Топология сети между контейнерами и связь   
 ## Legend  
-- 🟧 Monitoring   
-- ⬜ System  
-- 🟩 Database  
-- 🟦 Docker  
-- 🟨 Exporter  
-- 🟪 PHP  
-![Описание](docs/Topology.png)  
+in progress....   
+![Описание]()  
 
 
 
