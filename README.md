@@ -33,10 +33,12 @@
 **Содержание проекта:**
 2 сайта, БД, мониторинг   
 сам проект разделён на  :
-[main](https://github.com/lootnick266-lgtm/Distro-space/tree/main), основная ветка — в разработке (k3s)
-[distro-space-docker](https://github.com/lootnick266-lgtm/Distro-space/tree/distro-space-docker), завершенная ветка, завершена. Рабочий docker compose с полным стеком, MVP. единственные изьяны — недоработанна вёрстка и слабый, но рабочий скрипт скачивания зависимостей для всего проекта. 
+[main](https://github.com/lootnick266-lgtm/Distro-space/tree/main), основная ветка — в разработке (k3s)  
+[distro-space-docker](https://github.com/lootnick266-lgtm/Distro-space/tree/distro-space-docker), завершенная ветка. Рабочий docker compose с полным стеком, MVP. единственные изьяны — недоработанна вёрстка и слабый, но рабочий скрипт скачивания зависимостей для всего проекта.  
 
-но docker compose оставлен на случай локальной разработки.  
+## Дополнительно  
+> **но docker compose оставлен на случай локальной разработки.**  
+> **Сервис развёрнут в k3s.**   
 
 **1)  Distrospace** - сайт с тёмной темой, модальными окнами и встроенным плеером.
 - Стоит на [indexbase.html](public/Distro-space/indexbase.html)  
@@ -45,7 +47,7 @@
 - Стоит на [index.html](public/TechSupport/index.html)
 - Имеется Админ-Панель 
 
-Сервис развёрнут в k3s.  
+  
 
 Функции подов: 
 
