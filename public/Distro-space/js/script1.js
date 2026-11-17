@@ -228,7 +228,7 @@ if (aboutMoreBtn && aboutFullText) {
   });
 }
 
-if (document.getElementById('catalogGrid')) {
+if (document.getElementById('catalogGrid') || document.querySelector('[data-distro]')) {
   const catalogDistros = [
     { id: 'ubuntu', name: 'Ubuntu Linux', category: 'beginner', based: 'Debian', officialUrl: 'https://ubuntu.com/download/desktop', icon: 'assets/images/ubuntu-svgrepo-com.svg', desc: 'Ubuntu — самый популярный дистрибутив для начинающих. Простой в установке, огромное сообщество, множество готовых программ. Идеален для повседневного использования, работы и учёбы.' },
     { id: 'linuxmint', name: 'Linux Mint', category: 'beginner', based: 'Ubuntu', officialUrl: 'https://linuxmint.com/download.php', icon: 'assets/images/linux-mint-svgrepo-com.svg', desc: 'Linux Mint — дистрибутив, который славится своей простотой и удобством. Похож на Windows, легко освоить. Отличный выбор для новичков и тех, кто ценит стабильность.' },
@@ -303,21 +303,34 @@ if (document.getElementById('catalogGrid')) {
       `;
       document.body.insertAdjacentHTML('beforeend', modalHTML);
       modal = document.getElementById('distroModal');
-      
+    }
+
+    if (modal.dataset.bound !== 'true') {
+      modal.dataset.bound = 'true';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', 'distroModalTitle');
       const modalClose = modal.querySelector('.distro-modal-close');
       if (modalClose) {
+        modalClose.tabIndex = 0;
+        modalClose.setAttribute('role', 'button');
+        modalClose.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); modalClose.click(); }
+        });
         modalClose.addEventListener('click', () => {
           modal.style.display = 'none';
+          if (modal.opener) modal.opener.focus();
         });
       }
       
       window.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
+        if (e.target === modal) { modal.style.display = 'none'; if (modal.opener) modal.opener.focus(); }
       });
       
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.style.display === 'flex') {
           modal.style.display = 'none';
+          if (modal.opener) modal.opener.focus();
         }
       });
       
@@ -338,7 +351,7 @@ if (document.getElementById('catalogGrid')) {
         officialBtn.addEventListener('click', () => {
           const url = modal.dataset.currentUrl;
           if (url) {
-            window.open(url, '_blank');
+            window.open(url, '_blank', 'noopener,noreferrer');
             modal.style.display = 'none';
           }
         });
@@ -364,8 +377,18 @@ if (document.getElementById('catalogGrid')) {
     modal.dataset.currentUrl = distro.officialUrl;
     modal.dataset.currentName = distro.name;
     
+    modal.opener = document.activeElement;
     modal.style.display = 'flex';
+    const closeButton = modal.querySelector('.distro-modal-close');
+    if (closeButton) closeButton.focus();
   }
+
+  document.querySelectorAll('[data-distro]').forEach(button => {
+    button.addEventListener('click', () => {
+      const distro = catalogDistros.find(item => item.id === button.dataset.distro);
+      if (distro) openDistroModal(distro);
+    });
+  });
 
   const filterBtns = document.querySelectorAll('.filter-btn');
   if (filterBtns.length) {
