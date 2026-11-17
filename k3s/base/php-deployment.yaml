@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: php
-          image: distro-php:1.0
-          imagePullPolicy: IfNotPresent
+          image: distro-php:1.1
+          imagePullPolicy: Never
           ports:
             - containerPort: 9000
               name: fpm
@@ -40,20 +40,3 @@ spec:
                 secretKeyRef:
                   name: mysql-secret
                   key: MYSQL_DATABASE
-          volumeMounts:
-            - name: php-pages
-              mountPath: /var/www/localhost/src/controlls/php/admin.php
-              subPath: admin.php
-              readOnly: true
-            - name: php-pages
-              mountPath: /var/www/localhost/src/controlls/php/dashboard.php
-              subPath: dashboard.php
-              readOnly: true
-            - name: php-pages
-              mountPath: /var/www/localhost/src/controlls/php/backup_db.php
-              subPath: backup_db.php
-              readOnly: true
-      volumes:
-        - name: php-pages
-          configMap:
-            name: php-pages

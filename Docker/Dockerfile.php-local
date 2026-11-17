@@ -1,0 +1,5 @@
+FROM distro-php:1.0
+
+COPY src/controlls/php/admin.php /var/www/localhost/src/controlls/php/admin.php
+COPY src/controlls/php/dashboard.php /var/www/localhost/src/controlls/php/dashboard.php
+COPY src/controlls/php/backup_db.php /var/www/localhost/src/controlls/php/backup_db.php

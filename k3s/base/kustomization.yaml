@@ -12,4 +12,3 @@ resources:
   - vkbot-deployment.yaml
   - vkbot-service.yaml
   - ingress.yaml
-  - php-pages-configmap.yaml
