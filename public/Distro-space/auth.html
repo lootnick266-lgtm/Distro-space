@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="assets/images/Logo.jpg" type="image/x-icon">
-  <link rel="stylesheet" href="/css/style1.css">
+  <link rel="stylesheet" href="/css/style1.css?v=shared-auth-2">
   <title>Авторизация — Distro.space</title>
 </head>
 <body>
@@ -48,11 +48,11 @@
       <form class="auth-form" id="loginForm" data-form="login">
         <h3>Войти в аккаунт</h3>
         <div class="form-group">
-          <input type="email" class="auth-input" placeholder="Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+          <input type="email" name="email" autocomplete="username" class="auth-input" placeholder="Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
           <span class="form-error">Некорректный email</span>
         </div>
         <div class="form-group">
-          <input type="password" class="auth-input" placeholder="Пароль" required minlength="4">
+          <input type="password" name="password" class="auth-input" placeholder="Пароль" required minlength="4">
         </div>
         <button type="submit" class="button auth-submit">Войти</button>
       </form>
@@ -60,14 +60,14 @@
       <form class="auth-form hidden" id="registerForm" data-form="register">
         <h3>Создать аккаунт</h3>
         <div class="form-group">
-          <input type="text" class="auth-input" placeholder="Имя" required>
+          <input type="text" name="name" autocomplete="name" class="auth-input" placeholder="Имя" required>
         </div>
         <div class="form-group">
-          <input type="email" class="auth-input" placeholder="Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
+          <input type="email" name="email" autocomplete="username" class="auth-input" placeholder="Email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+">
           <span class="form-error">Некорректный email</span>
         </div>
         <div class="form-group">
-          <input type="password" class="auth-input" placeholder="Пароль" required minlength="6">
+          <input type="password" name="password" class="auth-input" placeholder="Пароль" required minlength="4">
         </div>
         <div class="form-group checkbox-group">
           <label>
@@ -105,6 +105,6 @@
         </div>
     </div>
 </footer>
-  <script src="/js/script1.js"></script>
+  <script src="/js/script1.js?v=shared-auth-2"></script>
 </body>
 </html>

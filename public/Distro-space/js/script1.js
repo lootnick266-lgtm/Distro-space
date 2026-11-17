@@ -196,31 +196,6 @@ if (loginTab && registerTab && loginForm && registerForm) {
     });
   }
   
-  loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    showGifSpinner(loginForm);
-    setTimeout(() => {
-      alert('Демо-вход выполнен (логика не реализована)');
-      hideGifSpinner(loginForm);
-      loginForm.reset();
-    }, 1500);
-  });
-  
-  registerForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!agreeCheckbox.checked) {
-      alert('Подтвердите согласие с правилами');
-      return;
-    }
-    showGifSpinner(registerForm);
-    setTimeout(() => {
-      alert('Регистрация успешна! (демо)');
-      hideGifSpinner(registerForm);
-      registerForm.reset();
-      if (agreeCheckbox) agreeCheckbox.checked = false;
-      if (registerSubmit) registerSubmit.disabled = true;
-    }, 1500);
-  });
 }
 
 const mainContactForm = document.querySelector('.contact-form');
@@ -233,13 +208,6 @@ if (mainContactForm) {
       mainContactForm.reset();
       hideGifSpinner(mainContactForm);
     }, 1500);
-  });
-}
-
-const loginBtn = document.getElementById('loginBtn');
-if (loginBtn) {
-  loginBtn.addEventListener('click', () => {
-    window.location.href = 'auth.html';
   });
 }
 
@@ -596,3 +564,78 @@ function showSuccess(message) {
   document.body.appendChild(div);
   setTimeout(() => div.remove(), 2000);
 }
+
+(() => {
+  const api = '/src/controlls/php/';
+  const labels = {
+    login: 'Вход | Регистрация',
+    logout: 'Выйти',
+    error: 'Ошибка связи с сервером'
+  };
+  async function request(action, data = {}) {
+    const response = await fetch(api + 'auth.php?action=' + action, {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    let result;
+    try { result = await response.json(); } catch (_) { throw new Error(labels.error); }
+    if (!response.ok || !result.success) throw new Error(result.message || labels.error);
+    return result;
+  }
+  for (const action of ['login', 'register']) {
+    const form = document.getElementById(action + 'Form');
+    if (!form) continue;
+    const message = document.createElement('p'); message.setAttribute('role', 'alert'); form.appendChild(message);
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const agree = form.querySelector('.agree-checkbox');
+      if (!form.reportValidity() || (agree && !agree.checked) || form.dataset.pending === 'true') return;
+      const button = form.querySelector('[type="submit"]');
+      form.dataset.pending = 'true'; button.disabled = true; message.textContent = '';
+      const data = Object.fromEntries(new FormData(form));
+      try {
+        await request(action, data);
+        if (action === 'register') await request('login', { email: data.email, password: data.password });
+        window.location.assign('/indexbase.html');
+      } catch (error) { message.textContent = error.message || labels.error; }
+      finally { form.dataset.pending = 'false'; button.disabled = !!agree && !agree.checked; }
+    });
+  }
+  const header = document.querySelector('.header-container');
+  if (!header) return;
+  let actions = header.querySelector('.header-actions');
+  if (!actions) { actions = document.createElement('div'); actions.className = 'header-actions'; header.appendChild(actions); }
+  let login = document.getElementById('loginBtn');
+  if (!login) { login = document.createElement('button'); login.id = 'loginBtn'; login.className = 'button'; actions.prepend(login); }
+  let loggedIn = false;
+  login.textContent = labels.login;
+  login.onclick = () => window.location.assign(loggedIn ? '/TechSupport/' : '/auth.html');
+  const logout = document.createElement('button'); logout.type = 'button'; logout.className = 'button';
+  logout.textContent = labels.logout; logout.hidden = true; actions.appendChild(logout);
+  const nav = header.querySelector('.header-nav-list');
+  if (nav && !nav.querySelector('a[href="/TechSupport/"]')) {
+    const item = document.createElement('li'); item.className = 'headernav-item';
+    const link = document.createElement('a'); link.href = '/TechSupport/'; link.textContent = 'TechSupport';
+    item.appendChild(link); nav.appendChild(item);
+  }
+  async function refresh() {
+    try {
+      const response = await fetch(api + 'session_check.php', { credentials: 'same-origin', cache: 'no-store' });
+      if (!response.ok) throw new Error(labels.error);
+      const session = await response.json(); loggedIn = !!session.logged_in;
+      login.textContent = loggedIn ? 'Аккаунт: ' + session.user_name : labels.login;
+      login.classList.toggle('account-active', loggedIn);
+      login.setAttribute('aria-label', login.textContent);
+      logout.hidden = !loggedIn;
+    } catch (error) { console.error(labels.error, error); }
+  }
+  logout.onclick = async () => {
+    logout.disabled = true;
+    try { await request('logout'); await refresh(); }
+    catch (error) { alert(error.message || labels.error); }
+    finally { logout.disabled = false; }
+  };
+  window.addEventListener('pageshow', refresh);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  refresh();
+})();

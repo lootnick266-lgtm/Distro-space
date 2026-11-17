@@ -1354,3 +1354,22 @@ body.dark-theme .catalog-grid-section {
   font-size: 1.5rem;
   animation: checkmark 0.5s ease;
 }
+
+/* Signed-in account status in the header. */
+.header-actions .account-active {
+  background: #166534;
+  color: #fff;
+  border-radius: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-actions .account-active::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #86efac;
+  flex-shrink: 0;
+}
+.header-actions .account-active:hover { background: #14532d; }
