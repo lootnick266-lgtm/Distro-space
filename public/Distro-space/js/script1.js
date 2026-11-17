@@ -591,7 +591,7 @@ function showSuccess(message) {
 (() => {
   const api = '/src/controlls/php/';
   const labels = {
-    login: 'Вход | Регистрация',
+    login: 'Вход',
     logout: 'Выйти',
     error: 'Ошибка связи с сервером'
   };

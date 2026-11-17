@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: distro-nginx:1.7
+          image: distro-nginx:1.9
           imagePullPolicy: Never
           ports:
             - containerPort: 80
