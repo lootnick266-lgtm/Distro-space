@@ -194,3 +194,26 @@ in progress....
 >      - pgdb_data:/var/lib/postgresql/data
 >
 >
+## Алерты и уведомления в k3s
+
+Код бота — [VKAlerts/VkAlertBot.go](VKAlerts/VkAlertBot.go)
+`FIRING` — проблема, `RESOLVED` — восстановление.
+
+```bash
+(cd VKAlerts && GOPROXY=off GOSUMDB=off go test ./...)
+```
+
+В k3s применяются правила из `k3s/monitoring/distro-space-alerts.yaml`.
+`config/prometheus/alerts.yml` напрямую не загружается; при изменении правил согласовывайте оба файла.
+
+```bash
+kubectl apply -f k3s/monitoring/distro-space-alerts.yaml
+```
+
+Маршрутизация — `k3s/monitoring/alertmanager-config.yml`.
+В VK идут правила с `notify=vk` и системные `warning`/`critical`; остальные — в `null`.
+Ожидание группы: 30 секунд, интервал: 5 минут, повтор: 4 часа.
+
+При изменении Helm values согласовывайте маршрут с `k3s/monitoring/kube-prometheus.yaml`.
+
+

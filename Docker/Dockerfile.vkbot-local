@@ -1,0 +1,8 @@
+# Build context: /home/server/vkbot-build (contains the locally built binary).
+FROM distro-nginx:1.3 AS certificates
+FROM scratch
+COPY --from=certificates /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY bot /bot
+USER 65532:65532
+EXPOSE 8080
+ENTRYPOINT ["/bot"]

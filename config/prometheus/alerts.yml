@@ -1,27 +1,53 @@
 groups:
-  - name: alerts
-    rules:
-      - alert: SiteDown
-        expr: probe_success{job="blackbox", instance="http://nginx"} == 0
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Сайт недоступен"
-
-      - alert: ContainerDown
-        expr: time() - container_last_seen{job="cadvisor", name!="", name!~"^(cadvisor|vkbot)$"} > 120
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Контейнер {{ $labels.name }} остановлен"
-          description: "Контейнер {{ $labels.name }} не обновлял метрики более 60 секунд."
-
-      - alert: ContainerRestarting
-        expr: changes(container_start_time_seconds{job="cadvisor"}[5m]) > 0
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Контейнер перезапускается"
+- name: distro-space.alerts
+  rules:
+  - alert: SiteDown
+    expr: probe_success{job="distro-http"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      notify: vk
+    annotations:
+      summary: Сайт недоступен
+      description: 'HTTP probe failed: {{ $labels.instance }}'
+  - alert: MySQLDown
+    expr: mysql_up{job="mysql"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      notify: vk
+    annotations:
+      summary: MySQL недоступен
+      description: 'MySQL Exporter cannot connect: {{ $labels.instance }}'
+  - alert: MonitoringTargetDown
+    expr: up{job=~"nginx|mysql|blackbox-exporter"} == 0
+    for: 2m
+    labels:
+      severity: critical
+      notify: vk
+    annotations:
+      summary: Цель метрики недоступна
+      description: '{{ $labels.job }} / {{ $labels.instance }}'
+  - alert: ContainerDown
+    expr: (kube_pod_container_status_ready{namespace="distro-space",container!="vkbot"}
+      == 0) and on(namespace,pod) (kube_pod_status_phase{namespace="distro-space",phase=~"Pending|Running"}
+      == 1)
+    for: 5m
+    labels:
+      severity: critical
+      notify: vk
+    annotations:
+      summary: Контейнер {{ $labels.container }} остановлен
+      description: '{{ $labels.namespace }}/{{ $labels.pod }}: {{ $labels.container
+        }} is not ready'
+  - alert: ContainerRestarting
+    expr: increase(kube_pod_container_status_restarts_total{namespace="distro-space",container!="vkbot"}[10m])
+      > 2
+    for: 2m
+    labels:
+      severity: warning
+      notify: vk
+    annotations:
+      summary: Контейнер перезапускается
+      description: '{{ $labels.namespace }}/{{ $labels.pod }}: {{ $labels.container
+        }} restarted more than twice in 10 minutes'
