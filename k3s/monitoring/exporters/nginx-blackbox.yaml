@@ -1,0 +1,188 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blackbox-exporter-config
+  namespace: monitoring
+data:
+  config.yml: "modules:\n  http_2xx:\n    prober: http\n    timeout: 5s\n    http:\n\
+    \      preferred_ip_protocol: ip4\n  tcp_connect:\n    prober: tcp\n    timeout:\
+    \ 5s\n"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-exporter
+  template:
+    metadata:
+      labels:
+        app: nginx-exporter
+    spec:
+      containers:
+      - name: nginx-exporter
+        image: docker.io/nginx/nginx-prometheus-exporter:latest
+        imagePullPolicy: Never
+        args:
+        - --nginx.scrape-uri=http://nginx.distro-space.svc.cluster.local/nginx_status
+        ports:
+        - name: metrics
+          containerPort: 9113
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          initialDelaySeconds: 3
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-exporter
+  namespace: monitoring
+  labels:
+    app: nginx-exporter
+    job: nginx
+spec:
+  selector:
+    app: nginx-exporter
+  ports:
+  - name: metrics
+    port: 9113
+    targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nginx-exporter
+  namespace: monitoring
+  labels:
+    release: kps
+spec:
+  jobLabel: job
+  selector:
+    matchLabels:
+      app: nginx-exporter
+  endpoints:
+  - port: metrics
+    interval: 30s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blackbox-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  template:
+    metadata:
+      labels:
+        app: blackbox-exporter
+    spec:
+      containers:
+      - name: blackbox-exporter
+        image: docker.io/prom/blackbox-exporter:latest
+        imagePullPolicy: Never
+        args:
+        - --config.file=/etc/blackbox/config.yml
+        ports:
+        - name: metrics
+          containerPort: 9115
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config
+          mountPath: /etc/blackbox
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: blackbox-exporter-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackbox-exporter
+  namespace: monitoring
+  labels:
+    app: blackbox-exporter
+    job: blackbox-exporter
+spec:
+  selector:
+    app: blackbox-exporter
+  ports:
+  - name: metrics
+    port: 9115
+    targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: blackbox-exporter
+  namespace: monitoring
+  labels:
+    release: kps
+spec:
+  jobLabel: job
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  endpoints:
+  - port: metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: distro-http
+  namespace: monitoring
+  labels:
+    release: kps
+spec:
+  jobName: distro-http
+  interval: 30s
+  module: http_2xx
+  prober:
+    url: blackbox-exporter.monitoring.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+      - http://nginx.distro-space.svc.cluster.local/
+      - http://nginx.distro-space.svc.cluster.local/TechSupport/
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: mysql-tcp
+  namespace: monitoring
+  labels:
+    release: kps
+spec:
+  jobName: mysql-tcp
+  interval: 30s
+  module: tcp_connect
+  prober:
+    url: blackbox-exporter.monitoring.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+      - db.distro-space.svc.cluster.local:3306
