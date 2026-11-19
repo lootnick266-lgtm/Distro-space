@@ -12,3 +12,5 @@ resources:
   - vkbot-deployment.yaml
   - vkbot-service.yaml
   - ingress.yaml
+  - networkpolicy-allow.yaml
+  - networkpolicy-default-deny.yaml

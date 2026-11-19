@@ -284,5 +284,43 @@ kubectl apply -f k3s/monitoring/distro-space-alerts.yaml
 В VK идут правила с `notify=vk` и системные `warning`/`critical`; остальные — в `null`.
 Ожидание группы: 30 секунд, интервал: 5 минут, повтор: 4 часа.
 
+## Сетевые ограничения приложения
 
+В `distro-space` запрещены входящие и исходящие соединения, кроме явных разрешений. Новым подам без подходящих меток доступен только DNS к CoreDNS.
 
+<table border="1" cellpadding="5" style="border-collapse: collapse; text-align: left;">
+  <tr style="background: darkorchid; color: white;"><th>Источник (namespace / под)</th><th>Назначение (namespace / под)</th><th>Протокол и порт назначения</th></tr>
+  <tr><td>kube-system / traefik</td><td>distro-space / nginx</td><td>TCP 80</td></tr>
+  <tr><td>monitoring / nginx-exporter</td><td>distro-space / nginx</td><td>TCP 80</td></tr>
+  <tr><td>monitoring / blackbox-exporter</td><td>distro-space / nginx</td><td>TCP 80</td></tr>
+  <tr><td>distro-space / nginx</td><td>distro-space / php</td><td>TCP 9000</td></tr>
+  <tr><td>distro-space / php</td><td>distro-space / db</td><td>TCP 3306</td></tr>
+  <tr><td>monitoring / mysql-exporter</td><td>distro-space / db</td><td>TCP 3306</td></tr>
+  <tr><td>monitoring / blackbox-exporter</td><td>distro-space / db</td><td>TCP 3306</td></tr>
+  <tr><td>monitoring / Alertmanager</td><td>distro-space / vkbot</td><td>TCP 8080</td></tr>
+  <tr><td>distro-space / все поды</td><td>kube-system / CoreDNS</td><td>UDP/TCP 53</td></tr>
+  <tr><td>distro-space / vkbot</td><td>IPv4-адреса вне исключённых диапазонов</td><td>TCP 443</td></tr>
+</table>
+
+Экспортёры, Blackbox и Alertmanager выбираются по меткам в namespace `monitoring`. Для подов приложения разрешён DNS к CoreDNS из `kube-system` по UDP/TCP 53.
+
+HTTPS бота не ограничен доменом VK: обычная NetworkPolicy не фильтрует по DNS-именам. Частные, локальные и link-local диапазоны исключены из этого разрешения. Отдельных разрешений IPv6 нет.
+
+Файлы `k3s/base/networkpolicy-allow.yaml` и `k3s/base/networkpolicy-default-deny.yaml` включены в Kustomization. При отдельном применении сначала загрузите разрешения:
+
+```bash
+kubectl apply -f k3s/base/networkpolicy-allow.yaml
+kubectl apply -f k3s/base/networkpolicy-default-deny.yaml
+```
+
+Аварийный откат только этих ограничений:
+
+```bash
+kubectl delete --ignore-not-found=true -f k3s/base/networkpolicy-default-deny.yaml -f k3s/base/networkpolicy-allow.yaml
+```
+
+Следующее применение `k3s/base` восстановит политики.
+
+Namespace `monitoring` и `kube-system` не изолированы. Публикация Grafana не изменена. NetworkPolicy не заменяют firewall ноды и защиту NodePort; трафик ноды имеет исключения на уровне Kubernetes.
+
+SMTP-доступ PHP не разрешён: в контейнере нет `sendmail`/`msmtp`. При настройке почты потребуется разрешение к выбранному SMTP-серверу.
