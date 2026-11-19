@@ -5,6 +5,7 @@
 
 <div align= "center">
 <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"></a>
+<a href="https://kubernetes.io/"><img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes"></a>
 <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go"></a>
 <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL"></a>
 <a href="https://ubuntu.com/"><img src="https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu"></a>
@@ -157,64 +158,78 @@ sudo systemctl stop k3s
   <tr><td>K3S cluster monitoring</td><td>15282</td></tr>
 </table>
   
-## Архитектура проекта, выполнено в mermaid. Визуализация файлов и их взаимодействия.  
+## Ресурсы приложения в k3s и их связи (ER-диаграмма)
+
+Схема описывает ресурсы namespace `distro-space`. Мониторинг и системные компоненты здесь не показаны; сетевая архитектура будет описана отдельно.
 
 
 ```mermaid
 erDiagram
     NAMESPACE ||--o{ DEPLOYMENT : "содержит"
+    NAMESPACE ||--o{ REPLICASET : "содержит"
     NAMESPACE ||--o{ STATEFULSET : "содержит"
+    NAMESPACE ||--o{ POD : "содержит"
     NAMESPACE ||--o{ SERVICE : "содержит"
     NAMESPACE ||--o{ INGRESS : "содержит"
     NAMESPACE ||--o{ SECRET : "содержит"
     NAMESPACE ||--o{ PVC : "содержит"
 
-    DEPLOYMENT ||--o{ POD : "управляет"
-    STATEFULSET ||--o{ POD : "управляет"
-    DEPLOYMENT }o--|| IMAGE : "использует"
-    STATEFULSET }o--|| IMAGE : "использует"
+    DEPLOYMENT ||--o{ REPLICASET : "управляет"
+    REPLICASET |o--o{ POD : "управляет"
+    STATEFULSET |o--o{ POD : "управляет"
+    POD ||--|{ CONTAINER : "содержит"
+    CONTAINER }o--|| IMAGE : "использует"
 
-    POD ||--o{ SERVICE : "обслуживается"
-    SERVICE ||--o{ INGRESS : "публикуется через"
-    STATEFULSET ||--o{ PVC : "монтирует"
-    POD }o--|| SECRET : "читает"
-    POD }o--|| CONFIGMAP : "читает"
+    SERVICE }o--o{ POD : "выбирает по меткам"
+    INGRESS }o--|{ SERVICE : "ссылается на backend"
+    STATEFULSET ||--o{ PVC : "создаёт по шаблону"
+    POD }o--o{ PVC : "монтирует"
+    POD }o--o{ SECRET : "использует"
 
     NAMESPACE {
         string name "distro-space"
     }
     DEPLOYMENT {
         string name "nginx, php, vkbot"
-        int replicas
+        int nginxReplicas "2"
+        int phpReplicas "1"
+        int vkbotReplicas "1"
+    }
+    REPLICASET {
+        string name "nginx-*, php-*, vkbot-*"
     }
     STATEFULSET {
         string name "db"
-        int replicas
+        int replicas "1"
+    }
+    POD {
+        string name "nginx-*, php-*, db-0, vkbot-*"
+    }
+    CONTAINER {
+        string name "nginx, php, db, vkbot"
     }
     SERVICE {
         string name "nginx, php, db, vkbot"
-        string type "ClusterIP / NodePort"
+        string type "ClusterIP"
     }
     INGRESS {
         string host "distro.local"
+        string ingressClass "traefik"
         string backend "nginx:80"
     }
     SECRET {
         string name "mysql-secret, vkbot-secret"
-    }
-    CONFIGMAP {
-        string name "nginx-config (опционально)"
     }
     PVC {
         string name "db-data-db-0"
         string size "5Gi"
         string storageClass "local-path"
     }
-    POD {
-        string name "nginx-*, php-*, db-0, vkbot-*"
-    }
     IMAGE {
-        string name "distro-nginx:1.0, distro-php:1.0"
+        string nginx "distro-nginx:1.9"
+        string php "distro-php:1.1"
+        string vkbot "distro-vkbot:1.1"
+        string db "mysql:8.0"
     }
 ```
 
