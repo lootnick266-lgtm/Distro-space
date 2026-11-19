@@ -1,0 +1,25 @@
+---
+- name: Validate deployment templates locally without contacting any cluster
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    distro_site_host: ci.invalid
+    distro_nginx_image: example.invalid/ci/nginx:fixture
+    distro_php_image: example.invalid/ci/php:fixture
+    distro_vkbot_image: example.invalid/ci/vkbot:fixture
+    distro_mysql_root_password: fixture-root-01234567890123456789
+    distro_mysql_app_password: fixture-app-01234567890123456789
+    distro_mysql_exporter_password: fixture-exporter-01234567890123456789
+    distro_grafana_admin_password: fixture-grafana-01234567890123456789
+    distro_credentials_hash: fixture-only
+    distro_registry_username: fixture-user
+    distro_registry_token: fixture-token
+    distro_vk_token: fixture-token
+  tasks:
+    - name: Render and validate both optional deployment modes
+      ansible.builtin.include_role:
+        name: distro
+        tasks_from: validate

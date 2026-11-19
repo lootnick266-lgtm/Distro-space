@@ -1,0 +1,19 @@
+---
+all:
+  children:
+    distro:
+      hosts:
+        test_vps:
+          # Documentation address: replace with a NEW test VM, never the source VM.
+          ansible_host: 192.0.2.10
+          ansible_user: server
+          ansible_python_interpreter: /usr/bin/python3
+      vars:
+        # Put protected addresses only in your ignored local inventory.
+        distro_protected_addresses: []
+        distro_site_host: distro.example.com
+        distro_nginx_image: ghcr.io/REPLACE_ME/distro-nginx:1.9
+        distro_php_image: ghcr.io/REPLACE_ME/distro-php:1.1
+        distro_vk_enabled: false
+        # Set registry auth only for private images; credentials go in Vault.
+        distro_registry_auth_enabled: false

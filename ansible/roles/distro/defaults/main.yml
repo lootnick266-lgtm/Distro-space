@@ -1,0 +1,33 @@
+---
+distro_repo_root: "{{ role_path }}/../../.."
+distro_remote_root: /opt/distro-space
+distro_kubeconfig: /etc/rancher/k3s/k3s.yaml
+distro_k3s_version: v1.31.5+k3s1
+distro_helm_version: v3.22.1
+distro_chart_version: 92.14.1
+distro_chart_repository: https://prometheus-community.github.io/helm-charts
+distro_site_host: ""
+distro_nginx_image: ""
+distro_php_image: ""
+distro_mysql_image: docker.io/library/mysql:8.0
+distro_vk_enabled: false
+distro_vkbot_image: ""
+distro_vk_local_user: server
+distro_registry_auth_enabled: false
+distro_registry_server: ghcr.io
+distro_registry_username: ""
+distro_registry_token: ""
+distro_vk_token: ""
+distro_mysql_root_password: ""
+distro_mysql_app_password: ""
+distro_mysql_exporter_password: ""
+distro_grafana_admin_password: ""
+distro_db_name: chatbot_support
+distro_db_user: distro_app
+distro_protected_addresses: []
+distro_node_ip: "{{ ansible_facts.default_ipv4.address }}"
+distro_monitoring_persistence: false
+distro_run_health_checks: true
+distro_nginx_exporter_image: docker.io/nginx/nginx-prometheus-exporter@sha256:bf76e58df548a13e52bd543ac70f6d3d667e14884e8b51c149bd81994ca75ccd
+distro_mysql_exporter_image: docker.io/prom/mysqld-exporter@sha256:afad0c59a154fea24ca5ea0e6f95f2b0b168601b111266963dc8a347715b5318
+distro_blackbox_image: docker.io/prom/blackbox-exporter@sha256:ea1c7aa3ef3f307cd03e85f34abb604478ccb90b567fc690da0cd9776da76b13

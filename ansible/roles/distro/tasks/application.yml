@@ -1,0 +1,48 @@
+---
+- name: Remove only the optional VK resources when disabled on this managed host
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'distro-space', 'delete', 'deployment/vkbot', 'service/vkbot', 'secret/vkbot-secret', '--ignore-not-found'] }}"
+  when: not distro_vk_enabled
+  register: distro_disabled_vk
+  changed_when: "'deleted' in distro_disabled_vk.stdout"
+
+- name: Load safe Kustomize resource list (no ignored local secrets)
+  ansible.builtin.set_fact:
+    distro_base_config: "{{ lookup('file', distro_repo_root + '/k3s/base/kustomization.yaml') | from_yaml }}"
+
+- name: Validate resource paths before copying
+  ansible.builtin.assert:
+    that:
+      - item is match('^[a-z0-9-]+[.]yaml$')
+      - item not in ['secret.yaml', 'secret.yml']
+  loop: "{{ distro_base_config.resources }}"
+
+- name: Copy only explicitly listed non-secret manifests
+  ansible.builtin.copy:
+    src: "{{ distro_repo_root }}/k3s/base/{{ item }}"
+    dest: "{{ distro_remote_root }}/base/{{ item }}"
+    mode: '0600'
+  loop: "{{ distro_base_config.resources }}"
+
+- name: Render a deployment-specific Kustomization without changing repository base
+  ansible.builtin.template:
+    src: kustomization.yaml.j2
+    dest: "{{ distro_remote_root }}/base/kustomization.yaml"
+    mode: '0600'
+
+- name: Apply application resources
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['apply', '-k', distro_remote_root + '/base'] }}"
+  register: distro_application
+  changed_when: "'created' in distro_application.stdout or 'configured' in distro_application.stdout"
+
+- name: Wait for MySQL and initial schema
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'distro-space', 'rollout', 'status', 'statefulset/db', '--timeout=300s'] }}"
+  changed_when: false
+
+- name: Wait for web workloads
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'distro-space', 'rollout', 'status', 'deployment/' + item, '--timeout=300s'] }}"
+  loop: "{{ ['nginx', 'php'] + (['vkbot'] if distro_vk_enabled else []) }}"
+  changed_when: false

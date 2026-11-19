@@ -69,7 +69,8 @@ def files():
 def protected(path):
     name = path.name.lower()
     return (name == 'install.sh' or name == '.env' or name.startswith('.env.')
-            or name in {'secret.yaml', 'secret.yml', 'config.php'}
+            or name in {'secret.yaml', 'secret.yml', 'config.php', 'vault.yml', 'vault.yaml'}
+            or name.endswith(('.vault.yml', '.vault.yaml'))
             or name.endswith(('.key', '.pem', '.p12', '.pfx'))
             or name in {'id_rsa', 'id_ed25519'}
             or 'vkbot-secret' in name)
@@ -119,11 +120,15 @@ def check_yaml():
     for path in files():
         if path.suffix not in {'.yaml', '.yml'} or protected(path):
             continue
-        if path.parts[0] not in {'k3s', '.github'}:
+        if path.parts[0] not in {'k3s', '.github', 'ansible'}:
             continue
         docs = load_documents((ROOT / path).read_text(), str(path))
         count += 1
         for doc in docs:
+            if path.parts[0] == 'ansible':
+                if not isinstance(doc, (dict, list)):
+                    raise CheckError(f'{path}: expected an Ansible mapping or task/play list')
+                continue
             if not isinstance(doc, dict):
                 raise CheckError(f'{path}: expected a mapping')
             if path.parts[0] == '.github':
@@ -196,6 +201,19 @@ def check_monitoring():
     print('  promtool rules and amtool check-config passed (network disabled)')
 
 
+
+def check_ansible():
+    with tempfile.TemporaryDirectory(prefix='distro-ansible-local-') as directory:
+        env = dict(os.environ, ANSIBLE_CONFIG=str(ROOT / 'ansible/ansible.cfg'),
+                   ANSIBLE_LOCAL_TEMP=directory, ANSIBLE_NOCOLOR='1',
+                   PYTHONDONTWRITEBYTECODE='1')
+        run(['ansible-playbook', '-i', 'inventory.example.yml', 'site.yml', '--syntax-check'],
+            cwd=ROOT / 'ansible', env=env)
+        run(['ansible-playbook', '-i', 'localhost,', 'validate.yml'],
+            cwd=ROOT / 'ansible', env=env)
+    print('  Ansible syntax and both offline template modes passed; no target provisioned')
+
+
 def check_checker():
     run(['bash', '-n', 'scripts/check.sh'])
     run(['bash', '-n', 'scripts/health.sh'])
@@ -205,7 +223,7 @@ def check_checker():
 
 def main():
     checks = {'checker': check_checker, 'secrets': check_secrets, 'yaml': check_yaml, 'php': check_php,
-              'go': check_go, 'monitoring': check_monitoring}
+              'go': check_go, 'monitoring': check_monitoring, 'ansible': check_ansible}
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--only', choices=checks, help='Run a single check group')
     args = parser.parse_args()

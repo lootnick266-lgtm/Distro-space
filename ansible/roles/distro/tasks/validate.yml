@@ -1,0 +1,36 @@
+---
+- name: Allocate a local temporary rendering directory
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: distro-ansible-checks-
+  register: distro_validation_dir
+
+- name: Check template outputs without deployment
+  block:
+    - name: Load non-secret base configuration
+      ansible.builtin.set_fact:
+        distro_base_config: "{{ lookup('file', distro_repo_root + '/k3s/base/kustomization.yaml') | from_yaml }}"
+
+    - name: Copy only listed base manifests to the local temporary directory
+      ansible.builtin.copy:
+        src: "{{ distro_repo_root }}/k3s/base/{{ item }}"
+        dest: "{{ distro_validation_dir.path }}/{{ item }}"
+        mode: '0600'
+      loop: "{{ distro_base_config.resources }}"
+
+    - name: Validate temporary and persistent storage, optional VK and private registry modes
+      ansible.builtin.include_tasks: validate_case.yml
+      loop:
+        - {vk: false, persistence: false, registry: false}
+        - {vk: true, persistence: true, registry: true}
+      loop_control:
+        loop_var: distro_validation_case
+      vars:
+        distro_vk_enabled: "{{ distro_validation_case.vk }}"
+        distro_monitoring_persistence: "{{ distro_validation_case.persistence }}"
+        distro_registry_auth_enabled: "{{ distro_validation_case.registry }}"
+  always:
+    - name: Remove local fixture manifests including dummy credentials
+      ansible.builtin.file:
+        path: "{{ distro_validation_dir.path }}"
+        state: absent

@@ -1,0 +1,69 @@
+grafana:
+  service:
+    type: ClusterIP
+  admin:
+    existingSecret: distro-grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  image:
+    tag: 13.2.4-distroless
+  persistence:
+    enabled: {{ distro_monitoring_persistence | bool | to_json }}
+    storageClassName: local-path
+    size: 1Gi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          uid: prometheus
+          type: prometheus
+          access: proxy
+          url: http://kps-kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+          isDefault: true
+          editable: false
+prometheus:
+  prometheusSpec:
+    image:
+      registry: quay.io
+      repository: prometheus/prometheus
+      tag: v3.15.1-distroless
+{% if distro_monitoring_persistence %}
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 5Gi
+{% endif %}
+alertmanager:
+  alertmanagerSpec:
+    configSecret: distro-alertmanager-config
+    image:
+      registry: quay.io
+      repository: prometheus/alertmanager
+      tag: v0.34.1
+{% if distro_monitoring_persistence %}
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 1Gi
+{% endif %}
+prometheusOperator:
+  image:
+    tag: v0.94.2
+  prometheusConfigReloader:
+    image:
+      tag: v0.94.2
+prometheus-node-exporter:
+  image:
+    tag: v1.12.1-distroless
+kube-state-metrics:
+  image:
+    tag: v2.20.0

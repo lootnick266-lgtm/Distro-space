@@ -1,0 +1,22 @@
+---
+- name: Validate target and deployment inputs
+  ansible.builtin.import_tasks: preflight.yml
+
+- name: Explain check mode limitations
+  ansible.builtin.debug:
+    msg: "Check mode performs preflight only; no downloads, renders, cluster access or deployment."
+  when: ansible_check_mode
+
+- name: Provision the dedicated server
+  when: not ansible_check_mode
+  block:
+    - name: Bootstrap k3s and Helm
+      ansible.builtin.import_tasks: bootstrap.yml
+    - name: Prepare namespaces and new credentials
+      ansible.builtin.import_tasks: credentials.yml
+    - name: Deploy application from existing base
+      ansible.builtin.import_tasks: application.yml
+    - name: Deploy monitoring from existing configuration
+      ansible.builtin.import_tasks: monitoring.yml
+    - name: Verify runtime availability
+      ansible.builtin.import_tasks: verify.yml

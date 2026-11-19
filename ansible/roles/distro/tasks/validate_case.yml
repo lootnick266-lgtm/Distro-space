@@ -1,0 +1,72 @@
+---
+- name: Render the application overlay locally
+  ansible.builtin.template:
+    src: kustomization.yaml.j2
+    dest: "{{ distro_validation_dir.path }}/kustomization.yaml"
+    mode: '0600'
+
+- name: Build the overlay without contacting Kubernetes
+  ansible.builtin.command:
+    argv: [kubectl, kustomize, "{{ distro_validation_dir.path }}"]
+  register: distro_validation_render
+  changed_when: false
+
+- name: Parse the rendered resources
+  ansible.builtin.set_fact:
+    distro_validation_resources: "{{ distro_validation_render.stdout | from_yaml_all | list }}"
+    distro_validation_secret_doc: "{{ lookup('template', 'credentials.yaml.j2') | from_yaml }}"
+    distro_validation_monitor_secret_doc: "{{ lookup('template', 'monitoring-secrets.yaml.j2') | from_yaml }}"
+    distro_validation_values: "{{ lookup('template', 'monitoring-values.yaml.j2') | from_yaml }}"
+    distro_validation_exporters: "{{ lookup('template', 'exporters.yaml.j2') | from_yaml_all | select('mapping') | list }}"
+  no_log: true
+  diff: false
+
+- name: Validate optional VK and registry secret presence
+  ansible.builtin.assert:
+    that:
+      - "('vkbot' in (distro_validation_resources | selectattr('kind', 'equalto', 'Deployment') | map(attribute='metadata.name') | list)) == (distro_vk_enabled | bool)"
+      - "('vkbot-secret' in (distro_validation_secret_doc['items'] | map(attribute='metadata.name') | list)) == (distro_vk_enabled | bool)"
+      - "('registry-credentials' in (distro_validation_secret_doc['items'] | map(attribute='metadata.name') | list)) == (distro_registry_auth_enabled | bool)"
+      - distro_validation_values.grafana.persistence.enabled == (distro_monitoring_persistence | bool)
+      - "('storageSpec' in distro_validation_values.prometheus.prometheusSpec) == (distro_monitoring_persistence | bool)"
+      - distro_validation_values.grafana.service.type == 'ClusterIP'
+  no_log: true
+
+- name: Verify versioned registry images and policy retention
+  ansible.builtin.assert:
+    that:
+      - item.spec.template.spec.containers[0].imagePullPolicy == 'IfNotPresent'
+      - item.spec.template.spec.containers[0].image not in ['distro-nginx:1.9', 'distro-php:1.1', 'distro-vkbot:1.1']
+  loop: "{{ distro_validation_resources | selectattr('kind', 'in', ['Deployment', 'StatefulSet']) | list }}"
+  loop_control:
+    label: "{{ item.metadata.name }}"
+
+- name: Ensure all six NetworkPolicies remain in the overlay
+  ansible.builtin.assert:
+    that:
+      - distro_validation_resources | selectattr('kind', 'equalto', 'NetworkPolicy') | list | length == 6
+
+- name: Check registry exporter pull policies
+  ansible.builtin.assert:
+    that:
+      - item.spec.template.spec.containers[0].imagePullPolicy == 'IfNotPresent'
+      - "'@sha256:' in item.spec.template.spec.containers[0].image"
+  loop: "{{ distro_validation_exporters | selectattr('kind', 'equalto', 'Deployment') | list }}"
+  loop_control:
+    label: "{{ item.metadata.name }}"
+
+- name: Ensure bot-disabled Alertmanager routing has no dead webhook
+  ansible.builtin.assert:
+    that:
+      - (distro_validation_monitor_secret_doc['items'][0].stringData['alertmanager.yaml'] | from_yaml).route.receiver == 'null'
+      - (distro_validation_monitor_secret_doc['items'][0].stringData['alertmanager.yaml'] | from_yaml).route.routes | length == 0
+      - distro_validation_monitor_secret_doc['items'][0].stringData['alertmanager.yaml'] is not search('vkbot[.]')
+  when: not distro_vk_enabled
+  no_log: true
+
+- name: Ensure initial schema contains five tables and no seed rows or destructive SQL
+  ansible.builtin.assert:
+    that:
+      - "(lookup('file', role_path + '/files/schema.sql') | regex_findall('CREATE TABLE')) | length == 5"
+      - "lookup('file', role_path + '/files/schema.sql') is not search('(?i)INSERT|TRUNCATE|DROP TABLE')"
+  no_log: true

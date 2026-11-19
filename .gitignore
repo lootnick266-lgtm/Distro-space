@@ -39,3 +39,64 @@ Thumbs.db
 # k3s
 install.sh
 secret.yaml
+# Local Ansible inventory and external secret material
+/ansible/inventory.yml
+/ansible/vault.yml
+*.vault.yml
+*.vault.yaml
+
+# Local environment variants; publish only explicit examples
+.env.*
+!.env.example
+!.env.sample
+!.env.*.example
+
+# Private keys and local Kubernetes access
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+id_ecdsa
+id_dsa
+.kube/
+kubeconfig
+kubeconfig.*
+!kubeconfig.example
+!kubeconfig.*.example
+
+# Local Ansible configuration and Vault password files
+/ansible/inventory.yaml
+vault.yml
+vault.yaml
+.vault_pass
+.vault_pass.txt
+.vault-password
+vault-password.txt
+/ansible/private/
+/ansible/artifacts/
+
+# Terraform runtime state and saved plans; keep .terraform.lock.hcl tracked
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfplan
+.terraform.tfstate.lock.info
+crash.log
+crash.*.log
+
+# Local data, image archives and generated Python files
+/data/
+/artifacts/
+*.tar
+*.tar.gz
+*.tar.zst
+*.tgz
+*.sql.gz
+*.dump
+__pycache__/
+*.py[cod]
+*.retry

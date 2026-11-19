@@ -1,0 +1,66 @@
+---
+- name: Require supported controller and single Ubuntu amd64 target
+  ansible.builtin.assert:
+    that:
+      - ansible_version.full is version('2.20', '>=')
+      - groups['distro'] | length == 1
+      - ansible_facts.distribution == 'Ubuntu'
+      - ansible_facts.distribution_version is version('22.04', '>=')
+      - ansible_facts.architecture == 'x86_64'
+      - ansible_facts.service_mgr == 'systemd'
+      - ansible_facts.memtotal_mb >= 3800
+      - ansible_facts.swaptotal_mb == 0
+      - ansible_host | default(inventory_hostname) not in distro_protected_addresses
+      - distro_node_ip not in distro_protected_addresses
+      - distro_remote_root == '/opt/distro-space'
+      - distro_vk_enabled is boolean
+      - distro_registry_auth_enabled is boolean
+      - distro_monitoring_persistence is boolean
+    fail_msg: "Use one NEW Ubuntu amd64 VM (4+ GiB, swap off). The source VM is protected."
+
+- name: Require explicit domain and registry image references
+  ansible.builtin.assert:
+    that:
+      - distro_site_host is match('^[a-zA-Z0-9][a-zA-Z0-9.-]+$')
+      - distro_site_host not in ['distro.example.com', 'distro.local']
+      - distro_db_name is match('^[a-zA-Z][a-zA-Z0-9_]{0,63}$')
+      - distro_db_user is match('^[a-zA-Z][a-zA-Z0-9_]{0,31}$')
+      - distro_nginx_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
+      - distro_php_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
+      - "'REPLACE_ME' not in distro_nginx_image + distro_php_image"
+      - "':latest' not in distro_nginx_image + distro_php_image"
+      - not distro_vk_enabled or distro_vkbot_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
+      - not distro_vk_enabled or 'REPLACE_ME' not in distro_vkbot_image
+      - not distro_vk_enabled or ':latest' not in distro_vkbot_image
+    fail_msg: "Set a real host and published versioned registry images in your private inventory."
+
+- name: Require new external credentials without printing them
+  ansible.builtin.assert:
+    that:
+      - distro_mysql_root_password is match('^[A-Za-z0-9_-]{24,128}$')
+      - distro_mysql_app_password is match('^[A-Za-z0-9_-]{24,128}$')
+      - distro_mysql_exporter_password is match('^[A-Za-z0-9_-]{24,128}$')
+      - '[distro_mysql_root_password, distro_mysql_app_password, distro_mysql_exporter_password] | unique | list | length == 3'
+      - distro_grafana_admin_password | length >= 24
+      - not distro_vk_enabled or distro_vk_token | length > 0
+      - not distro_registry_auth_enabled or distro_registry_username | length > 0
+      - not distro_registry_auth_enabled or distro_registry_token | length > 0
+    fail_msg: "Provide new credentials via an external encrypted Vault file. MySQL passwords: 24+ random URL-safe characters."
+  no_log: true
+  diff: false
+
+- name: Inspect ownership marker
+  ansible.builtin.stat:
+    path: "{{ distro_remote_root }}/ansible-managed"
+  register: distro_marker
+
+- name: Inspect existing k3s installation without reading credentials
+  ansible.builtin.stat:
+    path: /var/lib/rancher/k3s
+  register: distro_existing_k3s
+
+- name: Refuse adoption of an unmanaged cluster
+  ansible.builtin.assert:
+    that:
+      - not distro_existing_k3s.stat.exists or distro_marker.stat.exists
+    fail_msg: "Existing unmanaged k3s detected. This playbook only bootstraps a new dedicated host."

@@ -1,0 +1,24 @@
+---
+- name: Copy runtime check scripts only (no env, token or ignored config)
+  ansible.builtin.copy:
+    src: "{{ distro_repo_root }}/scripts/{{ item }}"
+    dest: "{{ distro_remote_root }}/scripts/{{ item }}"
+    mode: '0700'
+  loop: [health.py, health.sh]
+
+- name: Wait for runtime smoke checks including fresh Prometheus scrapes
+  ansible.builtin.command:
+    argv: "{{ ['python3', '-B', distro_remote_root + '/scripts/health.py'] + ([] if distro_vk_enabled else ['--skip-vkbot']) }}"
+  environment:
+    KUBECONFIG: "{{ distro_kubeconfig }}"
+  register: distro_health
+  changed_when: false
+  retries: 6
+  delay: 20
+  until: distro_health.rc == 0
+  when: distro_run_health_checks
+
+- name: Report runtime check summary
+  ansible.builtin.debug:
+    var: distro_health.stdout_lines
+  when: distro_run_health_checks

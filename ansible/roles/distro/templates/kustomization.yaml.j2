@@ -1,0 +1,67 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: distro-space
+resources:
+{% for resource in distro_base_config.resources %}
+{% if distro_vk_enabled or resource not in ['vkbot-deployment.yaml', 'vkbot-service.yaml'] %}
+  - {{ resource }}
+{% endif %}
+{% endfor %}
+patches:
+{% for name, image in [('nginx', distro_nginx_image), ('php', distro_php_image)] + ([('vkbot', distro_vkbot_image)] if distro_vk_enabled else []) %}
+  - target:
+      kind: Deployment
+      name: {{ name }}
+    patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: {{ name }}
+      spec:
+        template:
+          spec:
+            automountServiceAccountToken: false
+{% if distro_registry_auth_enabled %}
+            imagePullSecrets:
+              - name: registry-credentials
+{% endif %}
+            containers:
+              - name: {{ name }}
+                image: {{ image | to_json }}
+                imagePullPolicy: IfNotPresent
+{% endfor %}
+  - target:
+      kind: StatefulSet
+      name: db
+    patch: |
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: db
+      spec:
+        template:
+          spec:
+            automountServiceAccountToken: false
+            containers:
+              - name: mysql
+                image: {{ distro_mysql_image | to_json }}
+                imagePullPolicy: IfNotPresent
+                args:
+                  - --character-set-server=utf8mb4
+                  - --collation-server=utf8mb4_unicode_ci
+                volumeMounts:
+                  - name: mysql-init
+                    mountPath: /docker-entrypoint-initdb.d
+                    readOnly: true
+            volumes:
+              - name: mysql-init
+                secret:
+                  secretName: mysql-init
+                  defaultMode: 0444
+  - target:
+      kind: Ingress
+      name: distro-space
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: {{ distro_site_host | to_json }}

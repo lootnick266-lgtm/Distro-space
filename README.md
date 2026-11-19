@@ -399,3 +399,87 @@ kubectl get namespaces -l security.distro-space/test-suite=networkpolicy
 При неудачной очистке скрипт выводит конкретные имена namespace. Проверяйте их перед ручным удалением.
 
 Логика теста проверяется в `scripts/test_security.py`; эти автономные тесты уже входят в Checks. Сам интеграционный security-тест запускается отдельно и требует живого кластера.
+
+## Ansible: подготовка нового сервера
+
+Первая версия рассчитана на одну выделенную Ubuntu 22.04+ amd64-ноду: минимум 4 ГиБ RAM без swap, практически лучше 6 ГиБ RAM и 40 ГБ диска. Текущая VM защищена от запуска; принятие чужого k3s под управление запрещено.
+
+Playbook находится в `ansible/site.yml`, задачи одной роли `distro` разделены на preflight, bootstrap, credentials, application, monitoring и verify. Дополнительные Galaxy-коллекции не нужны: используется ansible-core 2.20.1.
+
+Образы загружаются из registry. Для nginx и PHP нужно предварительно опубликовать подготовленные образы и указать их полные версионные ссылки в inventory. Локальные tar-архивы не используются. Пароли, `.env`, локальный `config.php`, `install.sh` и рабочие дампы не копируются с управляющей VM.
+
+Секреты передаются отдельным зашифрованным Vault-файлом вне репозитория. Пример с пустыми значениями — `ansible/vault.example.yml`; имена переменных не являются готовыми паролями. Для трёх MySQL-паролей нужны разные случайные строки из 24–128 символов A–Z, a–z, 0–9, дефисов и подчёркиваний.
+
+Схема `ansible/roles/distro/files/schema.sql` содержит только пять пустых таблиц. Пользователи приложения, FAQ и обращения не импортируются. MySQL выполняет init только на новом томе; повторный запуск не очищает БД. Изменение исходных паролей/имени БД при повторном запуске блокируется, а не выполняет неявную ротацию.
+
+По умолчанию VK отключён (`distro_vk_enabled: false`), маршрут Alertmanager направлен в null. При включении нужны опубликованный образ бота и новый токен через Vault. Telegram пока не реализован.
+
+Хранилище Grafana/Prometheus/Alertmanager по умолчанию временное, как согласовано. `distro_monitoring_persistence: true` включает тома 1/5/1 GiB соответственно. Том MySQL постоянный в обоих режимах. Grafana для нового окружения имеет ClusterIP; публикация текущей Grafana не изменялась.
+
+Предварительная подготовка inventory (без запуска на сервере):
+
+```bash
+cd ansible
+cp inventory.example.yml inventory.yml
+```
+
+В `inventory.yml` замените тестовый адрес 192.0.2.10, SSH-пользователя, hostname сайта и ссылки на опубликованные образы. Inventory игнорируется Git. Для приватного registry включите `distro_registry_auth_enabled` и передайте его учётные данные через Vault.
+
+Проверки без подключения к целевому серверу:
+
+```bash
+cd /var/www/localhost
+bash scripts/check.sh --only ansible
+```
+
+Они проверяют синтаксис и рендер двух режимов с искусственными секретами: VK/registry/persistence выключены и включены. Проверяются Kustomize, сохранение политик, отсутствие seed-данных и отсутствие мёртвого VK-маршрута. Это ещё не проверка установки с нуля.
+
+После подготовки НОВОЙ тестовой VM и внешнего Vault-файла запуск будет выглядеть так:
+
+```bash
+cd ansible
+ansible-playbook -i inventory.yml site.yml -e @/absolute/path/deploy.vault.yml --ask-vault-pass --ask-become-pass
+```
+
+При реальном запуске серверу нужен Интернет: APT, GitHub Releases для k3s, get.helm.sh, официальный Helm-репозиторий и registry образов. Бинарные файлы k3s/Helm сверяются с опубликованными SHA-256. При подготовке playbook эти скачивания не выполнялись.
+
+После развёртывания автоматически выполняется health-проверка; при отключённом VK используется явный `--skip-vkbot`. SSH, firewall, DNS провайдера и публичный TLS этот playbook пока не настраивает. Terraform и CI-деплой будут отдельным этапом после проверки установки и повторного запуска на чистой VM.
+
+## Иерархия Ansible (Mermaid)
+
+Главная точка запуска — `ansible/site.yml`. Сплошные стрелки показывают вызов дочерних задач или использование файлов, пунктирные — входные настройки. Пути `tasks/`, `templates/`, `defaults/` и `files/` относятся к `ansible/roles/distro/`. Это схема файлов и управления задачами, без сетевой архитектуры.
+
+```mermaid
+flowchart TD
+    CFG["ansible/ansible.cfg"] -.-> SITE["ansible/site.yml — главный playbook"]
+    INV["Локальный inventory.yml — целевой сервер и параметры"] -.-> SITE
+    SITE --> ROLE["Роль distro"]
+    DEFAULTS["defaults/main.yml — значения по умолчанию"] -.-> ROLE
+    ROLE --> MAIN["tasks/main.yml — порядок выполнения"]
+    MAIN --> PRE["1. preflight.yml — проверки входных условий"]
+    MAIN --> BOOT["2. bootstrap.yml — k3s и Helm"]
+    MAIN --> CREDS["3. credentials.yml — Secret"]
+    MAIN --> APP["4. application.yml — приложение"]
+    MAIN --> MON["5. monitoring.yml — мониторинг"]
+    MAIN --> VERIFY["6. verify.yml — проверка результата"]
+    BOOT --> UNIT["templates/k3s.service.j2"]
+    VAULT["Внешний зашифрованный Vault-файл — вне репозитория"] -.-> CREDS
+    CREDS --> CT["templates/credentials.yaml.j2"]
+    CREDS --> MST["templates/monitoring-secrets.yaml.j2"]
+    CT --> SQL["files/schema.sql — пустая схема БД"]
+    APP --> KT["templates/kustomization.yaml.j2"]
+    APP --> BASE["k3s/base/ — исходные ресурсы и NetworkPolicy"]
+    MON --> MV["templates/monitoring-values.yaml.j2"]
+    MON --> EXP["templates/exporters.yaml.j2"]
+    MON --> MSRC["k3s/monitoring/ — исходные values, алерты и экспортёры"]
+    VERIFY --> HEALTH["scripts/health.py — проверка работающего стека"]
+
+    subgraph CHECKS["Отдельный запуск проверок шаблонов — без деплоя"]
+        CHECK["scripts/check.sh --only ansible"] --> DRIVER["scripts/check.py"]
+        DRIVER --> VALIDATE["ansible/validate.yml"]
+        VALIDATE --> VT["Роль distro: tasks/validate.yml"]
+        VT --> CASE["tasks/validate_case.yml — два режима рендера"]
+    end
+```
+
+Дочерние задачи развёртывания перечислены в порядке запуска. В режиме `--check` выполняется только preflight; отдельный `validate.yml` проверяет шаблоны локально и не запускает основной сценарий установки.

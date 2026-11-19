@@ -1,0 +1,133 @@
+---
+- name: Install host prerequisites (target requires Internet)
+  ansible.builtin.apt:
+    name: [ca-certificates, curl, iptables, conntrack, socat, python3-yaml]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create private deployment directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  loop:
+    - "{{ distro_remote_root }}"
+    - "{{ distro_remote_root }}/base"
+    - "{{ distro_remote_root }}/monitoring"
+    - "{{ distro_remote_root }}/tools"
+    - "{{ distro_remote_root }}/scripts"
+    - /etc/rancher/k3s
+
+- name: Mark this dedicated installation for repeat runs
+  ansible.builtin.copy:
+    dest: "{{ distro_remote_root }}/ansible-managed"
+    content: "Managed by the Distro-space Ansible playbook.\n"
+    force: false
+    mode: '0600'
+
+- name: Enable required kernel modules
+  ansible.builtin.command:
+    argv: [modprobe, "{{ item }}"]
+  loop: [overlay, br_netfilter]
+  changed_when: false
+
+- name: Persist kernel modules
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/distro-k3s.conf
+    content: "overlay\nbr_netfilter\n"
+    mode: '0644'
+
+- name: Configure only k3s forwarding sysctls
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/90-distro-k3s.conf
+    content: "net.ipv4.ip_forward=1\nnet.bridge.bridge-nf-call-iptables=1\nnet.bridge.bridge-nf-call-ip6tables=1\n"
+    mode: '0644'
+  register: distro_sysctls
+
+- name: Apply the dedicated sysctl file
+  ansible.builtin.command:
+    argv: [sysctl, -p, /etc/sysctl.d/90-distro-k3s.conf]
+  when: distro_sysctls.changed
+
+- name: Download pinned k3s binary with release checksum
+  ansible.builtin.get_url:
+    url: "https://github.com/k3s-io/k3s/releases/download/{{ distro_k3s_version | urlencode }}/k3s"
+    checksum: "sha256:https://github.com/k3s-io/k3s/releases/download/{{ distro_k3s_version | urlencode }}/sha256sum-amd64.txt"
+    dest: /usr/local/bin/k3s
+    mode: '0755'
+  register: distro_binary
+
+- name: Configure k3s (admin kubeconfig is root-only)
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/config.yaml
+    content: "{{ {'node-ip': distro_node_ip, 'write-kubeconfig-mode': '0600'} | to_nice_yaml }}"
+    mode: '0600'
+  register: distro_k3s_config
+
+- name: Install k3s service
+  ansible.builtin.template:
+    src: k3s.service.j2
+    dest: /etc/systemd/system/k3s.service
+    mode: '0644'
+  register: distro_k3s_unit
+
+- name: Start or update only the managed k3s service
+  ansible.builtin.systemd_service:
+    name: k3s
+    enabled: true
+    daemon_reload: true
+    state: "{{ 'restarted' if distro_binary.changed or distro_k3s_config.changed or distro_k3s_unit.changed else 'started' }}"
+
+- name: Wait for root kubeconfig
+  ansible.builtin.wait_for:
+    path: "{{ distro_kubeconfig }}"
+    timeout: 180
+
+- name: Use root-only kubeconfig for all subsequent commands
+  ansible.builtin.set_fact:
+    distro_kubectl: [/usr/local/bin/k3s, kubectl, --kubeconfig, "{{ distro_kubeconfig }}"]
+
+- name: Install kubectl symlink for health checks
+  ansible.builtin.file:
+    src: /usr/local/bin/k3s
+    dest: /usr/local/bin/kubectl
+    state: link
+
+- name: Wait for the node
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['wait', '--for=condition=Ready', 'nodes', '--all', '--timeout=180s'] }}"
+  changed_when: false
+  register: distro_node_ready
+  retries: 12
+  delay: 5
+  until: distro_node_ready.rc == 0
+
+- name: Download pinned Helm archive with checksum
+  ansible.builtin.get_url:
+    url: "https://get.helm.sh/helm-{{ distro_helm_version }}-linux-amd64.tar.gz"
+    checksum: "sha256:https://get.helm.sh/helm-{{ distro_helm_version }}-linux-amd64.tar.gz.sha256sum"
+    dest: "{{ distro_remote_root }}/tools/helm.tar.gz"
+    mode: '0600'
+  register: distro_helm_archive
+
+- name: Inspect extracted Helm binary
+  ansible.builtin.stat:
+    path: "{{ distro_remote_root }}/tools/linux-amd64/helm"
+  register: distro_extracted_helm
+
+- name: Extract verified Helm archive
+  ansible.builtin.unarchive:
+    src: "{{ distro_remote_root }}/tools/helm.tar.gz"
+    dest: "{{ distro_remote_root }}/tools"
+    remote_src: true
+  when: distro_helm_archive.changed or not distro_extracted_helm.stat.exists
+
+- name: Install Helm binary
+  ansible.builtin.copy:
+    src: "{{ distro_remote_root }}/tools/linux-amd64/helm"
+    remote_src: true
+    dest: /usr/local/bin/helm
+    mode: '0755'

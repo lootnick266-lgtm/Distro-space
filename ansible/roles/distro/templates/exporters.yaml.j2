@@ -1,0 +1,11 @@
+{% set images = {'nginx-exporter': distro_nginx_exporter_image, 'mysql-exporter': distro_mysql_exporter_image, 'blackbox-exporter': distro_blackbox_image} %}
+{% for filename in ['mysql.yaml', 'nginx-blackbox.yaml'] %}
+{% for doc in lookup('file', distro_repo_root + '/k3s/monitoring/exporters/' + filename) | from_yaml_all %}
+{% if doc and doc.kind == 'Deployment' %}
+{% set container = doc.spec.template.spec.containers[0] | combine({'image': images[doc.metadata.name], 'imagePullPolicy': 'IfNotPresent'}) %}
+{% set doc = doc | combine({'spec': {'template': {'spec': {'automountServiceAccountToken': false, 'containers': [container]}}}}, recursive=true) %}
+{% endif %}
+{{ doc | to_nice_yaml }}
+---
+{% endfor %}
+{% endfor %}

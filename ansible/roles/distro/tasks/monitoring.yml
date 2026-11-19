@@ -1,0 +1,104 @@
+---
+- name: Copy existing monitoring values and application alert rules
+  ansible.builtin.copy:
+    src: "{{ distro_repo_root }}/k3s/monitoring/{{ item }}"
+    dest: "{{ distro_remote_root }}/monitoring/{{ item }}"
+    mode: '0600'
+  loop: [kube-prometheus.yaml, distro-space-alerts.yaml]
+
+- name: Render registry deployment overrides
+  ansible.builtin.template:
+    src: monitoring-values.yaml.j2
+    dest: "{{ distro_remote_root }}/monitoring/overrides.yaml"
+    mode: '0600'
+  register: distro_monitoring_overrides
+
+- name: Read inputs used to detect managed Helm changes
+  ansible.builtin.stat:
+    path: "{{ distro_remote_root }}/monitoring/{{ item }}"
+    checksum_algorithm: sha256
+  loop: [kube-prometheus.yaml, overrides.yaml]
+  register: distro_values_checksums
+
+- name: Compute monitoring deployment revision
+  ansible.builtin.set_fact:
+    distro_monitoring_fingerprint: "{{ ([distro_chart_version] + (distro_values_checksums.results | map(attribute='stat.checksum') | list)) | to_json | hash('sha256') }}"
+
+- name: Read previous managed monitoring revision
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'monitoring', 'get', 'configmap', 'distro-monitoring-state', '--ignore-not-found', '-o', 'jsonpath={.data.fingerprint}'] }}"
+  register: distro_previous_monitoring
+  changed_when: false
+
+- name: Inspect Helm release state
+  ansible.builtin.command:
+    argv: [helm, status, kps, --namespace, monitoring, --kubeconfig, "{{ distro_kubeconfig }}", --output, json]
+  register: distro_helm_status
+  failed_when: false
+  changed_when: false
+
+- name: Update monitoring only if its managed inputs changed or release is not deployed
+  when: >-
+    distro_previous_monitoring.stdout != distro_monitoring_fingerprint or
+    distro_helm_status.rc != 0 or
+    (distro_helm_status.stdout | from_json).info.status != 'deployed'
+  block:
+    - name: Configure the official chart repository
+      ansible.builtin.command:
+        argv: [helm, repo, add, prometheus-community, "{{ distro_chart_repository }}", --force-update]
+      changed_when: false
+
+    - name: Refresh chart index
+      ansible.builtin.command:
+        argv: [helm, repo, update, prometheus-community]
+      changed_when: false
+
+    - name: Install pinned monitoring chart
+      ansible.builtin.command:
+        argv:
+          - helm
+          - upgrade
+          - --install
+          - kps
+          - prometheus-community/kube-prometheus-stack
+          - --version
+          - "{{ distro_chart_version }}"
+          - --namespace
+          - monitoring
+          - --kubeconfig
+          - "{{ distro_kubeconfig }}"
+          - --values
+          - "{{ distro_remote_root }}/monitoring/kube-prometheus.yaml"
+          - --values
+          - "{{ distro_remote_root }}/monitoring/overrides.yaml"
+          - --wait
+          - --timeout
+          - 10m
+          - --history-max
+          - '5'
+      register: distro_helm_install
+      changed_when: true
+
+    - name: Record successful monitoring revision
+      ansible.builtin.command:
+        argv: "{{ distro_kubectl + ['apply', '-f', '-'] }}"
+        stdin: "{{ {'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': {'name': 'distro-monitoring-state', 'namespace': 'monitoring'}, 'data': {'fingerprint': distro_monitoring_fingerprint}} | to_json }}"
+      changed_when: true
+
+- name: Render exporter manifests using registry images
+  ansible.builtin.template:
+    src: exporters.yaml.j2
+    dest: "{{ distro_remote_root }}/monitoring/exporters.yaml"
+    mode: '0600'
+
+- name: Apply exporters, probes and application alerts
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['apply', '-f', distro_remote_root + '/monitoring/exporters.yaml', '-f', distro_remote_root + '/monitoring/distro-space-alerts.yaml'] }}"
+  register: distro_exporters
+  changed_when: "'created' in distro_exporters.stdout or 'configured' in distro_exporters.stdout"
+
+- name: Wait for exporters
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'monitoring', 'rollout', 'status', 'deployment/' + item, '--timeout=300s'] }}"
+  loop: [nginx-exporter, mysql-exporter, blackbox-exporter]
+  changed_when: false

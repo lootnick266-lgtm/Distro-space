@@ -1,0 +1,11 @@
+---
+# Copy OUTSIDE the repository, fill new values and encrypt with ansible-vault.
+# This contains placeholders only. Never copy the existing VM's credentials.
+distro_mysql_root_password: ""
+distro_mysql_app_password: ""
+distro_mysql_exporter_password: ""
+distro_grafana_admin_password: ""
+# Optional private registry / VK integration:
+distro_registry_username: ""
+distro_registry_token: ""
+distro_vk_token: ""

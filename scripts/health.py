@@ -166,7 +166,10 @@ def run_checks(args):
         check(namespace + ' pods', lambda ns=namespace: pods_ready(cluster.get('pods', ns)['items']))
         check(namespace + ' controllers', lambda ns=namespace: workloads_ready(
             cluster.get('deployments,statefulsets,daemonsets', ns)['items']))
-    for kind, name in [('deployment', 'nginx'), ('deployment', 'php'), ('deployment', 'vkbot'), ('statefulset', 'db')]:
+    expected_workloads = [('deployment', 'nginx'), ('deployment', 'php'), ('statefulset', 'db')]
+    if not args.skip_vkbot:
+        expected_workloads.append(('deployment', 'vkbot'))
+    for kind, name in expected_workloads:
         check(name + ' present and ready', lambda k=kind, n=name: workloads_ready([cluster.get(k, 'distro-space', n)]))
 
     def website():
@@ -221,8 +224,11 @@ def run_checks(args):
         require(data.get('database') == 'ok', 'Grafana database not healthy')
 
     check('Grafana health', grafana)
-    check('VK bot HTTP handler (no message sent)', lambda: cluster.http(
-        cluster.service_url('distro-space', 'vkbot', 8080) + '/webhook', expected=405))
+    if args.skip_vkbot:
+        print('SKIP VK bot: explicitly disabled for this deployment', flush=True)
+    else:
+        check('VK bot HTTP handler (no message sent)', lambda: cluster.http(
+            cluster.service_url('distro-space', 'vkbot', 8080) + '/webhook', expected=405))
     print('NOT TESTED: login/write operations, full NetworkPolicy enforcement, browser UI, VK delivery.', flush=True)
     print(f'Result: {len(failures)} failed checks. No deployment or DB writes performed.', flush=True)
     return int(bool(failures))
@@ -232,6 +238,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base-url', help='Website address; default: discovered Ingress address')
     parser.add_argument('--host', help='HTTP Host header; default: discovered Ingress host')
+    parser.add_argument('--skip-vkbot', action='store_true', help='Explicitly skip absent optional VK bot')
     parser.add_argument('--timeout', type=int, default=10)
     parser.add_argument('--max-scrape-age', type=int, default=180)
     args = parser.parse_args()
