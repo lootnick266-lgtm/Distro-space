@@ -160,7 +160,63 @@ sudo systemctl stop k3s
 ## Архитектура проекта, выполнено в mermaid. Визуализация файлов и их взаимодействия.  
 
 
-![Описание](/docs/Distro%20Kubernetes%20Deployment%20Architecture-2026-11-07-130521.png)  
+```mermaid
+erDiagram
+    NAMESPACE ||--o{ DEPLOYMENT : "содержит"
+    NAMESPACE ||--o{ STATEFULSET : "содержит"
+    NAMESPACE ||--o{ SERVICE : "содержит"
+    NAMESPACE ||--o{ INGRESS : "содержит"
+    NAMESPACE ||--o{ SECRET : "содержит"
+    NAMESPACE ||--o{ PVC : "содержит"
+
+    DEPLOYMENT ||--o{ POD : "управляет"
+    STATEFULSET ||--o{ POD : "управляет"
+    DEPLOYMENT }o--|| IMAGE : "использует"
+    STATEFULSET }o--|| IMAGE : "использует"
+
+    POD ||--o{ SERVICE : "обслуживается"
+    SERVICE ||--o{ INGRESS : "публикуется через"
+    STATEFULSET ||--o{ PVC : "монтирует"
+    POD }o--|| SECRET : "читает"
+    POD }o--|| CONFIGMAP : "читает"
+
+    NAMESPACE {
+        string name "distro-space"
+    }
+    DEPLOYMENT {
+        string name "nginx, php, vkbot"
+        int replicas
+    }
+    STATEFULSET {
+        string name "db"
+        int replicas
+    }
+    SERVICE {
+        string name "nginx, php, db, vkbot"
+        string type "ClusterIP / NodePort"
+    }
+    INGRESS {
+        string host "distro.local"
+        string backend "nginx:80"
+    }
+    SECRET {
+        string name "mysql-secret, vkbot-secret"
+    }
+    CONFIGMAP {
+        string name "nginx-config (опционально)"
+    }
+    PVC {
+        string name "db-data-db-0"
+        string size "5Gi"
+        string storageClass "local-path"
+    }
+    POD {
+        string name "nginx-*, php-*, db-0, vkbot-*"
+    }
+    IMAGE {
+        string name "distro-nginx:1.0, distro-php:1.0"
+    }
+```
 
 
 ## Топология сети между контейнерами и связь   
@@ -204,7 +260,6 @@ in progress....
 ```
 
 В k3s применяются правила из `k3s/monitoring/distro-space-alerts.yaml`.
-`config/prometheus/alerts.yml` напрямую не загружается; при изменении правил согласовывайте оба файла.
 
 ```bash
 kubectl apply -f k3s/monitoring/distro-space-alerts.yaml
@@ -214,6 +269,5 @@ kubectl apply -f k3s/monitoring/distro-space-alerts.yaml
 В VK идут правила с `notify=vk` и системные `warning`/`critical`; остальные — в `null`.
 Ожидание группы: 30 секунд, интервал: 5 минут, повтор: 4 часа.
 
-При изменении Helm values согласовывайте маршрут с `k3s/monitoring/kube-prometheus.yaml`.
 
 

@@ -25,7 +25,7 @@ spec:
         severity: critical
         notify: vk
       annotations:
-        summary: MySQL unavailable
+        summary: MySQL недоступен
         description: 'MySQL Exporter cannot connect: {{ $labels.instance }}'
     - alert: MonitoringTargetDown
       expr: up{job=~"nginx|mysql|blackbox-exporter"} == 0
@@ -34,7 +34,7 @@ spec:
         severity: critical
         notify: vk
       annotations:
-        summary: Metrics target unavailable
+        summary: Цель метрики недоступна
         description: '{{ $labels.job }} / {{ $labels.instance }}'
     - alert: ContainerDown
       expr: (kube_pod_container_status_ready{namespace="distro-space",container!="vkbot"}
