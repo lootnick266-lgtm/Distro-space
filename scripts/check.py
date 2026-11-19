@@ -198,7 +198,8 @@ def check_monitoring():
 
 def check_checker():
     run(['bash', '-n', 'scripts/check.sh'])
-    run([sys.executable, '-m', 'unittest', 'discover', '-s', 'scripts', '-p', 'test_checks.py'])
+    run(['bash', '-n', 'scripts/health.sh'])
+    run([sys.executable, '-m', 'unittest', 'discover', '-s', 'scripts', '-p', 'test_*.py'])
     print('  Shell syntax and checker regression tests passed')
 
 
