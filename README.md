@@ -324,3 +324,27 @@ kubectl delete --ignore-not-found=true -f k3s/base/networkpolicy-default-deny.ya
 Namespace `monitoring` и `kube-system` не изолированы. Публикация Grafana не изменена. NetworkPolicy не заменяют firewall ноды и защиту NodePort; трафик ноды имеет исключения на уровне Kubernetes.
 
 SMTP-доступ PHP не разрешён: в контейнере нет `sendmail`/`msmtp`. При настройке почты потребуется разрешение к выбранному SMTP-серверу.
+
+## Локальные проверки и CI
+
+Из корня репозитория:
+
+```bash
+bash scripts/check.sh
+bash scripts/check.sh --only go
+```
+
+Доступные группы: `checker`, `secrets`, `yaml`, `php`, `go`, `monitoring`. Пропущенных по отсутствию инструментов проверок нет: ошибка зависимости завершает запуск с ненулевым кодом.
+
+Нужны Git, Bash, Python 3 с PyYAML, Go 1.26, kubectl 1.31.5 и Docker. Локально используются уже загруженные образы `distro-php:1.1`, `quay.io/prometheus/prometheus:v3.15.1-distroless` и `quay.io/prometheus/alertmanager:v0.34.1`.
+
+Образы можно переопределить переменными `PHP_CHECK_IMAGE`, `PROMETHEUS_CHECK_IMAGE`, `ALERTMANAGER_CHECK_IMAGE`. Скрипт не скачивает образы; контейнеры запускаются без сети. Go использует локальный кеш модулей. На чистой машине зависимости нужно подготовить заранее: `python3 -m pip install -r scripts/requirements-checks.txt` и `(cd VKAlerts && go mod download)`.
+
+Проверяются синтаксис PHP без исполнения кода, существующие Go-тесты и `go vet`, уникальность ключей YAML, структура ресурсов и сборка Kustomize, правила через `promtool`, конфигурация через `amtool`. Поиск секретов ограничен защитой путей Git и узнаваемыми шаблонами токенов/приватных ключей; значения в отчёт не выводятся. `.env`, `install.sh` и локальные файлы секретов не читаются.
+
+Это не полная проверка схем Kubernetes/CRD, не проверка сетевой изоляции и не функциональные тесты PHP с БД. Рабочая БД, токен VK и доступ к живому кластеру для запуска не нужны.
+
+Workflow `.github/workflows/checks.yml` запускает ту же команду при push, pull request и вручную. В GitHub он предварительно загружает инструменты, Go-модули и образы; затем сами проверки работают без сетевых запросов к приложению.
+
+Старый `.github/workflows/deploy.yml` оставлен только для ручного запуска. Автоматический Compose-деплой при push отключён. Новый workflow не публикует образы и не разворачивает сервисы.
+

@@ -20,15 +20,6 @@ prometheus:
         cpu: 500m
         memory: 1Gi
 
-grafana:
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
-
 alertmanager:
   alertmanagerSpec:
     configSecret: distro-alertmanager-config
@@ -48,6 +39,14 @@ prometheusOperator:
       cpu: 200m
       memory: 128Mi
 grafana:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
   securityContext:
     runAsUser: 472
     runAsGroup: 472

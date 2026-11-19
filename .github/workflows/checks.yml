@@ -1,0 +1,48 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PHP_CHECK_IMAGE: php:8.2.33-cli
+      PROMETHEUS_CHECK_IMAGE: quay.io/prometheus/prometheus:v3.15.1-distroless
+      ALERTMANAGER_CHECK_IMAGE: quay.io/prometheus/alertmanager:v0.34.1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.31.5'
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.0'
+          cache-dependency-path: VKAlerts/go.sum
+      - name: Install YAML parser
+        run: python3 -m pip install -r scripts/requirements-checks.txt
+      - name: Prepare Go dependencies
+        working-directory: VKAlerts
+        run: go mod download
+      - name: Prepare check images
+        run: |
+          docker pull "$PHP_CHECK_IMAGE"
+          docker pull "$PROMETHEUS_CHECK_IMAGE"
+          docker pull "$ALERTMANAGER_CHECK_IMAGE"
+      - name: Run the same checks as locally
+        run: bash scripts/check.sh
