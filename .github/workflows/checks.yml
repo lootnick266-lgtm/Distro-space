@@ -70,6 +70,7 @@ jobs:
           import ipaddress
           import os
           import socket
+          import time
           import urllib.error
           import urllib.request
 
@@ -86,17 +87,26 @@ jobs:
               print('PASS VPS SSH banner:', banner.decode('ascii', errors='replace').strip())
 
           checks = [
-              ('https://api.github.com/zen', {200}),
+              ('https://github.com/', {200}),
               ('https://ghcr.io/v2/', {200, 401}),
           ]
           for url, expected in checks:
               request = urllib.request.Request(
                   url, method='GET', headers={'User-Agent': 'distro-connectivity-check'})
-              try:
-                  with urllib.request.urlopen(request, timeout=10) as response:
-                      status = response.status
-              except urllib.error.HTTPError as error:
-                  status = error.code
+              status = None
+              for attempt in range(3):
+                  try:
+                      with urllib.request.urlopen(request, timeout=10) as response:
+                          status = response.status
+                      break
+                  except urllib.error.HTTPError as error:
+                      status = error.code
+                      if status not in {403, 429, 500, 502, 503, 504} or attempt == 2:
+                          break
+                  except (TimeoutError, urllib.error.URLError):
+                      if attempt == 2:
+                          raise
+                  time.sleep(2 ** attempt)
               if status not in expected:
                   raise SystemExit('Unexpected HTTP status for ' + url + ': ' + str(status))
               print('PASS HTTPS:', url, 'HTTP', status)
