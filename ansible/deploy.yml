@@ -1,0 +1,13 @@
+---
+- name: Update the existing managed Distro-space VPS
+  hosts: distro
+  become: true
+  gather_facts: true
+  any_errors_fatal: true
+  vars:
+    distro_update_only: true
+  tasks:
+    - name: Deploy without provisioning or database migration
+      ansible.builtin.include_role:
+        name: distro
+        tasks_from: update

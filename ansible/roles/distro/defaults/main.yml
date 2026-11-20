@@ -43,3 +43,6 @@ distro_image_namespace: ''
 distro_image_tag: ''
 
 distro_kubectl: [/usr/local/bin/k3s, kubectl, --kubeconfig, "{{ distro_kubeconfig }}"]
+
+# CI updates existing resources and never provisions or restores a database.
+distro_update_only: false

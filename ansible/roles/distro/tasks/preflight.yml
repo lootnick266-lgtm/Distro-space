@@ -43,11 +43,18 @@
       - '[distro_mysql_root_password, distro_mysql_app_password, distro_mysql_exporter_password] | unique | list | length == 3'
       - distro_grafana_admin_password | length >= 24
       - not distro_vk_enabled or distro_vk_token | length > 0
-      - not distro_registry_auth_enabled or distro_registry_username | length > 0
-      - not distro_registry_auth_enabled or distro_registry_token | length > 0
     fail_msg: "Provide new credentials via an external encrypted Vault file. MySQL passwords: 24+ random URL-safe characters."
   no_log: true
   diff: false
+  when: not distro_update_only
+
+
+- name: Require registry credentials for private image access
+  ansible.builtin.assert:
+    that:
+      - not distro_registry_auth_enabled or distro_registry_username | length > 0
+      - not distro_registry_auth_enabled or distro_registry_token | length > 0
+  no_log: true
 
 - name: Inspect ownership marker
   ansible.builtin.stat:
@@ -64,3 +71,14 @@
     that:
       - not distro_existing_k3s.stat.exists or distro_marker.stat.exists
     fail_msg: "Existing unmanaged k3s detected. This playbook only bootstraps a new dedicated host."
+
+
+- name: Refuse CI provisioning or database restore
+  ansible.builtin.assert:
+    that:
+      - distro_marker.stat.exists
+      - distro_existing_k3s.stat.exists
+      - distro_db_snapshot | length == 0
+      - distro_registry_auth_enabled
+    fail_msg: "CI requires an existing managed VPS and must not receive a database snapshot."
+  when: distro_update_only

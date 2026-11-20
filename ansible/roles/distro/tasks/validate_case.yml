@@ -76,3 +76,20 @@
     that:
       - "('host' in (distro_validation_resources | selectattr('kind', 'equalto', 'Ingress') | first).spec.rules[0]) == (distro_ingress_host_enabled | bool)"
       - "(distro_validation_resources | selectattr('kind', 'equalto', 'Deployment') | selectattr('metadata.name', 'in', ['nginx', 'php']) | selectattr('spec.replicas', 'equalto', 0) | list | length == 2) == (distro_db_migration_pending | bool)"
+
+- name: Render CI secret updates with no database passwords
+  ansible.builtin.set_fact:
+    distro_ci_registry: "{{ lookup('template', 'credentials.yaml.j2') | from_yaml }}"
+    distro_ci_monitoring: "{{ lookup('template', 'monitoring-secrets.yaml.j2') | from_yaml }}"
+  vars:
+    distro_update_only: true
+  no_log: true
+  when: distro_registry_auth_enabled
+
+- name: Ensure CI never renders database, Grafana, exporter or bot credentials
+  ansible.builtin.assert:
+    that:
+      - "(distro_ci_registry['items'] | map(attribute='metadata.name') | list) == ['registry-credentials']"
+      - "(distro_ci_monitoring['items'] | map(attribute='metadata.name') | list) == ['distro-alertmanager-config']"
+  no_log: true
+  when: distro_registry_auth_enabled

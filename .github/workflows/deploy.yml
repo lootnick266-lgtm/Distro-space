@@ -1,0 +1,166 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Checks]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Update managed VPS with Ansible
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Skip commits superseded by a newer main
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.request
+          sha = os.environ['RELEASE_SHA']
+          if not re.fullmatch(r'[0-9a-f]{40}', sha):
+              raise SystemExit('Invalid release SHA')
+          request = urllib.request.Request(
+              'https://api.github.com/repos/' + os.environ['REPOSITORY'] + '/git/ref/heads/main',
+              headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                       'Accept': 'application/vnd.github+json'})
+          with urllib.request.urlopen(request, timeout=20) as response:
+              current = json.load(response)['object']['sha']
+          deploy = current == sha
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('deploy=' + str(deploy).lower() + '\n')
+          print('Deploying checked commit ' + sha if deploy else 'Skipping an outdated checked commit.')
+          PY
+
+      - uses: actions/checkout@v4
+        if: steps.release.outputs.deploy == 'true'
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        if: steps.release.outputs.deploy == 'true'
+        with:
+          python-version: '3.12'
+
+      - name: Install the same Ansible version as in Checks
+        if: steps.release.outputs.deploy == 'true'
+        run: python3 -m pip install -r scripts/requirements-checks.txt
+
+      - name: Prepare temporary deployment inputs
+        if: steps.release.outputs.deploy == 'true'
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER || 'root' }}
+          SITE_HOST: ${{ vars.SITE_HOST }}
+          REGISTRY_OWNER: ${{ github.repository_owner }}
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import ipaddress
+          import os
+          from pathlib import Path
+          import re
+          import shlex
+          import subprocess
+          import yaml
+          for name in ['VPS_HOST', 'DEPLOY_SSH_KEY', 'DEPLOY_KNOWN_HOSTS', 'GHCR_TOKEN']:
+              if not os.environ.get(name, '').strip():
+                  raise SystemExit('Missing GitHub variable or secret: ' + name)
+          host = str(ipaddress.ip_address(os.environ['VPS_HOST'].strip()))
+          if not ipaddress.ip_address(host).is_global:
+              raise SystemExit('VPS_HOST must be the public VPS IP.')
+          user = os.environ['VPS_USER']
+          if not re.fullmatch(r'[a-z_][a-z0-9_-]*', user):
+              raise SystemExit('Invalid VPS_USER')
+          namespace = os.environ['REGISTRY_OWNER'].lower()
+          tag = 'git-' + os.environ['RELEASE_SHA']
+          site = os.environ.get('SITE_HOST', '').strip() or host
+          try:
+              ipaddress.ip_address(site)
+              domain = False
+          except ValueError:
+              domain = True
+          directory = Path(os.environ['RUNNER_TEMP']) / 'distro-deploy'
+          directory.mkdir(mode=0o700)
+          def save(name, value):
+              path = directory / name
+              path.write_text(value)
+              path.chmod(0o600)
+              return path
+          key = save('deploy.key', os.environ['DEPLOY_SSH_KEY'].replace('\r\n', '\n').rstrip() + '\n')
+          known = save('known_hosts', os.environ['DEPLOY_KNOWN_HOSTS'].replace('\r\n', '\n').strip() + '\n')
+          result = subprocess.run(
+              ['ssh-keygen', '-F', host, '-f', str(known)], capture_output=True)
+          if result.returncode:
+              raise SystemExit('DEPLOY_KNOWN_HOSTS has no trusted key for VPS_HOST.')
+          ssh_args = ' '.join([
+              '-o BatchMode=yes', '-o PasswordAuthentication=no',
+              '-o KbdInteractiveAuthentication=no', '-o StrictHostKeyChecking=yes',
+              '-o IdentitiesOnly=yes', '-o ForwardAgent=no',
+              '-o UserKnownHostsFile=' + shlex.quote(str(known))])
+          variables = dict(
+              ansible_host=host, ansible_user=user,
+              ansible_python_interpreter='/usr/bin/python3',
+              ansible_ssh_private_key_file=str(key), ansible_ssh_common_args=ssh_args,
+              distro_site_host=site, distro_ingress_host_enabled=domain,
+              distro_registry_auth_enabled=True, distro_build_images=True,
+              distro_image_namespace=namespace, distro_image_tag=tag,
+              distro_nginx_image='ghcr.io/' + namespace + '/distro-nginx:' + tag,
+              distro_php_image='ghcr.io/' + namespace + '/distro-php:' + tag,
+              distro_vk_enabled=False, distro_db_snapshot='')
+          inventory = {'all': {'children': {'distro': {'hosts': {'vps': variables}}}}}
+          save('inventory.yml', yaml.safe_dump(inventory))
+          save('registry.yml', yaml.safe_dump(dict(
+              distro_registry_username=namespace,
+              distro_registry_token=os.environ['GHCR_TOKEN'])))
+          print('Temporary SSH and registry inputs prepared; database credentials stay on the VPS.')
+          PY
+
+      - name: Verify SSH key authentication
+        if: steps.release.outputs.deploy == 'true'
+        working-directory: ansible
+        run: ansible distro -i "$RUNNER_TEMP/distro-deploy/inventory.yml" -m ansible.builtin.ping
+
+      - name: Update the existing VPS and run health checks
+        if: steps.release.outputs.deploy == 'true'
+        working-directory: ansible
+        run: |
+          ansible-playbook deploy.yml             -i "$RUNNER_TEMP/distro-deploy/inventory.yml"             -e "@$RUNNER_TEMP/distro-deploy/registry.yml"
+
+      - name: Remove temporary deployment credentials
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import shutil
+          base = Path(os.environ['RUNNER_TEMP']).resolve()
+          directory = base / 'distro-deploy'
+          if directory.exists():
+              if directory.is_symlink() or directory.resolve().parent != base:
+                  raise SystemExit('Unexpected temporary credential path.')
+              shutil.rmtree(directory)
+          PY

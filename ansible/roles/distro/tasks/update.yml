@@ -1,0 +1,46 @@
+---
+- name: Validate the existing managed target and release inputs
+  ansible.builtin.import_tasks: preflight.yml
+
+- name: Update an existing deployment
+  when: not ansible_check_mode
+  block:
+    - name: Require existing database and monitoring credentials without reading values
+      ansible.builtin.command:
+        argv: "{{ distro_kubectl + ['-n', item.namespace, 'get', 'secret', item.name, '-o', 'name'] }}"
+      loop:
+        - {namespace: distro-space, name: mysql-secret}
+        - {namespace: distro-space, name: mysql-init}
+        - {namespace: monitoring, name: mysql-exporter-credentials}
+        - {namespace: monitoring, name: distro-grafana-admin}
+      changed_when: false
+
+    - name: Build and publish the versioned release on the VPS
+      ansible.builtin.import_tasks: images.yml
+
+    - name: Update only registry credentials, leaving database credentials intact
+      ansible.builtin.command:
+        argv: "{{ distro_kubectl + ['apply', '-f', '-'] }}"
+        stdin: "{{ lookup('template', 'credentials.yaml.j2') }}"
+      register: distro_update_registry
+      changed_when: "'created' in distro_update_registry.stdout or 'configured' in distro_update_registry.stdout"
+      no_log: true
+      diff: false
+
+    - name: Update only Alertmanager routing, leaving Grafana and exporter passwords intact
+      ansible.builtin.command:
+        argv: "{{ distro_kubectl + ['apply', '-f', '-'] }}"
+        stdin: "{{ lookup('template', 'monitoring-secrets.yaml.j2') }}"
+      register: distro_update_routing
+      changed_when: "'created' in distro_update_routing.stdout or 'configured' in distro_update_routing.stdout"
+      no_log: true
+      diff: false
+
+    - name: Update the application resources
+      ansible.builtin.import_tasks: application.yml
+
+    - name: Reconcile monitoring
+      ansible.builtin.import_tasks: monitoring.yml
+
+    - name: Verify the deployed release
+      ansible.builtin.import_tasks: verify.yml

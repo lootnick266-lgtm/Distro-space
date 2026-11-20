@@ -209,6 +209,8 @@ def check_ansible():
                    PYTHONDONTWRITEBYTECODE='1')
         run(['ansible-playbook', '-i', 'inventory.example.yml', 'site.yml', '--syntax-check'],
             cwd=ROOT / 'ansible', env=env)
+        run(['ansible-playbook', '-i', 'inventory.example.yml', 'deploy.yml', '--syntax-check'],
+            cwd=ROOT / 'ansible', env=env)
         run(['ansible-playbook', '-i', 'localhost,', 'validate.yml'],
             cwd=ROOT / 'ansible', env=env)
     print('  Ansible syntax and both offline template modes passed; no target provisioned')
