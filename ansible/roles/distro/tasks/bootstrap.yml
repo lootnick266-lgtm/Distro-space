@@ -105,29 +105,46 @@
   delay: 5
   until: distro_node_ready.rc == 0
 
-- name: Download pinned Helm archive with checksum
-  ansible.builtin.get_url:
-    url: "https://get.helm.sh/helm-{{ distro_helm_version }}-linux-amd64.tar.gz"
-    checksum: "sha256:https://get.helm.sh/helm-{{ distro_helm_version }}-linux-amd64.tar.gz.sha256sum"
-    dest: "{{ distro_remote_root }}/tools/helm.tar.gz"
-    mode: '0600'
-  register: distro_helm_archive
+- name: Inspect the installed Helm version
+  ansible.builtin.command:
+    argv: [/usr/local/bin/helm, version, --short]
+  register: distro_installed_helm
+  failed_when: false
+  changed_when: false
 
-- name: Inspect extracted Helm binary
-  ansible.builtin.stat:
-    path: "{{ distro_remote_root }}/tools/linux-amd64/helm"
-  register: distro_extracted_helm
+- name: Install Helm only when the pinned version is missing
+  when: distro_installed_helm.rc != 0 or distro_installed_helm.stdout.split('+')[0] != distro_helm_version
+  block:
+    - name: Download pinned Helm archive with checksum
+      ansible.builtin.get_url:
+        url: "https://get.helm.sh/helm-{{ distro_helm_version }}-linux-amd64.tar.gz"
+        checksum: "sha256:https://get.helm.sh/helm-{{ distro_helm_version }}-linux-amd64.tar.gz.sha256sum"
+        dest: "{{ distro_remote_root }}/tools/helm.tar.gz"
+        mode: '0600'
+      register: distro_helm_archive
 
-- name: Extract verified Helm archive
-  ansible.builtin.unarchive:
-    src: "{{ distro_remote_root }}/tools/helm.tar.gz"
-    dest: "{{ distro_remote_root }}/tools"
-    remote_src: true
-  when: distro_helm_archive.changed or not distro_extracted_helm.stat.exists
+    - name: Inspect extracted Helm binary
+      ansible.builtin.stat:
+        path: "{{ distro_remote_root }}/tools/linux-amd64/helm"
+      register: distro_extracted_helm
 
-- name: Install Helm binary
-  ansible.builtin.copy:
-    src: "{{ distro_remote_root }}/tools/linux-amd64/helm"
-    remote_src: true
-    dest: /usr/local/bin/helm
-    mode: '0755'
+    - name: Extract verified Helm archive
+      ansible.builtin.unarchive:
+        src: "{{ distro_remote_root }}/tools/helm.tar.gz"
+        dest: "{{ distro_remote_root }}/tools"
+        remote_src: true
+      when: distro_helm_archive.changed or not distro_extracted_helm.stat.exists
+
+    - name: Install Helm binary
+      ansible.builtin.copy:
+        src: "{{ distro_remote_root }}/tools/linux-amd64/helm"
+        remote_src: true
+        dest: /usr/local/bin/helm
+        mode: '0755'
+- name: Remove duplicated Helm installation materials
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ distro_remote_root }}/tools/helm.tar.gz"
+    - "{{ distro_remote_root }}/tools/linux-amd64"

@@ -1,0 +1,11 @@
+---
+- name: Enable Fail2ban on the dedicated VPS
+  hosts: distro
+  become: true
+  gather_facts: false
+  any_errors_fatal: true
+  tasks:
+    - name: Apply Fail2ban independently of application deployment
+      ansible.builtin.include_role:
+        name: distro
+        tasks_from: hardening

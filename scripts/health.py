@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 import math
+import re
 import subprocess
 import sys
 import urllib.error
@@ -75,7 +76,11 @@ def targets_ready(items, max_age, now=None):
         job = target.get('labels', {}).get('job', 'unknown')
         require(target.get('health') == 'up' and not target.get('lastError'), f'{job}: scrape unhealthy')
         try:
-            stamp = datetime.fromisoformat(target['lastScrape'].replace('Z', '+00:00'))
+            raw_stamp = target['lastScrape'].replace('Z', '+00:00')
+            # Prometheus uses nanoseconds; Python 3.10 expects 3 or 6 fractional digits.
+            raw_stamp = re.sub(r'\.(\d+)(?=[+-]\d{2}:\d{2}$)',
+                               lambda m: '.' + (m.group(1) + '000000')[:6], raw_stamp)
+            stamp = datetime.fromisoformat(raw_stamp)
             age = (now - stamp).total_seconds()
         except (KeyError, ValueError, TypeError) as exc:
             raise HealthError(f'{job}: invalid scrape timestamp') from exc

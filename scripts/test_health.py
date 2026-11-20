@@ -57,6 +57,24 @@ class HealthTests(unittest.TestCase):
         with self.assertRaises(health.HealthError):
             health.targets_ready([target], 180, now)
 
+    def test_prometheus_fractional_seconds_are_python310_compatible(self):
+        now = datetime(2026, 11, 20, 14, 0, 0, tzinfo=timezone.utc)
+        for stamp in ['2026-11-20T14:00:00.123456789Z',
+                      '2026-11-20T14:00:00.1+00:00',
+                      '2026-11-20T14:00:00.12345Z']:
+            target = {'labels': {'job': 'http'}, 'health': 'up',
+                      'lastError': '', 'lastScrape': stamp}
+            original = health.datetime
+            class Python310Datetime:
+                @staticmethod
+                def fromisoformat(value):
+                    fraction = value.split('.', 1)[1].split('+', 1)[0]
+                    if len(fraction) not in [3, 6]:
+                        raise ValueError('Unsupported Python 3.10 fraction')
+                    return original.fromisoformat(value)
+            with self.subTest(stamp=stamp), patch.object(health, 'datetime', Python310Datetime):
+                health.targets_ready([target], 180, now)
+
     def test_http_error_can_be_expected_without_printing_body(self):
         cluster = health.Cluster(1)
         response = urllib.error.HTTPError('http://test', 403, 'Forbidden', {}, io.BytesIO(b'sensitive-body'))

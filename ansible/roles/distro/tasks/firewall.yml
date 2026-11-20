@@ -1,0 +1,38 @@
+---
+- name: Install the host firewall
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+    cache_valid_time: 0
+
+- name: Keep SSH and web entrypoints accessible
+  ansible.builtin.command:
+    argv: [ufw, allow, "{{ item }}/tcp"]
+  loop: ['22', '80', '443']
+  register: distro_firewall_rule
+  changed_when: "'added' in distro_firewall_rule.stdout"
+
+- name: Allow internal single-node Kubernetes traffic
+  ansible.builtin.command:
+    argv: [ufw, allow, from, "{{ item }}", to, any]
+  loop: ['10.42.0.0/16', '10.43.0.0/16']
+  register: distro_firewall_internal
+  changed_when: "'added' in distro_firewall_internal.stdout"
+
+- name: Set default incoming policy
+  ansible.builtin.command:
+    argv: [ufw, default, deny, incoming]
+  register: distro_firewall_default
+  changed_when: "'changed' in distro_firewall_default.stdout"
+
+- name: Inspect firewall status
+  ansible.builtin.command:
+    argv: [ufw, status]
+  register: distro_firewall_status
+  changed_when: false
+
+- name: Enable firewall after allowing SSH
+  ansible.builtin.command:
+    argv: [ufw, --force, enable]
+  when: "'Status: inactive' in distro_firewall_status.stdout"

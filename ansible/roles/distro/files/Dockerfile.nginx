@@ -1,0 +1,5 @@
+FROM docker.io/library/nginx:1.31.3
+COPY nginx-site.conf /etc/nginx/conf.d/default.conf
+COPY public/ /var/www/localhost/public/
+RUN find /var/www/localhost -type d -exec chmod 0755 '{}' + \
+ && find /var/www/localhost -type f -exec chmod 0644 '{}' +

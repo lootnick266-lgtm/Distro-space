@@ -1,6 +1,7 @@
 ---
 - name: Validate target and deployment inputs
   ansible.builtin.import_tasks: preflight.yml
+  tags: [always]
 
 - name: Explain check mode limitations
   ansible.builtin.debug:
@@ -10,8 +11,17 @@
 - name: Provision the dedicated server
   when: not ansible_check_mode
   block:
+    - name: Configure host firewall before starting Kubernetes
+      ansible.builtin.import_tasks: firewall.yml
+      tags: [bootstrap]
+    - name: Enable Fail2ban
+      ansible.builtin.import_tasks: hardening.yml
+      tags: [bootstrap]
     - name: Bootstrap k3s and Helm
       ansible.builtin.import_tasks: bootstrap.yml
+      tags: [bootstrap]
+    - name: Build clean registry images when requested
+      ansible.builtin.import_tasks: images.yml
     - name: Prepare namespaces and new credentials
       ansible.builtin.import_tasks: credentials.yml
     - name: Deploy application from existing base

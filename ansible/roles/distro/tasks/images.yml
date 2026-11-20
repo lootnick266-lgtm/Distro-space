@@ -1,0 +1,184 @@
+---
+- name: Build and publish clean application images on the VPS
+  when: distro_build_images
+  block:
+    - name: Install the daemonless image builder
+      ansible.builtin.apt:
+        name: buildah
+        state: present
+
+    - name: Inspect existing package visibility without exposing credentials
+      ansible.builtin.uri:
+        url: "https://api.github.com/users/{{ distro_image_namespace }}/packages/container/{{ item }}"
+        headers:
+          Authorization: "Bearer {{ distro_registry_token }}"
+          Accept: application/vnd.github+json
+        status_code: [200, 404]
+        timeout: 30
+      loop: [distro-php, distro-nginx]
+      register: distro_package_visibility
+      no_log: true
+
+    - name: Refuse publication into an existing public package
+      ansible.builtin.assert:
+        that:
+          - item.status == 404 or item.json.visibility == 'private'
+        fail_msg: "The destination GHCR package must be private."
+      loop: "{{ distro_package_visibility.results }}"
+      no_log: true
+
+    - name: Allocate clean build context on the controller
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: distro-vps-context-
+      delegate_to: localhost
+      become: false
+      register: distro_build_context
+
+    - name: Prepare an explicit source allowlist without env, database or local config
+      ansible.builtin.command:
+        argv: [python3, "{{ distro_repo_root }}/scripts/prepare-build-context.py",
+               --namespace, "{{ distro_image_namespace }}", --tag, "{{ distro_image_tag }}",
+               --output, "{{ distro_build_context.path }}"]
+      delegate_to: localhost
+      become: false
+      register: distro_context_result
+      changed_when: false
+
+    - name: Pack only the clean source directory for one SSH transfer
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - 'import sys, tarfile; archive = tarfile.open(sys.argv[1] + ".tar.gz", "w:gz"); archive.add(sys.argv[1], arcname="."); archive.close()'
+          - "{{ distro_build_context.path }}"
+      delegate_to: localhost
+      become: false
+      changed_when: false
+
+    - name: Transfer the clean source archive
+      ansible.builtin.copy:
+        src: "{{ distro_build_context.path }}.tar.gz"
+        dest: "{{ distro_remote_root }}/build-context.tar.gz"
+        mode: '0600'
+
+    - name: Remove only the disposable previous source context
+      ansible.builtin.file:
+        path: "{{ distro_remote_root }}/build-context"
+        state: absent
+
+    - name: Create the disposable source context
+      ansible.builtin.file:
+        path: "{{ distro_remote_root }}/build-context"
+        state: directory
+        mode: '0700'
+
+    - name: Extract the clean source archive
+      ansible.builtin.unarchive:
+        src: "{{ distro_remote_root }}/build-context.tar.gz"
+        dest: "{{ distro_remote_root }}/build-context"
+        remote_src: true
+
+    - name: Remove the transferred source archive
+      ansible.builtin.file:
+        path: "{{ distro_remote_root }}/build-context.tar.gz"
+        state: absent
+
+    - name: Remove temporary controller context and source archive
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop: ["{{ distro_build_context.path }}", "{{ distro_build_context.path }}.tar.gz"]
+      delegate_to: localhost
+      become: false
+
+    - name: Inspect previous image input fingerprint
+      ansible.builtin.command:
+        argv: [cat, "{{ distro_remote_root }}/image-inputs.sha256"]
+      register: distro_image_inputs
+      failed_when: distro_image_inputs.rc not in [0, 1]
+      changed_when: false
+
+    - name: Build and push images when source or tags changed
+      when: distro_image_inputs.stdout | trim != distro_context_result.stdout | trim
+      block:
+        - name: Authenticate to the private registry without exposing the token
+          ansible.builtin.command:
+            argv: [buildah, login, --authfile, "{{ distro_remote_root }}/registry-auth.json",
+                   --username, "{{ distro_registry_username }}", --password-stdin,
+                   "{{ distro_registry_server }}"]
+            stdin: "{{ distro_registry_token }}"
+          no_log: true
+
+        - name: Build images with dependencies downloaded on the VPS
+          ansible.builtin.command:
+            argv: [buildah, bud, --layers, --isolation, chroot, --format, docker,
+                   --file, "{{ distro_remote_root }}/build-context/Dockerfile.{{ item.name }}",
+                   --tag, "{{ item.image }}", "{{ distro_remote_root }}/build-context"]
+          loop:
+            - {name: php, image: "{{ distro_php_image }}"}
+            - {name: nginx, image: "{{ distro_nginx_image }}"}
+
+        - name: Validate worker access and PHP modules in the built images
+          block:
+            - name: Create temporary image verification containers
+              ansible.builtin.command:
+                argv: [buildah, from, --name, "distro-check-{{ item.name }}", "{{ item.image }}"]
+              loop:
+                - {name: php, image: "{{ distro_php_image }}"}
+                - {name: nginx, image: "{{ distro_nginx_image }}"}
+
+            - name: Verify PHP worker can read code and load required extensions
+              ansible.builtin.command:
+                argv:
+                  - buildah
+                  - run
+                  - --isolation
+                  - chroot
+                  - --user
+                  - www-data
+                  - distro-check-php
+                  - php
+                  - -r
+                  - 'foreach (["/var/www/localhost/src/controlls/php/config.php", "/var/www/localhost/src/controlls/php/classes/User.php"] as $p) { if (!is_readable($p)) exit(1); } foreach (["mysqli", "pdo_mysql", "mbstring", "session"] as $m) { if (!extension_loaded($m)) exit(1); }'
+              changed_when: false
+
+            - name: Verify nginx worker can read the main page
+              ansible.builtin.command:
+                argv: [buildah, run, --isolation, chroot, --user, nginx,
+                       distro-check-nginx, test, -r,
+                       /var/www/localhost/public/Distro-space/indexbase.html]
+              changed_when: false
+          always:
+            - name: Remove only temporary verification containers
+              ansible.builtin.command:
+                argv: [buildah, rm, distro-check-php, distro-check-nginx]
+              failed_when: false
+              changed_when: false
+
+        - name: Push versioned application images
+          ansible.builtin.command:
+            argv: [buildah, push, --authfile, "{{ distro_remote_root }}/registry-auth.json",
+                   "{{ item }}"]
+          loop: ["{{ distro_php_image }}", "{{ distro_nginx_image }}"]
+
+        - name: Record successful source fingerprint only after both pushes
+          ansible.builtin.copy:
+            dest: "{{ distro_remote_root }}/image-inputs.sha256"
+            content: "{{ distro_context_result.stdout | trim }}\n"
+            mode: '0600'
+      always:
+        - name: Remove temporary registry login file
+          ansible.builtin.file:
+            path: "{{ distro_remote_root }}/registry-auth.json"
+            state: absent
+          no_log: true
+
+  always:
+    - name: Remove the disposable VPS source context and archive
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ distro_remote_root }}/build-context"
+        - "{{ distro_remote_root }}/build-context.tar.gz"

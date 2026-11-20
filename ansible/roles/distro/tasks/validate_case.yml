@@ -70,3 +70,9 @@
       - "(lookup('file', role_path + '/files/schema.sql') | regex_findall('CREATE TABLE')) | length == 5"
       - "lookup('file', role_path + '/files/schema.sql') is not search('(?i)INSERT|TRUNCATE|DROP TABLE')"
   no_log: true
+
+- name: Verify hostless ingress and guarded migration startup
+  ansible.builtin.assert:
+    that:
+      - "('host' in (distro_validation_resources | selectattr('kind', 'equalto', 'Ingress') | first).spec.rules[0]) == (distro_ingress_host_enabled | bool)"
+      - "(distro_validation_resources | selectattr('kind', 'equalto', 'Deployment') | selectattr('metadata.name', 'in', ['nginx', 'php']) | selectattr('spec.replicas', 'equalto', 0) | list | length == 2) == (distro_db_migration_pending | bool)"

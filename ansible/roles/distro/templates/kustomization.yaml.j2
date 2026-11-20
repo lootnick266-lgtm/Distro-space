@@ -18,6 +18,9 @@ patches:
       metadata:
         name: {{ name }}
       spec:
+{% if distro_db_migration_pending | default(false) and name in ['nginx', 'php'] %}
+        replicas: 0
+{% endif %}
         template:
           spec:
             automountServiceAccountToken: false
@@ -62,6 +65,11 @@ patches:
       kind: Ingress
       name: distro-space
     patch: |
+{% if distro_ingress_host_enabled %}
       - op: replace
         path: /spec/rules/0/host
         value: {{ distro_site_host | to_json }}
+{% else %}
+      - op: remove
+        path: /spec/rules/0/host
+{% endif %}

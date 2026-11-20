@@ -1,0 +1,54 @@
+---
+- name: Refuse changes to the protected source VM
+  ansible.builtin.assert:
+    that:
+      - ansible_host | default(inventory_hostname) not in distro_protected_addresses
+    fail_msg: "The local source VM must remain protected."
+
+- name: Install Fail2ban and its journal backend
+  ansible.builtin.apt:
+    name: [fail2ban, python3-systemd, ufw]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Configure the SSH jail
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/distro-sshd.local
+    mode: '0644'
+    content: |
+      [sshd]
+      enabled = true
+      backend = systemd
+      port = 22
+      filter = sshd
+      banaction = ufw
+      maxretry = 5
+      findtime = 10m
+      bantime = 5h
+      ignoreip = 127.0.0.1/8 ::1
+  register: distro_fail2ban_config
+
+- name: Validate Fail2ban configuration
+  ansible.builtin.command:
+    argv: [fail2ban-client, -t]
+  changed_when: false
+
+- name: Enable the Fail2ban service
+  ansible.builtin.systemd_service:
+    name: fail2ban
+    enabled: true
+    state: "{{ 'restarted' if distro_fail2ban_config.changed else 'started' }}"
+
+- name: Verify the SSH jail is active
+  ansible.builtin.command:
+    argv: [fail2ban-client, status, sshd]
+  register: distro_fail2ban_status
+  changed_when: false
+  retries: 5
+  delay: 2
+  until: distro_fail2ban_status.rc == 0
+
+- name: Report Fail2ban status
+  ansible.builtin.debug:
+    var: distro_fail2ban_status.stdout_lines

@@ -1,0 +1,47 @@
+---
+- name: Migrate the application database only when a snapshot is provided
+  when: distro_db_snapshot | length > 0
+  block:
+    - name: Inspect private snapshot on the controller
+      ansible.builtin.stat:
+        path: "{{ distro_db_snapshot }}"
+        checksum_algorithm: sha256
+      delegate_to: localhost
+      become: false
+      register: distro_snapshot_stat
+      no_log: true
+
+    - name: Require a non-empty regular snapshot
+      ansible.builtin.assert:
+        that:
+          - distro_snapshot_stat.stat.isreg | default(false)
+          - distro_snapshot_stat.stat.size | default(0) > 0
+      no_log: true
+
+    - name: Install guarded restore helper
+      ansible.builtin.copy:
+        src: restore-db.py
+        dest: "{{ distro_remote_root }}/scripts/restore-db.py"
+        mode: '0700'
+
+    - name: Transfer snapshot privately
+      ansible.builtin.copy:
+        src: "{{ distro_db_snapshot }}"
+        dest: "{{ distro_remote_root }}/database.sql"
+        mode: '0600'
+      no_log: true
+      diff: false
+
+    - name: Restore once into an empty database and verify row counts
+      ansible.builtin.command:
+        argv: [python3, "{{ distro_remote_root }}/scripts/restore-db.py",
+               "{{ distro_remote_root }}/database.sql", "{{ distro_snapshot_stat.stat.checksum }}"]
+      register: distro_database_restore
+      changed_when: "'Restored database snapshot;' in distro_database_restore.stdout"
+      no_log: true
+
+    - name: Remove transferred snapshot after successful verification
+      ansible.builtin.file:
+        path: "{{ distro_remote_root }}/database.sql"
+        state: absent
+      no_log: true

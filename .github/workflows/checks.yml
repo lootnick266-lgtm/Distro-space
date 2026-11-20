@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      vps_host:
+        description: "Public VPS IP for a read-only connectivity test; leave empty to run Checks"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -14,6 +19,7 @@ concurrency:
 
 jobs:
   checks:
+    if: github.event_name != 'workflow_dispatch' || inputs.vps_host == ''
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -46,3 +52,53 @@ jobs:
           docker pull "$ALERTMANAGER_CHECK_IMAGE"
       - name: Run the same checks as locally
         run: bash scripts/check.sh
+
+
+  connectivity:
+    name: GitHub runner to VPS (read-only)
+    if: github.event_name == 'workflow_dispatch' && inputs.vps_host != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions: {}
+    env:
+      VPS_HOST: ${{ inputs.vps_host }}
+    steps:
+      - name: Check SSH reachability and registry HTTPS without credentials
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import ipaddress
+          import os
+          import socket
+          import urllib.error
+          import urllib.request
+
+          host = str(ipaddress.ip_address(os.environ['VPS_HOST'].strip()))
+          if not ipaddress.ip_address(host).is_global:
+              raise SystemExit('Enter the public IP of your VPS.')
+          print('Testing VPS SSH port 22; no login will be attempted.', flush=True)
+          with socket.create_connection((host, 22), timeout=10) as connection:
+              connection.settimeout(10)
+              with connection.makefile('rb') as stream:
+                  banner = stream.readline(512)
+              if not banner.startswith(b'SSH-2.0-'):
+                  raise SystemExit('No valid SSH server banner received.')
+              print('PASS VPS SSH banner:', banner.decode('ascii', errors='replace').strip())
+
+          checks = [
+              ('https://api.github.com/zen', {200}),
+              ('https://ghcr.io/v2/', {200, 401}),
+          ]
+          for url, expected in checks:
+              request = urllib.request.Request(
+                  url, method='HEAD', headers={'User-Agent': 'distro-connectivity-check'})
+              try:
+                  with urllib.request.urlopen(request, timeout=10) as response:
+                      status = response.status
+              except urllib.error.HTTPError as error:
+                  status = error.code
+              if status not in expected:
+                  raise SystemExit('Unexpected HTTP status for ' + url + ': ' + str(status))
+              print('PASS HTTPS:', url, 'HTTP', status)
+          print('Network checks passed. SSH authentication and deployment were not tested.')
+          PY

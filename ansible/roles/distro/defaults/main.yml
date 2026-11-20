@@ -31,3 +31,15 @@ distro_run_health_checks: true
 distro_nginx_exporter_image: docker.io/nginx/nginx-prometheus-exporter@sha256:bf76e58df548a13e52bd543ac70f6d3d667e14884e8b51c149bd81994ca75ccd
 distro_mysql_exporter_image: docker.io/prom/mysqld-exporter@sha256:afad0c59a154fea24ca5ea0e6f95f2b0b168601b111266963dc8a347715b5318
 distro_blackbox_image: docker.io/prom/blackbox-exporter@sha256:ea1c7aa3ef3f307cd03e85f34abb604478ccb90b567fc690da0cd9776da76b13
+
+# Use hostless Ingress when exposing the site by public IP.
+distro_ingress_host_enabled: true
+# Optional private controller path; never commit the snapshot.
+distro_db_snapshot: ''
+
+# Optional daemonless registry build performed on the target VPS.
+distro_build_images: false
+distro_image_namespace: ''
+distro_image_tag: ''
+
+distro_kubectl: [/usr/local/bin/k3s, kubectl, --kubeconfig, "{{ distro_kubeconfig }}"]

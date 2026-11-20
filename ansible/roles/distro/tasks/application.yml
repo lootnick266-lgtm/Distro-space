@@ -24,6 +24,17 @@
     mode: '0600'
   loop: "{{ distro_base_config.resources }}"
 
+- name: Inspect the migration marker before exposing the new site
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'distro-space', 'get', 'configmap', 'database-migration', '--ignore-not-found', '-o', 'jsonpath={.data.sha256}'] }}"
+  register: distro_migration_marker
+  changed_when: false
+  when: distro_db_snapshot | length > 0
+
+- name: Keep a new site stopped until the snapshot is restored
+  ansible.builtin.set_fact:
+    distro_db_migration_pending: "{{ distro_db_snapshot | length > 0 and (distro_migration_marker.stdout | default('')) == '' }}"
+
 - name: Render a deployment-specific Kustomization without changing repository base
   ansible.builtin.template:
     src: kustomization.yaml.j2
@@ -40,6 +51,17 @@
   ansible.builtin.command:
     argv: "{{ distro_kubectl + ['-n', 'distro-space', 'rollout', 'status', 'statefulset/db', '--timeout=300s'] }}"
   changed_when: false
+
+- name: Restore a provided database snapshot before final availability checks
+  ansible.builtin.import_tasks: migration.yml
+
+- name: Start web workloads after the initial database migration
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'distro-space', 'scale', 'deployment/' + item.name, '--replicas=' + (item.replicas | string)] }}"
+  loop:
+    - {name: nginx, replicas: 2}
+    - {name: php, replicas: 1}
+  when: distro_db_migration_pending
 
 - name: Wait for web workloads
   ansible.builtin.command:
