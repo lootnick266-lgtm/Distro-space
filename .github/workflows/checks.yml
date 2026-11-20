@@ -91,7 +91,7 @@ jobs:
           ]
           for url, expected in checks:
               request = urllib.request.Request(
-                  url, method='HEAD', headers={'User-Agent': 'distro-connectivity-check'})
+                  url, method='GET', headers={'User-Agent': 'distro-connectivity-check'})
               try:
                   with urllib.request.urlopen(request, timeout=10) as response:
                       status = response.status
