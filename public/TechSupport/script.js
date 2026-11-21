@@ -157,7 +157,7 @@ async function handleRegister(name, email, password) {
 
 function updateUIAfterLogin() {
     loginBtn.classList.add('hidden');
-    registerBtn.classList.add('hidden');
+    if (registerBtn) registerBtn.classList.add('hidden');
     logoutBtn.classList.remove('hidden');
     userNameSpan.classList.remove('hidden');
     userNameSpan.innerText = 'Привет, ' + (currentUser?.name || 'Пользователь');
@@ -189,7 +189,7 @@ function logout() {
             isLoggedIn = false;
             currentUser = null;
             loginBtn.classList.remove('hidden');
-            registerBtn.classList.remove('hidden');
+            if (registerBtn) registerBtn.classList.remove('hidden');
             logoutBtn.classList.add('hidden');
             userNameSpan.classList.add('hidden');
             adminLink.classList.add('hidden');
