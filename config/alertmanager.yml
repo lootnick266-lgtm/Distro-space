@@ -1,12 +1,12 @@
 route:
-  receiver: vk_bot_receiver
+  receiver: telegram_bot_receiver
   group_by: ['alertname']
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
 
 receivers:
-  - name: vk_bot_receiver
+  - name: telegram_bot_receiver
     webhook_configs:
-      - url: 'http://vkbot:8080/webhook'
+      - url: 'http://telegrambot:8080/webhook'
         send_resolved: true

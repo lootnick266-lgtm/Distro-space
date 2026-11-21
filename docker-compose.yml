@@ -233,18 +233,17 @@ services:
     restart: unless-stopped
 #Те же причины что и сверху. Замена healthcheck - blackbox
 
-  vkbot:
+  telegrambot:
     build:
       context: .
       dockerfile: Docker/Dockerfile
       cache_from:
-      - localhost-vkbot:latest
-    container_name: vkbot
+      - localhost-telegrambot:latest
+    container_name: telegrambot
     restart: unless-stopped
     environment:
-      - VKTOKEN=${VKTOKEN}
-      - GROUP_ID=${GROUP_ID}
-      - LOCAL_USER=${LOCAL_USER}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     networks:
       - localhost_default
 

@@ -9,8 +9,8 @@ resources:
   - nginx-service.yaml
   - php-deployment.yaml
   - php-service.yaml
-  - vkbot-deployment.yaml
-  - vkbot-service.yaml
+  - telegrambot-deployment.yaml
+  - telegrambot-service.yaml
   - ingress.yaml
   - networkpolicy-allow.yaml
   - networkpolicy-default-deny.yaml

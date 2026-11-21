@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -9,10 +11,10 @@ import (
 
 func TestAllAlertsAndIndividualStatus(t *testing.T) {
 	messages := notificationMessages(AlertmanagerWebhook{Status: "firing", Alerts: []alert{
-		{Status: "firing", Labels: map[string]string{"alertname": "SiteDown", "instance": "site"}, Annotations: map[string]string{"summary": "Unavailable", "description": "Probe failed"}},
+		{Status: "firing", Labels: map[string]string{"alertname": "SiteDown", "instance": "site", "severity": "critical"}, Annotations: map[string]string{"summary": "Сайт недоступен", "description": "Проверка не пройдена"}},
 		{Status: "resolved", Labels: map[string]string{"alertname": "MySQLDown"}},
 	}})
-	if len(messages) != 2 || !strings.Contains(messages[0], "[FIRING] SiteDown") || !strings.Contains(messages[0], "instance=site") || !strings.Contains(messages[0], "Probe failed") || !strings.Contains(messages[1], "[RESOLVED] MySQLDown") {
+	if len(messages) != 2 || !strings.Contains(messages[0], "[СРАБОТАЛО] Сайт недоступен") || !strings.Contains(messages[0], "Экземпляр=site") || !strings.Contains(messages[0], "Проверка не пройдена") || !strings.Contains(messages[0], "Важность: Критическая") || !strings.Contains(messages[1], "[ВОССТАНОВЛЕНО] MySQL недоступен") {
 		t.Fatalf("Unexpected messages: %v", messages)
 	}
 }
@@ -20,7 +22,7 @@ func TestMessageLimitPreservesText(t *testing.T) {
 	messages := notificationMessages(AlertmanagerWebhook{Alerts: []alert{{Annotations: map[string]string{"summary": strings.Repeat("\u044f", 8000)}}}})
 	var combined string
 	for _, m := range messages {
-		if len([]rune(m)) > 3500 {
+		if len([]rune(m)) > 2000 {
 			t.Fatal("Message too long")
 		}
 		combined += m
@@ -56,5 +58,58 @@ func TestWebhookValidationAndAllDeliveries(t *testing.T) {
 	}
 	if sent != 2 {
 		t.Fatalf("Sent %d messages", sent)
+	}
+}
+
+func TestTelegramSendMessageUsesBotAPI(t *testing.T) {
+	oldBase, oldToken, oldChat, oldClient := telegramAPIBase, telegramToken, telegramChatID, httpClient
+	defer func() {
+		telegramAPIBase, telegramToken, telegramChatID, httpClient = oldBase, oldToken, oldChat, oldClient
+	}()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/bot123456:test-token/sendMessage" {
+			t.Errorf("unexpected Telegram API request: %s %s", r.Method, r.URL.Path)
+		}
+		if got := r.Header.Get("Content-Type"); got != "application/json" {
+			t.Errorf("Content-Type = %q", got)
+		}
+		var payload telegramMessageRequest
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Errorf("decode request: %v", err)
+		}
+		if payload.ChatID != "-1001234567890" || payload.Text != "hello" {
+			t.Errorf("unexpected payload: %#v", payload)
+		}
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	defer server.Close()
+
+	telegramAPIBase = server.URL
+	telegramToken = "123456:test-token"
+	telegramChatID = "-1001234567890"
+	httpClient = server.Client()
+	if err := sendTelegramMessage("hello"); err != nil {
+		t.Fatalf("sendTelegramMessage: %v", err)
+	}
+}
+
+func TestTelegramAPIRejectionDoesNotExposeToken(t *testing.T) {
+	oldBase, oldToken, oldChat, oldClient := telegramAPIBase, telegramToken, telegramChatID, httpClient
+	defer func() {
+		telegramAPIBase, telegramToken, telegramChatID, httpClient = oldBase, oldToken, oldChat, oldClient
+	}()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"ok":false,"description":"rejected"}`))
+	}))
+	defer server.Close()
+	telegramAPIBase = server.URL
+	telegramToken = "123456:test-token"
+	telegramChatID = "42"
+	httpClient = server.Client()
+	err := sendTelegramMessage("hello")
+	if err == nil || strings.Contains(err.Error(), telegramToken) {
+		t.Fatalf("expected redacted API rejection, got %v", err)
 	}
 }

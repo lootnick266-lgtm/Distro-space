@@ -3,12 +3,12 @@ kind: Kustomization
 namespace: distro-space
 resources:
 {% for resource in distro_base_config.resources %}
-{% if distro_vk_enabled or resource not in ['vkbot-deployment.yaml', 'vkbot-service.yaml'] %}
+{% if distro_telegram_enabled or resource not in ['telegrambot-deployment.yaml', 'telegrambot-service.yaml'] %}
   - {{ resource }}
 {% endif %}
 {% endfor %}
 patches:
-{% for name, image in [('nginx', distro_nginx_image), ('php', distro_php_image)] + ([('vkbot', distro_vkbot_image)] if distro_vk_enabled else []) %}
+{% for name, image in [('nginx', distro_nginx_image), ('php', distro_php_image)] + ([('telegrambot', distro_telegrambot_image)] if distro_telegram_enabled else []) %}
   - target:
       kind: Deployment
       name: {{ name }}

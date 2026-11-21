@@ -18,12 +18,12 @@
     - name: Build and publish the versioned release on the VPS
       ansible.builtin.import_tasks: images.yml
 
-    - name: Update only registry credentials, leaving database credentials intact
+    - name: Apply registry and optional Telegram credentials, leaving database credentials intact
       ansible.builtin.command:
         argv: "{{ distro_kubectl + ['apply', '-f', '-'] }}"
         stdin: "{{ lookup('template', 'credentials.yaml.j2') }}"
-      register: distro_update_registry
-      changed_when: "'created' in distro_update_registry.stdout or 'configured' in distro_update_registry.stdout"
+      register: distro_update_app_credentials
+      changed_when: "'created' in distro_update_app_credentials.stdout or 'configured' in distro_update_app_credentials.stdout"
       no_log: true
       diff: false
 

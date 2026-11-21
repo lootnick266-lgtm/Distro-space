@@ -14,48 +14,48 @@ spec:
       for: 1m
       labels:
         severity: critical
-        notify: vk
+        notify: telegram
       annotations:
         summary: Сайт недоступен
-        description: 'HTTP probe failed: {{ $labels.instance }}'
+        description: 'Не удалось выполнить HTTP-проверку: {{ $labels.instance }}'
     - alert: MySQLDown
       expr: mysql_up{job="mysql"} == 0
       for: 1m
       labels:
         severity: critical
-        notify: vk
+        notify: telegram
       annotations:
         summary: MySQL недоступен
-        description: 'MySQL Exporter cannot connect: {{ $labels.instance }}'
+        description: 'Экспортёр MySQL не может подключиться: {{ $labels.instance }}'
     - alert: MonitoringTargetDown
       expr: up{job=~"nginx|mysql|blackbox-exporter"} == 0
       for: 2m
       labels:
         severity: critical
-        notify: vk
+        notify: telegram
       annotations:
         summary: Цель метрики недоступна
         description: '{{ $labels.job }} / {{ $labels.instance }}'
     - alert: ContainerDown
-      expr: (kube_pod_container_status_ready{namespace="distro-space",container!="vkbot"}
+      expr: (kube_pod_container_status_ready{namespace="distro-space",container!="telegrambot"}
         == 0) and on(namespace,pod) (kube_pod_status_phase{namespace="distro-space",phase=~"Pending|Running"}
         == 1)
       for: 5m
       labels:
         severity: critical
-        notify: vk
+        notify: telegram
       annotations:
         summary: Контейнер {{ $labels.container }} остановлен
-        description: '{{ $labels.namespace }}/{{ $labels.pod }}: {{ $labels.container
-          }} is not ready'
+        description: '{{ $labels.namespace }}/{{ $labels.pod }}: контейнер {{ $labels.container
+          }} не готов'
     - alert: ContainerRestarting
-      expr: increase(kube_pod_container_status_restarts_total{namespace="distro-space",container!="vkbot"}[10m])
+      expr: increase(kube_pod_container_status_restarts_total{namespace="distro-space",container!="telegrambot"}[10m])
         > 2
       for: 2m
       labels:
         severity: warning
-        notify: vk
+        notify: telegram
       annotations:
         summary: Контейнер перезапускается
-        description: '{{ $labels.namespace }}/{{ $labels.pod }}: {{ $labels.container
-          }} restarted more than twice in 10 minutes'
+        description: '{{ $labels.namespace }}/{{ $labels.pod }}: контейнер {{ $labels.container
+          }} перезапустился более двух раз за 10 минут'

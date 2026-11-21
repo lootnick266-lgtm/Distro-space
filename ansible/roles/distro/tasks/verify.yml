@@ -8,7 +8,7 @@
 
 - name: Wait for runtime smoke checks including fresh Prometheus scrapes
   ansible.builtin.command:
-    argv: "{{ ['python3', '-B', distro_remote_root + '/scripts/health.py', '--host', distro_site_host] + ([] if distro_vk_enabled else ['--skip-vkbot']) }}"
+    argv: "{{ ['python3', '-B', distro_remote_root + '/scripts/health.py', '--host', distro_site_host] + ([] if distro_telegram_enabled else ['--skip-telegrambot']) }}"
   environment:
     KUBECONFIG: "{{ distro_kubeconfig }}"
   register: distro_health

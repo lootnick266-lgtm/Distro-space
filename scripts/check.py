@@ -73,7 +73,7 @@ def protected(path):
             or name.endswith(('.vault.yml', '.vault.yaml'))
             or name.endswith(('.key', '.pem', '.p12', '.pfx'))
             or name in {'id_rsa', 'id_ed25519'}
-            or 'vkbot-secret' in name)
+            or 'telegrambot-secret' in name)
 
 
 def check_secrets():
@@ -89,6 +89,7 @@ def check_secrets():
         re.compile(r'\bgithub_pat_[A-Za-z0-9_]{30,}\b'),
         re.compile(r'\bAKIA[0-9A-Z]{16}\b'),
         re.compile(r'\bvk1\.a\.[A-Za-z0-9_-]{30,}'),
+        re.compile(r'\b[0-9]{8,12}:[A-Za-z0-9_-]{30,}\b'),
     ]
     findings = []
     for path in files():

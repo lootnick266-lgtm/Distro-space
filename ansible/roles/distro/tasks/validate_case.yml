@@ -21,11 +21,11 @@
   no_log: true
   diff: false
 
-- name: Validate optional VK and registry secret presence
+- name: Validate optional Telegram and registry secret presence
   ansible.builtin.assert:
     that:
-      - "('vkbot' in (distro_validation_resources | selectattr('kind', 'equalto', 'Deployment') | map(attribute='metadata.name') | list)) == (distro_vk_enabled | bool)"
-      - "('vkbot-secret' in (distro_validation_secret_doc['items'] | map(attribute='metadata.name') | list)) == (distro_vk_enabled | bool)"
+      - "('telegrambot' in (distro_validation_resources | selectattr('kind', 'equalto', 'Deployment') | map(attribute='metadata.name') | list)) == (distro_telegram_enabled | bool)"
+      - "('telegrambot-secret' in (distro_validation_secret_doc['items'] | map(attribute='metadata.name') | list)) == (distro_telegram_enabled | bool)"
       - "('registry-credentials' in (distro_validation_secret_doc['items'] | map(attribute='metadata.name') | list)) == (distro_registry_auth_enabled | bool)"
       - distro_validation_values.grafana.persistence.enabled == (distro_monitoring_persistence | bool)
       - "('storageSpec' in distro_validation_values.prometheus.prometheusSpec) == (distro_monitoring_persistence | bool)"
@@ -36,7 +36,7 @@
   ansible.builtin.assert:
     that:
       - item.spec.template.spec.containers[0].imagePullPolicy == 'IfNotPresent'
-      - item.spec.template.spec.containers[0].image not in ['distro-nginx:1.9', 'distro-php:1.1', 'distro-vkbot:1.1']
+      - item.spec.template.spec.containers[0].image not in ['distro-nginx:1.9', 'distro-php:1.1', 'distro-telegrambot:1.1']
   loop: "{{ distro_validation_resources | selectattr('kind', 'in', ['Deployment', 'StatefulSet']) | list }}"
   loop_control:
     label: "{{ item.metadata.name }}"
@@ -60,8 +60,8 @@
     that:
       - (distro_validation_monitor_secret_doc['items'][0].stringData['alertmanager.yaml'] | from_yaml).route.receiver == 'null'
       - (distro_validation_monitor_secret_doc['items'][0].stringData['alertmanager.yaml'] | from_yaml).route.routes | length == 0
-      - distro_validation_monitor_secret_doc['items'][0].stringData['alertmanager.yaml'] is not search('vkbot[.]')
-  when: not distro_vk_enabled
+      - distro_validation_monitor_secret_doc['items'][0].stringData['alertmanager.yaml'] is not search('telegrambot[.]')
+  when: not distro_telegram_enabled
   no_log: true
 
 - name: Ensure initial schema contains five tables and no seed rows or destructive SQL
@@ -86,10 +86,10 @@
   no_log: true
   when: distro_registry_auth_enabled
 
-- name: Ensure CI never renders database, Grafana, exporter or bot credentials
+- name: Ensure CI renders only registry and explicitly enabled Telegram credentials
   ansible.builtin.assert:
     that:
-      - "(distro_ci_registry['items'] | map(attribute='metadata.name') | list) == ['registry-credentials']"
+      - "(distro_ci_registry['items'] | map(attribute='metadata.name') | list) == (['registry-credentials'] + (['telegrambot-secret'] if distro_telegram_enabled else []))"
       - "(distro_ci_monitoring['items'] | map(attribute='metadata.name') | list) == ['distro-alertmanager-config']"
   no_log: true
   when: distro_registry_auth_enabled

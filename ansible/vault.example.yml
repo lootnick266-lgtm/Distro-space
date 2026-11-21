@@ -8,4 +8,4 @@ distro_grafana_admin_password: ""
 # Optional private registry / VK integration:
 distro_registry_username: ""
 distro_registry_token: ""
-distro_vk_token: ""
+distro_telegram_bot_token: ""

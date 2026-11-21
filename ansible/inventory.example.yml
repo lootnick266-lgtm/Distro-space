@@ -14,6 +14,6 @@ all:
         distro_site_host: distro.example.com
         distro_nginx_image: ghcr.io/REPLACE_ME/distro-nginx:1.9
         distro_php_image: ghcr.io/REPLACE_ME/distro-php:1.1
-        distro_vk_enabled: false
+        distro_telegram_enabled: false
         # Set registry auth only for private images; credentials go in Vault.
         distro_registry_auth_enabled: false

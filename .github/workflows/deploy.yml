@@ -77,6 +77,8 @@ jobs:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python3 - <<'PY'
           import ipaddress
@@ -86,7 +88,7 @@ jobs:
           import shlex
           import subprocess
           import yaml
-          for name in ['VPS_HOST', 'DEPLOY_SSH_KEY', 'DEPLOY_KNOWN_HOSTS', 'GHCR_TOKEN']:
+          for name in ['VPS_HOST', 'DEPLOY_SSH_KEY', 'DEPLOY_KNOWN_HOSTS', 'GHCR_TOKEN', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID']:
               if not os.environ.get(name, '').strip():
                   raise SystemExit('Missing GitHub variable or secret: ' + name)
           host = str(ipaddress.ip_address(os.environ['VPS_HOST'].strip()))
@@ -130,13 +132,17 @@ jobs:
               distro_image_namespace=namespace, distro_image_tag=tag,
               distro_nginx_image='ghcr.io/' + namespace + '/distro-nginx:' + tag,
               distro_php_image='ghcr.io/' + namespace + '/distro-php:' + tag,
-              distro_vk_enabled=False, distro_db_snapshot='')
+              distro_telegram_enabled=True,
+              distro_telegrambot_image='ghcr.io/' + namespace + '/distro-telegrambot:' + tag,
+              distro_db_snapshot='')
           inventory = {'all': {'children': {'distro': {'hosts': {'vps': variables}}}}}
           save('inventory.yml', yaml.safe_dump(inventory))
-          save('registry.yml', yaml.safe_dump(dict(
+          save('deployment-secrets.yml', yaml.safe_dump(dict(
               distro_registry_username=namespace,
-              distro_registry_token=os.environ['GHCR_TOKEN'])))
-          print('Temporary SSH and registry inputs prepared; database credentials stay on the VPS.')
+              distro_registry_token=os.environ['GHCR_TOKEN'],
+              distro_telegram_bot_token=os.environ['TELEGRAM_BOT_TOKEN'],
+              distro_telegram_chat_id=os.environ['TELEGRAM_CHAT_ID'])))
+          print('Temporary SSH and deployment inputs prepared; database credentials stay on the VPS.')
           PY
 
       - name: Verify SSH key authentication
@@ -148,7 +154,7 @@ jobs:
         if: steps.release.outputs.deploy == 'true'
         working-directory: ansible
         run: |
-          ansible-playbook deploy.yml             -i "$RUNNER_TEMP/distro-deploy/inventory.yml"             -e "@$RUNNER_TEMP/distro-deploy/registry.yml"
+          ansible-playbook deploy.yml             -i "$RUNNER_TEMP/distro-deploy/inventory.yml"             -e "@$RUNNER_TEMP/distro-deploy/deployment-secrets.yml"
 
       - name: Remove temporary deployment credentials
         if: always()

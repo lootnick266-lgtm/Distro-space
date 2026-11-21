@@ -1,10 +1,16 @@
 ---
-- name: Remove only the optional VK resources when disabled on this managed host
+- name: Remove legacy VK bot resources
   ansible.builtin.command:
     argv: "{{ distro_kubectl + ['-n', 'distro-space', 'delete', 'deployment/vkbot', 'service/vkbot', 'secret/vkbot-secret', '--ignore-not-found'] }}"
-  when: not distro_vk_enabled
-  register: distro_disabled_vk
-  changed_when: "'deleted' in distro_disabled_vk.stdout"
+  register: distro_removed_legacy_bot
+  changed_when: "'deleted' in distro_removed_legacy_bot.stdout"
+
+- name: Remove optional Telegram resources when disabled
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'distro-space', 'delete', 'deployment/telegrambot', 'service/telegrambot', 'secret/telegrambot-secret', '--ignore-not-found'] }}"
+  when: not distro_telegram_enabled
+  register: distro_disabled_telegram
+  changed_when: "'deleted' in distro_disabled_telegram.stdout"
 
 - name: Load safe Kustomize resource list (no ignored local secrets)
   ansible.builtin.set_fact:
@@ -66,5 +72,5 @@
 - name: Wait for web workloads
   ansible.builtin.command:
     argv: "{{ distro_kubectl + ['-n', 'distro-space', 'rollout', 'status', 'deployment/' + item, '--timeout=300s'] }}"
-  loop: "{{ ['nginx', 'php'] + (['vkbot'] if distro_vk_enabled else []) }}"
+  loop: "{{ ['nginx', 'php'] + (['telegrambot'] if distro_telegram_enabled else []) }}"
   changed_when: false

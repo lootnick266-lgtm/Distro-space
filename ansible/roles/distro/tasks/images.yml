@@ -15,7 +15,7 @@
           Accept: application/vnd.github+json
         status_code: [200, 404]
         timeout: 30
-      loop: [distro-php, distro-nginx]
+      loop: "{{ ['distro-php', 'distro-nginx'] + (['distro-telegrambot'] if distro_telegram_enabled else []) }}"
       register: distro_package_visibility
       no_log: true
 
@@ -37,9 +37,7 @@
 
     - name: Prepare an explicit source allowlist without env, database or local config
       ansible.builtin.command:
-        argv: [python3, "{{ distro_repo_root }}/scripts/prepare-build-context.py",
-               --namespace, "{{ distro_image_namespace }}", --tag, "{{ distro_image_tag }}",
-               --output, "{{ distro_build_context.path }}"]
+        argv: "{{ ['python3', distro_repo_root + '/scripts/prepare-build-context.py', '--namespace', distro_image_namespace, '--tag', distro_image_tag, '--output', distro_build_context.path] + (['--include-telegram'] if distro_telegram_enabled else []) }}"
       delegate_to: localhost
       become: false
       register: distro_context_result
@@ -115,9 +113,7 @@
             argv: [buildah, bud, --layers, --isolation, chroot, --format, docker,
                    --file, "{{ distro_remote_root }}/build-context/Dockerfile.{{ item.name }}",
                    --tag, "{{ item.image }}", "{{ distro_remote_root }}/build-context"]
-          loop:
-            - {name: php, image: "{{ distro_php_image }}"}
-            - {name: nginx, image: "{{ distro_nginx_image }}"}
+          loop: "{{ [{'name': 'php', 'image': distro_php_image}, {'name': 'nginx', 'image': distro_nginx_image}] + ([{'name': 'telegrambot', 'image': distro_telegrambot_image}] if distro_telegram_enabled else []) }}"
 
         - name: Validate worker access and PHP modules in the built images
           block:
@@ -160,7 +156,7 @@
           ansible.builtin.command:
             argv: [buildah, push, --authfile, "{{ distro_remote_root }}/registry-auth.json",
                    "{{ item }}"]
-          loop: ["{{ distro_php_image }}", "{{ distro_nginx_image }}"]
+          loop: "{{ [distro_php_image, distro_nginx_image] + ([distro_telegrambot_image] if distro_telegram_enabled else []) }}"
 
         - name: Record successful source fingerprint only after both pushes
           ansible.builtin.copy:

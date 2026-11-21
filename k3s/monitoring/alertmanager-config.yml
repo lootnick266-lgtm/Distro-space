@@ -9,15 +9,15 @@ route:
   repeat_interval: 4h
   receiver: 'null'
   routes:
-  - receiver: vk
+  - receiver: telegram
     matchers:
-    - notify="vk"
-  - receiver: vk
+    - notify="telegram"
+  - receiver: telegram
     matchers:
     - severity=~"warning|critical"
 receivers:
 - name: 'null'
-- name: vk
+- name: telegram
   webhook_configs:
-  - url: http://vkbot.distro-space.svc.cluster.local:8080/webhook
+  - url: http://telegrambot.distro-space.svc.cluster.local:8080/webhook
     send_resolved: true

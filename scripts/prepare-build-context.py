@@ -16,6 +16,7 @@ def main():
     parser.add_argument('--namespace', required=True)
     parser.add_argument('--tag', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--include-telegram', action='store_true')
     args = parser.parse_args()
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', args.namespace):
         parser.error('Invalid GHCR namespace')
@@ -53,6 +54,12 @@ def main():
             shutil.copyfile(CONFIG / name, context / ('config.php' if name == 'runtime-config.php' else name))
         for service in ['php', 'nginx']:
             shutil.copyfile(CONFIG / f'Dockerfile.{service}', context / f'Dockerfile.{service}')
+        if args.include_telegram:
+            bot = context / 'telegrambot'
+            bot.mkdir()
+            for name in ['TelegramAlertBot.go', 'go.mod', 'go.sum']:
+                shutil.copyfile(ROOT / 'VKAlerts' / name, bot / name)
+            shutil.copyfile(ROOT / 'Docker/Dockerfile.telegrambot', context / 'Dockerfile.telegrambot')
         shutil.copytree(context, args.output, dirs_exist_ok=True)
         digest = hashlib.sha256()
         digest.update((args.namespace + ':' + args.tag).encode())

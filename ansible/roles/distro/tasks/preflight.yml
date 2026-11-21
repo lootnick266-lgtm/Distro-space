@@ -13,7 +13,7 @@
       - ansible_host | default(inventory_hostname) not in distro_protected_addresses
       - distro_node_ip not in distro_protected_addresses
       - distro_remote_root == '/opt/distro-space'
-      - distro_vk_enabled is boolean
+      - distro_telegram_enabled is boolean
       - distro_registry_auth_enabled is boolean
       - distro_monitoring_persistence is boolean
     fail_msg: "Use one NEW Ubuntu amd64 VM (4+ GiB, swap off). The source VM is protected."
@@ -29,9 +29,9 @@
       - distro_php_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
       - "'REPLACE_ME' not in distro_nginx_image + distro_php_image"
       - "':latest' not in distro_nginx_image + distro_php_image"
-      - not distro_vk_enabled or distro_vkbot_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
-      - not distro_vk_enabled or 'REPLACE_ME' not in distro_vkbot_image
-      - not distro_vk_enabled or ':latest' not in distro_vkbot_image
+      - not distro_telegram_enabled or distro_telegrambot_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
+      - not distro_telegram_enabled or 'REPLACE_ME' not in distro_telegrambot_image
+      - not distro_telegram_enabled or ':latest' not in distro_telegrambot_image
     fail_msg: "Set a real host and published versioned registry images in your private inventory."
 
 - name: Require new external credentials without printing them
@@ -42,12 +42,24 @@
       - distro_mysql_exporter_password is match('^[A-Za-z0-9_-]{24,128}$')
       - '[distro_mysql_root_password, distro_mysql_app_password, distro_mysql_exporter_password] | unique | list | length == 3'
       - distro_grafana_admin_password | length >= 24
-      - not distro_vk_enabled or distro_vk_token | length > 0
+      - not distro_telegram_enabled or distro_telegram_bot_token | length > 0
+      - not distro_telegram_enabled or distro_telegram_chat_id | length > 0
     fail_msg: "Provide new credentials via an external encrypted Vault file. MySQL passwords: 24+ random URL-safe characters."
   no_log: true
   diff: false
   when: not distro_update_only
 
+
+
+- name: Require Telegram credentials for an enabled update-only deployment
+  ansible.builtin.assert:
+    that:
+      - distro_telegram_bot_token | length > 0
+      - distro_telegram_chat_id | length > 0
+    fail_msg: "Telegram is enabled but its token or chat ID is missing."
+  no_log: true
+  diff: false
+  when: distro_update_only and distro_telegram_enabled
 
 - name: Require registry credentials for private image access
   ansible.builtin.assert:

@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: vkbot
+  name: telegrambot
   namespace: distro-space
   labels:
-    app: vkbot
+    app: telegrambot
 spec:
   selector:
-    app: vkbot
+    app: telegrambot
   ports:
     - name: http
       port: 8080

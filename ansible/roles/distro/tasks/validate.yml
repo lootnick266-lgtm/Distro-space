@@ -18,18 +18,18 @@
         mode: '0600'
       loop: "{{ distro_base_config.resources }}"
 
-    - name: Validate temporary and persistent storage, optional VK and private registry modes
+    - name: Validate storage, optional Telegram bot and private registry modes
       ansible.builtin.include_tasks: validate_case.yml
       loop:
-        - {vk: false, persistence: false, registry: false, host: true, migration: false}
-        - {vk: true, persistence: true, registry: true, host: true, migration: false}
-        - {vk: false, persistence: false, registry: true, host: false, migration: true}
+        - {telegram: false, persistence: false, registry: false, host: true, migration: false}
+        - {telegram: true, persistence: true, registry: true, host: true, migration: false}
+        - {telegram: false, persistence: false, registry: true, host: false, migration: true}
       loop_control:
         loop_var: distro_validation_case
       vars:
         distro_ingress_host_enabled: "{{ distro_validation_case.host }}"
         distro_db_migration_pending: "{{ distro_validation_case.migration }}"
-        distro_vk_enabled: "{{ distro_validation_case.vk }}"
+        distro_telegram_enabled: "{{ distro_validation_case.telegram }}"
         distro_monitoring_persistence: "{{ distro_validation_case.persistence }}"
         distro_registry_auth_enabled: "{{ distro_validation_case.registry }}"
   always:
