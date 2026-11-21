@@ -1,188 +1,112 @@
-<div align= "center">
-<h2> Проект Distro-space. Создан для изучения и понимания администрирования, отказоустойчивости и работы сервисов.</h2>
-<p>Стек и инструменты:</p>
-</div>
+<div align="center">
 
-<div align= "center">
+# Distro-space
+
+**Проект для практики Linux-администрирования, Kubernetes, мониторинга и автоматизации развёртывания.**
+
 <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"></a>
 <a href="https://kubernetes.io/"><img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes"></a>
 <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go"></a>
 <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL"></a>
 <a href="https://ubuntu.com/"><img src="https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu"></a>
-</div>
 
-<div align= "center">
-<img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square" alt="License">
+<a href="https://www.php.net/"><img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP"></a>
 <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5"></a>
 <a href="https://developer.mozilla.org/en-US/docs/Web/CSS"><img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3"></a>
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript"></a>
-</div>
-
-<div align= "center">
-<a href="https://www.php.net/"><img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP"></a>
-<a href="https://obsidian.md/"><img src="https://img.shields.io/badge/Obsidian-7C3AED?style=for-the-badge&logo=obsidian&logoColor=white" alt="Obsidian"></a>
-</div>
-
-<div align= "center">
 <a href="https://grafana.com/"><img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana"></a>
 <a href="https://prometheus.io/"><img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus"></a>
-<a href="https://grafana.com/oss/loki/"><img src="https://img.shields.io/badge/Loki-545454?style=for-the-badge&logo=loki&logoColor=white" alt="Loki"></a>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)](LICENSE)
+
 </div>
 
-# Сведения о сервисе
+## О проекте
 
-**Содержание проекта:**
-2 сайта, БД, мониторинг   
-сам проект разделён на  :
-[main](https://github.com/lootnick266-lgtm/Distro-space/tree/main), основная ветка — в разработке (k3s)  
-[distro-space-docker](https://github.com/lootnick266-lgtm/Distro-space/tree/distro-space-docker), завершенная ветка. Рабочий docker compose с полным стеком, MVP. единственные изьяны — недоработанна вёрстка и слабый, но рабочий скрипт скачивания зависимостей для всего проекта.  
+В проекте есть два веб-раздела и инфраструктура для их запуска.
 
-## Дополнительно  
-> **но docker compose оставлен на случай локальной разработки.**  
-> **Сервис развёрнут в k3s.**   
+- **Distro-space** — главная страница с каталогом дистрибутивов, модальными окнами и встроенным плеером. Файл: [public/Distro-space/indexbase.html](public/Distro-space/indexbase.html).
+- **TechSupport** — вход, форма поддержки и чат-бот, который подбирает ответы по ключевым словам из базы знаний. Файл: [public/TechSupport/index.html](public/TechSupport/index.html).
+- **Админ-панель** — просмотр обращений и управление правилами базы знаний.
+- **Telegram alert bot** — отдельный Go-сервис, который принимает уведомления Alertmanager и пересылает их в Telegram. Это бот мониторинга, он не обслуживает чат на сайте.
 
-**1)  Distrospace** - сайт с тёмной темой, модальными окнами и встроенным плеером.
-- Стоит на [indexbase.html](public/Distro-space/indexbase.html)  
-  
-**2)  Тех поддержка** - регистрация, вход в систему и чат-бот, отвечающий на ключевые слова.   
-- Стоит на [index.html](public/TechSupport/index.html)
-- Имеется Админ-Панель 
+У веб-части общая PHP/MySQL-сессия. Основная версия проекта находится в ветке `main` и развёрнута в k3s. Старые файлы Docker Compose и ветка `distro-space-docker` сохранены как материалы раннего MVP; текущий VPS через Compose не запускается.
 
-  
+Публичная версия: [https://distro-space.xyz](https://distro-space.xyz).
 
-Функции подов: 
+Проект распространяется под лицензией [MIT](LICENSE). Я делаю его, чтобы на практике разобраться в администрировании Linux, базах данных, Kubernetes, мониторинге и CI/CD.
 
-- хранилище базы данных  
-- запуск сервисов  
-- мониторинг  
-- логирование  
-- проверка доступности  
-- уведомления в мессенджеры  
+## Текущий стек
 
+| Задача | Инструменты |
+| --- | --- |
+| Веб-сервер | Nginx |
+| Backend | PHP-FPM и Go |
+| База данных | MySQL 8 |
+| Оркестрация | k3s |
+| Метрики и дашборды | Prometheus, Grafana |
+| Оповещения | Alertmanager и Telegram alert bot |
+| Экспорт метрик | Node Exporter, kube-state-metrics, cAdvisor, Nginx Exporter, MySQL Exporter, Blackbox Exporter |
+| Автоматизация | Ansible и GitHub Actions |
 
-**Проект распространяется под лицензией MIT**
-[LICENSE](LICENSE)
+Loki пока не входит в активный стек k3s. Файл его конфигурации остался от прежней Compose-версии.
 
-**выбранные направления:**
-<ul>
-<li>Системное администрирование</li>
-<li>DevOps</li>
-<li>DBA</li>
-</ul>
+## Требования к системе
 
-**Сам сервис состоит из:**
-<ul>
-<li>Оркестрация: k3s</li>
-<li>Web часть: nginx, html, css, js</li>
-<li>Backend: php, go</li>
-<li>Администрирование: docker, linux </li>
-<li>Мониторинг: prometheus, Grafana, loki , Alertmanager</li>
-</ul>
+Локальная VM для проверки проекта: Ubuntu Server 26.04 LTS, 2 vCPU, 4 ГиБ RAM и диск 30 ГиБ. Для установки на новый сервер Ansible проверяет Ubuntu 22.04 или новее, amd64 и не менее 3,8 ГиБ RAM без swap. Практичный запас для мониторинга — 6 ГиБ RAM и диск 40 ГиБ.
 
-**Недостающие элементы в репозитории. Но используются в проекте:**
-Примеры:  
-- Nginx.conf  | [находится в /docs/examples](docs/examples/nginx.conf.example)
-- .env        | [находится в /docs/examples](docs/examples/.env.example)
+Установка k3s и мониторинга требует исходящего доступа к пакетным репозиториям, GitHub Releases, Helm chart repository и registry контейнеров. Локальные проверки CI можно подготовить заранее с нужными зависимостями и образами.
 
+## Быстрый старт
 
-**Идея:**
-- Создать сервис , который сможет выполнять базовые задачи и в углублённых сферах.
-- получить опыт с простого интереса 
+### Проверить изменения локально
 
-# Требования к системе
+Нужны Bash, Python 3, PyYAML, Go 1.26, kubectl 1.31.5 и Docker. До запуска проверь, что Go-модули и образы для проверок уже доступны локально: скрипт проверки сам их не скачивает.
 
-**Тестировалось на:**
+~~~bash
+python3 -m pip install -r scripts/requirements-checks.txt
+(cd VKAlerts && go mod download)
+bash scripts/check.sh
+~~~
 
-- Ubuntu 26.04 live server
-- 2 vCPU 4096MB 30GB SSD
+Можно запустить одну группу:
 
-Скриншот Node Exporter из Grafana с включённым сервисом  
+~~~bash
+bash scripts/check.sh --only go
+bash scripts/check.sh --only ansible
+~~~
 
-Слева направо:  
-- Pressure | CPU Busy | Sys Load | RAM Used | SWAP | Used Root FS   
-- CPU Cores: 2 | RAM Total: 3GiB | SWAP total: 0B  
-- Root FS total 30GiB | Uptime  
+Доступны группы `checker`, `secrets`, `yaml`, `php`, `go`, `monitoring` и `ansible`. Полный список проверок описан ниже в разделе [Локальные проверки и GitHub Actions](#локальные-проверки-и-github-actions).
 
-![Описание](docs/GrafanaNode.png)   
+### Обновить текущую версию на VPS
 
-# Быстрый старт: 
+После push в `main` GitHub Actions запускает `Checks`. Если workflow завершился успешно, автоматически запускается `Deploy`. Ручной `kubectl apply` для обычного обновления не нужен.
 
-**Запуск сервиса:**  
+Для Deploy в настройках репозитория должны быть заданы переменные `VPS_HOST` и `SITE_HOST` (а `VPS_USER` можно не задавать — по умолчанию используется `root`) и секреты `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS`, `GHCR_TOKEN`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Сами значения секретов в README или исходники не добавляются.
 
-Зайти в директорию    
-```bash
-cd /var/www  
-git clone https://github.com/lootnick266-lgtm/Distro-space.git
-cd /var/www/Distro-space
-```  
+Deploy собирает версионированные образы из очищенного build context, публикует их в приватный GHCR и обновляет существующие ресурсы k3s через Ansible. Он не очищает и не пересоздаёт БД. Подробнее — в разделе [GitHub Actions и автодеплой](#github-actions-и-автодеплой).
 
+## Ресурсы приложения в k3s
 
-Установка зависимостей   
-```bash
-in progress...
-```   
+Это ER-схема Kubernetes-ресурсов в namespace `distro-space`, а не общая архитектура проекта. Системные и мониторинговые ресурсы здесь не перечислены.
 
-
-Запустить сервис  
-```bash
-sudo systemctl start k3s
-```  
-
-**Проверка контейнеров:**
-```bash
-kubectl get pods -A
-```
-
-**Выключение сервиса:**
-```bash
-sudo systemctl stop k3s
-```
-
-
-
-## **Для Grafana**
-
-используются exporter'ы
-<table border="1" cellpadding="5" style="border-collapse: collapse; text-align: left;">
-  <tr style="background: darkorchid; color: white;">
-    <th>Экспортер</th>
-    <th>ID дашборда</th>
-  </tr>
-  <tr><td>Node Exporter</td><td>1860</td></tr>
-  <tr><td>cAdvisor</td><td>14282</td></tr>
-  <tr><td>Nginx Exporter</td><td>12708</td></tr>
-  <tr><td>MySQL Exporter</td><td>7362</td></tr>
-  <tr><td>Blackbox Exporter</td><td>13659</td></tr>
-  <tr><td>Alertmanager</td><td>13895</td></tr>
-  <tr><td>Prometheus</td><td>3662</td></tr>
-  <tr><td>K3S cluster monitoring</td><td>15282</td></tr>
-</table>
-  
-## Ресурсы приложения в k3s и их связи (ER-диаграмма)
-
-Схема описывает ресурсы namespace `distro-space`. Мониторинг и системные компоненты здесь не показаны; сетевая архитектура будет описана отдельно.
-
-
-```mermaid
+~~~mermaid
 erDiagram
     NAMESPACE ||--o{ DEPLOYMENT : "содержит"
-    NAMESPACE ||--o{ REPLICASET : "содержит"
     NAMESPACE ||--o{ STATEFULSET : "содержит"
-    NAMESPACE ||--o{ POD : "содержит"
     NAMESPACE ||--o{ SERVICE : "содержит"
     NAMESPACE ||--o{ INGRESS : "содержит"
     NAMESPACE ||--o{ SECRET : "содержит"
-    NAMESPACE ||--o{ PVC : "содержит"
 
     DEPLOYMENT ||--o{ REPLICASET : "управляет"
-    REPLICASET |o--o{ POD : "управляет"
-    STATEFULSET |o--o{ POD : "управляет"
+    REPLICASET ||--o{ POD : "создаёт"
+    STATEFULSET ||--o{ POD : "управляет"
     POD ||--|{ CONTAINER : "содержит"
-    CONTAINER }o--|| IMAGE : "использует"
+    CONTAINER }o--|| IMAGE : "запускает"
 
-    SERVICE }o--o{ POD : "выбирает по меткам"
-    INGRESS }o--|{ SERVICE : "ссылается на backend"
-    STATEFULSET ||--o{ PVC : "создаёт по шаблону"
+    SERVICE }o--o{ POD : "выбирает"
+    INGRESS ||--|| SERVICE : "направляет к"
+    STATEFULSET ||--o{ PVC : "создаёт запрос"
     POD }o--o{ PVC : "монтирует"
     POD }o--o{ SECRET : "использует"
 
@@ -190,35 +114,33 @@ erDiagram
         string name "distro-space"
     }
     DEPLOYMENT {
-        string name "nginx, php, vkbot"
+        string names "nginx, php, telegrambot"
         int nginxReplicas "2"
         int phpReplicas "1"
-        int vkbotReplicas "1"
-    }
-    REPLICASET {
-        string name "nginx-*, php-*, vkbot-*"
+        int telegrambotReplicas "1"
     }
     STATEFULSET {
         string name "db"
         int replicas "1"
     }
     POD {
-        string name "nginx-*, php-*, db-0, vkbot-*"
+        string names "nginx, php, telegrambot, db-0"
     }
     CONTAINER {
-        string name "nginx, php, db, vkbot"
+        string names "nginx, php-fpm, telegrambot, mysql"
     }
     SERVICE {
-        string name "nginx, php, db, vkbot"
+        string names "nginx, php, db, telegrambot"
         string type "ClusterIP"
     }
     INGRESS {
-        string host "distro.local"
-        string ingressClass "traefik"
+        string name "distro-space"
+        string class "traefik"
         string backend "nginx:80"
+        string host "задаётся при развёртывании"
     }
     SECRET {
-        string name "mysql-secret, vkbot-secret"
+        string names "mysql credentials, telegram bot credentials"
     }
     PVC {
         string name "db-data-db-0"
@@ -226,260 +148,228 @@ erDiagram
         string storageClass "local-path"
     }
     IMAGE {
-        string nginx "distro-nginx:1.9"
-        string php "distro-php:1.1"
-        string vkbot "distro-vkbot:1.1"
-        string db "mysql:8.0"
+        string release "локальный тег или тег git-SHA"
     }
-```
+~~~
 
+В локальных манифестах и на VPS могут использоваться разные имена образов: локальная VM работает с подготовленными локальными образами, а Deploy собирает для VPS образы с тегом конкретного commit SHA.
 
-## Топология сети между контейнерами и связь   
-## Legend  
-in progress....   
-![Описание]()  
+## Мониторинг
 
+Prometheus собирает метрики кластера и приложения. Grafana подключается к Prometheus как к источнику данных. В k3s Prometheus, Grafana и Alertmanager устанавливаются chart `kube-prometheus-stack`; Nginx, MySQL и Blackbox Exporter задаются отдельно.
 
+Для Grafana используются дашборды:
 
-## Инструментарий    
-> VM в VirtualBox  
-> ssh в cmd на Windows  
-> ssh remote host (Расширение в Visual Studio Code)  
+| Экспортер или сервис | ID дашборда |
+| --- | ---: |
+| Node Exporter | 1860 |
+| cAdvisor | 14282 |
+| Nginx Exporter | 12708 |
+| MySQL Exporter | 7362 |
+| Blackbox Exporter | 13659 |
+| Alertmanager | 13895 |
+| Prometheus | 3662 |
+| K3s cluster monitoring | 15282 |
 
-заметки
->[!CAUTION]
->  pgdb:
->    image: postgres:18
->    container_name: pgsql
->    restart: always
->    ports:
->      - "5432:5432"
->    networks:
->      - localhost_default
->    environment:
->      PGSQL_ROOT_PASSWORD: ${PGSQL_ROOT_PASSWORD}
->      PGSQL_DATABASE: ${PGSQL_DATABASE}
->      PGSQL_USER: ${PGSQL_USER}
->      PGSQL_PASSWORD: ${PGSQL_PASSWORD}
->    volumes:
->      - pgdb_data:/var/lib/postgresql/data
->
->
-## Алерты и уведомления в k3s
+## Алерты и Telegram
 
-Код бота — [VKAlerts/VkAlertBot.go](VKAlerts/VkAlertBot.go)
-`FIRING` — проблема, `RESOLVED` — восстановление.
+Правила приложения находятся в [k3s/monitoring/distro-space-alerts.yaml](k3s/monitoring/distro-space-alerts.yaml), маршрутизация — в [k3s/monitoring/alertmanager-config.yml](k3s/monitoring/alertmanager-config.yml), Go-код бота — в [VKAlerts/TelegramAlertBot.go](VKAlerts/TelegramAlertBot.go). Каталог `VKAlerts` сохранил историческое имя.
 
-```bash
-(cd VKAlerts && GOPROXY=off GOSUMDB=off go test ./...)
-```
+Бот при старте отправляет **«Бот запущен!»**. Алерты и сообщения о восстановлении отправляются на русском. Сейчас настроены правила для недоступности сайта и MySQL, проблем целей мониторинга, остановки контейнера и частых перезапусков.
 
-В k3s применяются правила из `k3s/monitoring/distro-space-alerts.yaml`.
+Alertmanager вызывает внутренний webhook бота по адресу `telegrambot.distro-space.svc.cluster.local:8080`. Бот отправляет сообщения через Telegram Bot API по HTTPS. Секреты токена и ID чата передаются через GitHub Secrets и Kubernetes Secret.
 
-```bash
-kubectl apply -f k3s/monitoring/distro-space-alerts.yaml
-```
+Локальные Go-тесты:
 
-Маршрутизация — `k3s/monitoring/alertmanager-config.yml`.
-В VK идут правила с `notify=vk` и системные `warning`/`critical`; остальные — в `null`.
-Ожидание группы: 30 секунд, интервал: 5 минут, повтор: 4 часа.
+~~~bash
+cd VKAlerts
+GOPROXY=off GOSUMDB=off go test ./...
+~~~
 
 ## Сетевые ограничения приложения
 
-В `distro-space` запрещены входящие и исходящие соединения, кроме явных разрешений. Новым подам без подходящих меток доступен только DNS к CoreDNS.
+NetworkPolicy в `distro-space` по умолчанию закрывают входящий и исходящий трафик подов. В таблице перечислены разрешённые связи внутри кластера; DNS разрешён всем подам, а для Telegram bot отдельно открыт исходящий HTTPS.
 
-<table border="1" cellpadding="5" style="border-collapse: collapse; text-align: left;">
-  <tr style="background: darkorchid; color: white;"><th>Источник (namespace / под)</th><th>Назначение (namespace / под)</th><th>Протокол и порт назначения</th></tr>
-  <tr><td>kube-system / traefik</td><td>distro-space / nginx</td><td>TCP 80</td></tr>
-  <tr><td>monitoring / nginx-exporter</td><td>distro-space / nginx</td><td>TCP 80</td></tr>
-  <tr><td>monitoring / blackbox-exporter</td><td>distro-space / nginx</td><td>TCP 80</td></tr>
-  <tr><td>distro-space / nginx</td><td>distro-space / php</td><td>TCP 9000</td></tr>
-  <tr><td>distro-space / php</td><td>distro-space / db</td><td>TCP 3306</td></tr>
-  <tr><td>monitoring / mysql-exporter</td><td>distro-space / db</td><td>TCP 3306</td></tr>
-  <tr><td>monitoring / blackbox-exporter</td><td>distro-space / db</td><td>TCP 3306</td></tr>
-  <tr><td>monitoring / Alertmanager</td><td>distro-space / vkbot</td><td>TCP 8080</td></tr>
-  <tr><td>distro-space / все поды</td><td>kube-system / CoreDNS</td><td>UDP/TCP 53</td></tr>
-  <tr><td>distro-space / vkbot</td><td>IPv4-адреса вне исключённых диапазонов</td><td>TCP 443</td></tr>
-</table>
+| Источник | Назначение | Порт назначения / протокол |
+| --- | --- | ---: |
+| `kube-system` / Traefik | `distro-space` / Nginx | 80 |
+| `monitoring` / Nginx Exporter | `distro-space` / Nginx | 80 |
+| `monitoring` / Blackbox Exporter | `distro-space` / Nginx | 80 |
+| `distro-space` / Nginx | `distro-space` / PHP-FPM | 9000 |
+| `distro-space` / PHP-FPM | `distro-space` / MySQL | 3306 |
+| `monitoring` / MySQL Exporter | `distro-space` / MySQL | 3306 |
+| `monitoring` / Blackbox Exporter | `distro-space` / MySQL | 3306 |
+| `monitoring` / Alertmanager | `distro-space` / Telegram bot | 8080 |
+| `distro-space` / все поды | CoreDNS в `kube-system` | 53, TCP и UDP |
 
-Экспортёры, Blackbox и Alertmanager выбираются по меткам в namespace `monitoring`. Для подов приложения разрешён DNS к CoreDNS из `kube-system` по UDP/TCP 53.
+Telegram bot может отправлять HTTPS-запросы на публичные IPv4-адреса по TCP 443; локальные, частные и служебные диапазоны исключены. NetworkPolicy не фильтрует это соединение по доменному имени Telegram и не задаёт отдельные разрешения IPv6.
 
-HTTPS бота не ограничен доменом VK: обычная NetworkPolicy не фильтрует по DNS-именам. Частные, локальные и link-local диапазоны исключены из этого разрешения. Отдельных разрешений IPv6 нет.
+NetworkPolicy ограничивает трафик подов приложения, но не заменяет firewall узла и правила доступа к NodePort. Namespace `monitoring` и `kube-system` этими политиками не изолируются. Исходящая почта из PHP сейчас не настроена.
 
-Файлы `k3s/base/networkpolicy-allow.yaml` и `k3s/base/networkpolicy-default-deny.yaml` включены в Kustomization. При отдельном применении сначала загрузите разрешения:
+Файлы политик включены в [k3s/base/kustomization.yaml](k3s/base/kustomization.yaml). Если применять их вручную, сначала добавь разрешающие правила, затем default deny:
 
-```bash
+~~~bash
 kubectl apply -f k3s/base/networkpolicy-allow.yaml
 kubectl apply -f k3s/base/networkpolicy-default-deny.yaml
-```
+~~~
 
-Аварийный откат только этих ограничений:
+Удаление этих двух наборов правил возвращает namespace к прежнему состоянию без изоляции:
 
-```bash
-kubectl delete --ignore-not-found=true -f k3s/base/networkpolicy-default-deny.yaml -f k3s/base/networkpolicy-allow.yaml
-```
+~~~bash
+kubectl delete --ignore-not-found=true \
+  -f k3s/base/networkpolicy-default-deny.yaml \
+  -f k3s/base/networkpolicy-allow.yaml
+~~~
 
-Следующее применение `k3s/base` восстановит политики.
+## Локальные проверки и GitHub Actions
 
-Namespace `monitoring` и `kube-system` не изолированы. Публикация Grafana не изменена. NetworkPolicy не заменяют firewall ноды и защиту NodePort; трафик ноды имеет исключения на уровне Kubernetes.
+`bash scripts/check.sh` запускает проверки исходников и конфигураций. Они не подключаются к рабочей БД и не разворачивают ресурсы.
 
-SMTP-доступ PHP не разрешён: в контейнере нет `sendmail`/`msmtp`. При настройке почты потребуется разрешение к выбранному SMTP-серверу.
+Проверяются:
 
-## Локальные проверки и CI
+- синтаксис shell и регрессионные тесты скриптов;
+- поиск секретов в отслеживаемых Git-файлах;
+- YAML и Kustomize;
+- синтаксис PHP без исполнения приложения;
+- Go-тесты и `go vet`;
+- правила Prometheus и конфигурация Alertmanager;
+- синтаксис Ansible и рендер шаблонов для двух режимов.
 
-Из корня репозитория:
+Контейнерные проверки запускаются без сети и с ограниченными правами. Локально должны быть доступны Docker и образы PHP, Prometheus и Alertmanager. GitHub Actions подготавливает инструменты, Go-модули и образы перед тем, как запустить те же проверки.
 
-```bash
-bash scripts/check.sh
-bash scripts/check.sh --only go
-```
+Workflow [Checks](.github/workflows/checks.yml) запускается на push, pull request и вручную. Ручной запуск с параметром `VPS_HOST` выполняет только проверку сетевой доступности VPS: проверяет SSH-баннер и HTTPS-доступ к GitHub/GHCR. Он не пытается войти по SSH и не запускает деплой.
 
-Доступные группы: `checker`, `secrets`, `yaml`, `php`, `go`, `monitoring`. Пропущенных по отсутствию инструментов проверок нет: ошибка зависимости завершает запуск с ненулевым кодом.
-
-Нужны Git, Bash, Python 3 с PyYAML, Go 1.26, kubectl 1.31.5 и Docker. Локально используются уже загруженные образы `distro-php:1.1`, `quay.io/prometheus/prometheus:v3.15.1-distroless` и `quay.io/prometheus/alertmanager:v0.34.1`.
-
-Образы можно переопределить переменными `PHP_CHECK_IMAGE`, `PROMETHEUS_CHECK_IMAGE`, `ALERTMANAGER_CHECK_IMAGE`. Скрипт не скачивает образы; контейнеры запускаются без сети. Go использует локальный кеш модулей. На чистой машине зависимости нужно подготовить заранее: `python3 -m pip install -r scripts/requirements-checks.txt` и `(cd VKAlerts && go mod download)`.
-
-Проверяются синтаксис PHP без исполнения кода, существующие Go-тесты и `go vet`, уникальность ключей YAML, структура ресурсов и сборка Kustomize, правила через `promtool`, конфигурация через `amtool`. Поиск секретов ограничен защитой путей Git и узнаваемыми шаблонами токенов/приватных ключей; значения в отчёт не выводятся. `.env`, `install.sh` и локальные файлы секретов не читаются.
-
-Это не полная проверка схем Kubernetes/CRD, не проверка сетевой изоляции и не функциональные тесты PHP с БД. Рабочая БД, токен VK и доступ к живому кластеру для запуска не нужны.
-
-Workflow `.github/workflows/checks.yml` запускает ту же команду при push, pull request и вручную. В GitHub он предварительно загружает инструменты, Go-модули и образы; затем сами проверки работают без сетевых запросов к приложению.
-
-Старый `.github/workflows/deploy.yml` оставлен только для ручного запуска. Автоматический Compose-деплой при push отключён. Новый workflow не публикует образы и не разворачивает сервисы.
+Секрет-сканер работает по путям, которые Git отслеживает, и по известным шаблонам ключей и токенов; значения не выводятся в лог. Настоящие `.env`, `config.php`, Ansible inventory, Vault-файлы, приватные ключи и дампы БД в репозиторий не добавляются. Для примеров оставлены файлы с безопасными шаблонами.
 
 ## Проверка работающего k3s
 
-Запускается отдельно на VM/ноде с доступом к ClusterIP и настроенным kubectl:
+Эта проверка выполняется отдельно на машине, у которой есть `kubectl` и доступ к кластеру:
 
-```bash
+~~~bash
 bash scripts/health.sh
-```
+~~~
 
-Нужны только Python 3 и kubectl. Адрес сайта и HTTP Host определяются из Ingress.
+Скрипт проверяет готовность нод и подов, Nginx/PHP/MySQL/Telegram bot, страницы сайта и TechSupport, анонимную сессию PHP, защиту скачивания бэкапа, Prometheus, Grafana, Alertmanager, экспортёры и пять правил приложения.
 
-Проверяются Ready и отсутствие давления на ноды, готовность подов и обновлённых реплик в `distro-space`, `monitoring`, `kube-system`, наличие nginx/PHP/MySQL/VK-бота. Нулевое число реплик не считается успехом.
+Webhook Telegram bot проверяется GET-запросом без отправки сообщения; ожидаемый ответ — HTTP 405. Скрипт ничего не применяет и не перезапускает, в БД не пишет. Он не проверяет вход пользователя, браузерный интерфейс, доставку сообщения в Telegram или доступность Telegram API.
 
-HTTP-проверки: главная страница и TechSupport возвращают HTML, PHP сообщает об анонимной сессии, скачивание бэкапа без входа запрещено (`403`). Проверяется готовность Prometheus и Alertmanager, состояние БД Grafana и HTTP-обработчик бота (`405` на GET без отправки сообщения).
+`health.sh` — smoke-проверка работающего кластера. Тесты самого health-скрипта находятся в `scripts/test_health.py` и входят в обычный `scripts/check.sh`.
 
-У Prometheus проверяются свежие успешные scrape (не старше 180 секунд), значения `mysql_up`, `nginx_up`, `probe_success`, наличие обеих HTTP-проб и TCP-пробы MySQL. Все пять правил приложения должны быть загружены, исправно вычисляться и оставаться inactive. Системный Watchdog сам по себе проверку не проваливает.
+## Интеграционная проверка NetworkPolicy
 
-Каждая проверка выводит PASS/FAIL; при ошибках код завершения — 1. Содержимое HTTP-ответов, cookies и секреты не печатаются. Скрипт не разворачивает ресурсы, не перезапускает поды и не записывает данные в БД.
+`python3 -B scripts/security.py` проверяет фактические сетевые правила в доступном k3s-кластере. В отличие от обычных CI-проверок, этот сценарий создаёт временные namespace и поды-слушатели, а затем проверяет разрешённые и запрещённые подключения.
 
-Это smoke-проверка доступности, а не полный пользовательский сценарий: вход и операции записи, браузерный интерфейс, доставка в VK и фактическая блокировка всех запрещённых сетевых связей здесь не тестируются. Готовность бота не означает доступность API VK.
+Приложение, БД, рабочие тома и секреты в тестовые namespace не копируются. Проверки удаляют свои ресурсы после завершения; при принудительном завершении процесса очистка может не успеть выполниться. Перед ручным удалением сначала убедись, что namespace имеют метку тестового набора:
 
-`scripts/test_health.py` проверяет логику health-скрипта на искусственных данных. Эти тесты включены в обычный `bash scripts/check.sh` и workflow Checks, без доступа к VM. Сам `health.sh` в GitHub автоматически не запускается; его можно будет добавить в этап после деплоя.
-
-## Security-тесты NetworkPolicy
-
-На VM с k3s из корня репозитория:
-
-```bash
-python3 -B scripts/security.py
-```
-
-Нужны Python 3 с PyYAML, kubectl с правами создания временных namespace, подов и NetworkPolicy. Образ `distro-nginx:1.9` должен быть импортирован на ноды заранее. Скрипт не скачивает образы; другой локальный образ с nginx, sh, nc и nslookup можно передать через `--image`.
-Тест создаёт три уникальных namespace `netpol-test-<id>-app`, `netpol-test-<id>-monitoring`, `netpol-test-<id>-ingress` и 11 небольших подов-слушателей. Рабочие тома, данные БД и секреты не подключаются; вместо сервисов запускаются TCP-слушатели.
-Тест создаёт три уникальных namespace `netpol-test-<id>-app`, `netpol-test-<id>-monitoring`, `netpol-test-<id>-ingress` и 11 небольших подов-слушателей. Код приложения, данные БД и секреты в них не копируются.
-
-Из двух файлов NetworkPolicy в `k3s/base` создаются копии: namespace приложения и разрешённых источников заменяются тестовыми. Исключение — DNS к настоящему CoreDNS. Рабочие политики и сервисы не меняются.
-
-Сначала все 20 проверяемых TCP-связей должны работать без политик. После их установки проверяются 8 разрешённых и 12 запрещённых связей; каждый запрет подтверждается двумя новыми соединениями. Ошибки kubectl/exec не считаются доказательством блокировки.
-
-Проверяются связи Traefik/nginx/PHP/MySQL, экспортёров/Blackbox, Alertmanager/бота, запрет лишних портов, исходящих соединений БД, доступа постороннего пода и доступа с подходящими метками из неправильного namespace. DNS проверяется из всех пяти подов приложения.
-
-Проверки выполняются по IP тестовых подов. Они не подтверждают доступность VK/внешнего HTTPS, защиту NodePort/hostNetwork, работу IPv6, фильтрацию UDP кроме DNS и изоляцию рабочих namespace мониторинга/системы.
-
-Ресурсы удаляются в finally и при обычном прерывании. Перед удалением namespace проверяются его UID и метка текущего запуска. При SIGKILL или потере питания автоматическая очистка не гарантирована; оставшиеся тестовые namespace можно найти так:
-
-```bash
+~~~bash
 kubectl get namespaces -l security.distro-space/test-suite=networkpolicy
-```
+~~~
 
-При неудачной очистке скрипт выводит конкретные имена namespace. Проверяйте их перед ручным удалением.
+Нужны Python 3 с PyYAML, `kubectl` с правами создавать и удалять временные namespace/поды/NetworkPolicy и заранее загруженный образ `distro-nginx:1.9`. Скрипт не скачивает образ.
 
-Логика теста проверяется в `scripts/test_security.py`; эти автономные тесты уже входят в Checks. Сам интеграционный security-тест запускается отдельно и требует живого кластера.
+Проверка покрывает связи между Traefik, Nginx, PHP, MySQL, экспортёрами, Alertmanager и Telegram bot, а также несколько запрещённых направлений. Она не проверяет внешний HTTPS/API Telegram, IPv6 и firewall хоста. Автономные тесты логики этого сценария находятся в `scripts/test_security.py` и запускаются в Checks.
 
-## Ansible: подготовка нового сервера
+## Ansible и развёртывание
 
-Первая версия рассчитана на одну выделенную Ubuntu 22.04+ amd64-ноду: минимум 4 ГиБ RAM без swap, практически лучше 6 ГиБ RAM и 40 ГБ диска. Текущая VM защищена от запуска; принятие чужого k3s под управление запрещено.
+В репозитории есть два разных сценария:
 
-Playbook находится в `ansible/site.yml`, задачи одной роли `distro` разделены на preflight, bootstrap, credentials, application, monitoring и verify. Дополнительные Galaxy-коллекции не нужны: используется ansible-core 2.20.1.
+- `ansible/site.yml` — первичная установка на отдельный новый сервер Ubuntu amd64: firewall, Fail2ban, k3s, Helm, приложение и мониторинг.
+- `ansible/deploy.yml` — обновление уже подготовленного VPS. GitHub Actions запускает именно этот playbook; он не переинициализирует и не очищает БД.
+- `ansible/validate.yml` — локальная проверка шаблонов без подключения к серверу или кластеру.
+- `ansible/harden.yml` — отдельная настройка Fail2ban.
 
-Образы загружаются из registry. Для nginx и PHP нужно предварительно опубликовать подготовленные образы и указать их полные версионные ссылки в inventory. Локальные tar-архивы не используются. Пароли, `.env`, локальный `config.php`, `install.sh` и рабочие дампы не копируются с управляющей VM.
+Используется `ansible-core 2.20.1`, k3s `v1.31.5+k3s1`, Helm `v3.22.1` и chart `kube-prometheus-stack 92.14.1`. Дополнительные Ansible Galaxy-коллекции не нужны.
 
-Секреты передаются отдельным зашифрованным Vault-файлом вне репозитория. Пример с пустыми значениями — `ansible/vault.example.yml`; имена переменных не являются готовыми паролями. Для трёх MySQL-паролей нужны разные случайные строки из 24–128 символов A–Z, a–z, 0–9, дефисов и подчёркиваний.
+Первичная установка рассчитана на выделенный сервер. Playbook отказывается работать с защищённой исходной VM и проверяет требования к ОС, архитектуре, памяти и swap. Он устанавливает входящие правила UFW для SSH/HTTP/HTTPS и Fail2ban для SSH: пять неудачных попыток за десять минут приводят к блокировке на пять часов.
 
-Схема `ansible/roles/distro/files/schema.sql` содержит только пять пустых таблиц. Пользователи приложения, FAQ и обращения не импортируются. MySQL выполняет init только на новом томе; повторный запуск не очищает БД. Изменение исходных паролей/имени БД при повторном запуске блокируется, а не выполняет неявную ротацию.
+Секреты первичной установки передаются через отдельный Ansible Vault-файл вне репозитория. Образец структуры переменных находится в [ansible/vault.example.yml](ansible/vault.example.yml), пример inventory — в [ansible/inventory.example.yml](ansible/inventory.example.yml). Перед запуском скопируй и настрой inventory:
 
-По умолчанию VK отключён (`distro_vk_enabled: false`), маршрут Alertmanager направлен в null. При включении нужны опубликованный образ бота и новый токен через Vault. Telegram пока не реализован.
-
-Хранилище Grafana/Prometheus/Alertmanager по умолчанию временное, как согласовано. `distro_monitoring_persistence: true` включает тома 1/5/1 GiB соответственно. Том MySQL постоянный в обоих режимах. Grafana для нового окружения имеет ClusterIP; публикация текущей Grafana не изменялась.
-
-Предварительная подготовка inventory (без запуска на сервере):
-
-```bash
+~~~bash
 cd ansible
 cp inventory.example.yml inventory.yml
-```
+~~~
 
-В `inventory.yml` замените тестовый адрес 192.0.2.10, SSH-пользователя, hostname сайта и ссылки на опубликованные образы. Inventory игнорируется Git. Для приватного registry включите `distro_registry_auth_enabled` и передайте его учётные данные через Vault.
+Затем укажи новый сервер, домен, ссылки на образы и внешний Vault-файл с секретами. По умолчанию первичная установка загружает образы из registry; сборку на сервере включает параметр distro_build_images. Inventory и Vault игнорируются Git. Не помещай реальные значения секретов в README, команды или шаблоны примеров.
 
-Проверки без подключения к целевому серверу:
+Первичная установка создаёт пустую схему БД: пользователей, FAQ и обращения она не импортирует. Существующую БД можно восстановить только при явно заданном снимке для `site.yml`. Повторный GitHub Deploy работает в update-only режиме и не принимает снимок БД.
 
-```bash
+MySQL хранится на постоянном томе 5 GiB. Хранилище Grafana, Prometheus и Alertmanager в новой установке временное по умолчанию; его можно включить параметром `distro_monitoring_persistence`. Публикация Grafana для нового окружения не открывается автоматически.
+
+Проверить Ansible без подключения к серверу:
+
+~~~bash
 cd /var/www/localhost
 bash scripts/check.sh --only ansible
-```
+~~~
 
-Они проверяют синтаксис и рендер двух режимов с искусственными секретами: VK/registry/persistence выключены и включены. Проверяются Kustomize, сохранение политик, отсутствие seed-данных и отсутствие мёртвого VK-маршрута. Это ещё не проверка установки с нуля.
+Первичную установку запускают только на подготовленном новом сервере после настройки inventory и внешнего Vault-файла:
 
-После подготовки НОВОЙ тестовой VM и внешнего Vault-файла запуск будет выглядеть так:
-
-```bash
+~~~bash
 cd ansible
-ansible-playbook -i inventory.yml site.yml -e @/absolute/path/deploy.vault.yml --ask-vault-pass --ask-become-pass
-```
+ansible-playbook -i inventory.yml site.yml \
+  -e @/absolute/path/deploy.vault.yml \
+  --ask-vault-pass --ask-become-pass
+~~~
 
-При реальном запуске серверу нужен Интернет: APT, GitHub Releases для k3s, get.helm.sh, официальный Helm-репозиторий и registry образов. Бинарные файлы k3s/Helm сверяются с опубликованными SHA-256. При подготовке playbook эти скачивания не выполнялись.
+На сервере при первой установке нужен интернет для APT, GitHub Releases, Helm chart repository и registry. Версии k3s и Helm проверяются по опубликованным SHA-256.
 
-После развёртывания автоматически выполняется health-проверка; при отключённом VK используется явный `--skip-vkbot`. SSH, firewall, DNS провайдера и публичный TLS этот playbook пока не настраивает. Terraform и CI-деплой будут отдельным этапом после проверки установки и повторного запуска на чистой VM.
+Terraform-конфигурации в репозитории пока нет. Текущий автодеплой использует GitHub Actions и Ansible.
 
-## Иерархия Ansible (Mermaid)
+## GitHub Actions и автодеплой
 
-Главная точка запуска — `ansible/site.yml`. Сплошные стрелки показывают вызов дочерних задач или использование файлов, пунктирные — входные настройки. Пути `tasks/`, `templates/`, `defaults/` и `files/` относятся к `ansible/roles/distro/`. Это схема файлов и управления задачами, без сетевой архитектуры.
+Workflow `Checks` проверяет каждый push и pull request. `Deploy` запускается после успешного `Checks`, только для push в `main`, и пропускает старый commit, если в ветке уже появился более новый.
 
-```mermaid
+На время запуска GitHub Actions хранит SSH-данные и Telegram/GHCR credentials во временных файлах с ограниченными правами и удаляет их после выполнения. Build context для образов собирается по allowlist: локальные `config.php`, `.env`, Vault и дампы БД в него не попадают.
+
+Deploy собирает приватные образы с тегом вида `git-<commit SHA>` на VPS, отправляет их в GHCR и применяет приложение и мониторинг через Ansible. При повторном запуске того же commit данные MySQL не очищаются. Плейбук не меняет системный SSH-доступ и не выполняет миграцию БД.
+
+Для Deploy нужны переменные репозитория:
+
+| GitHub variable | Для чего |
+| --- | --- |
+| `VPS_HOST` | Публичный адрес VPS |
+| `VPS_USER` | SSH-пользователь; по умолчанию `root` |
+| `SITE_HOST` | Домен сайта; если не задан, используется адрес VPS |
+
+И секреты:
+
+| GitHub secret | Для чего |
+| --- | --- |
+| `DEPLOY_SSH_KEY` | Отдельный приватный SSH-ключ автодеплоя |
+| `DEPLOY_KNOWN_HOSTS` | Доверенный host key VPS |
+| `GHCR_TOKEN` | Доступ к приватным пакетам и публикация образов |
+| `TELEGRAM_BOT_TOKEN` | Токен Telegram alert bot |
+| `TELEGRAM_CHAT_ID` | Чат, куда отправляются уведомления |
+
+Значения секретов хранятся в настройках GitHub и сюда не копируются.
+
+## Иерархия Ansible
+
+Главный playbook первичной установки — `ansible/site.yml`. GitHub Deploy использует отдельный `ansible/deploy.yml`, чтобы обновлять существующий VPS без повторного bootstrap и действий с БД.
+
+~~~mermaid
 flowchart TD
-    CFG["ansible/ansible.cfg"] -.-> SITE["ansible/site.yml — главный playbook"]
-    INV["Локальный inventory.yml — целевой сервер и параметры"] -.-> SITE
-    SITE --> ROLE["Роль distro"]
-    DEFAULTS["defaults/main.yml — значения по умолчанию"] -.-> ROLE
-    ROLE --> MAIN["tasks/main.yml — порядок выполнения"]
-    MAIN --> PRE["1. preflight.yml — проверки входных условий"]
-    MAIN --> BOOT["2. bootstrap.yml — k3s и Helm"]
-    MAIN --> CREDS["3. credentials.yml — Secret"]
-    MAIN --> APP["4. application.yml — приложение"]
-    MAIN --> MON["5. monitoring.yml — мониторинг"]
-    MAIN --> VERIFY["6. verify.yml — проверка результата"]
-    BOOT --> UNIT["templates/k3s.service.j2"]
-    VAULT["Внешний зашифрованный Vault-файл — вне репозитория"] -.-> CREDS
-    CREDS --> CT["templates/credentials.yaml.j2"]
-    CREDS --> MST["templates/monitoring-secrets.yaml.j2"]
-    CT --> SQL["files/schema.sql — пустая схема БД"]
-    APP --> KT["templates/kustomization.yaml.j2"]
-    APP --> BASE["k3s/base/ — исходные ресурсы и NetworkPolicy"]
-    MON --> MV["templates/monitoring-values.yaml.j2"]
-    MON --> EXP["templates/exporters.yaml.j2"]
-    MON --> MSRC["k3s/monitoring/ — исходные values, алерты и экспортёры"]
-    VERIFY --> HEALTH["scripts/health.py — проверка работающего стека"]
+    CHECKS["GitHub Actions: Checks"] -->|успешный push в main| DEPLOY["GitHub Actions: Deploy"]
+    DEPLOY --> UPDATE["ansible/deploy.yml — update-only"]
+    UPDATE --> PREFLIGHT["Проверка управляемого VPS и входных параметров"]
+    UPDATE --> IMAGES["Buildah: сборка и публикация образов в GHCR"]
+    UPDATE --> CREDS["Обновление registry и Telegram credentials"]
+    UPDATE --> APP["Применение ресурсов приложения"]
+    UPDATE --> MON["Обновление мониторинга и экспортёров"]
+    UPDATE --> VERIFY["Health-проверка"]
 
-    subgraph CHECKS["Отдельный запуск проверок шаблонов — без деплоя"]
-        CHECK["scripts/check.sh --only ansible"] --> DRIVER["scripts/check.py"]
-        DRIVER --> VALIDATE["ansible/validate.yml"]
-        VALIDATE --> VT["Роль distro: tasks/validate.yml"]
-        VT --> CASE["tasks/validate_case.yml — два режима рендера"]
-    end
-```
+    SITE["ansible/site.yml — первичная установка"] --> ROLE["Роль distro"]
+    ROLE --> MAIN["tasks/main.yml"]
+    MAIN --> FW["firewall.yml"]
+    MAIN --> BAN["hardening.yml — Fail2ban"]
+    MAIN --> BOOT["bootstrap.yml — k3s и Helm"]
+    MAIN --> BUILD["images.yml — если включена сборка"]
+    MAIN --> SECRET["credentials.yml"]
+    MAIN --> APPLICATION["application.yml"]
+    MAIN --> MONITOR["monitoring.yml"]
+    MAIN --> VERIFY
 
-Дочерние задачи развёртывания перечислены в порядке запуска. В режиме `--check` выполняется только preflight; отдельный `validate.yml` проверяет шаблоны локально и не запускает основной сценарий установки.
+    VALIDATE["ansible/validate.yml — локальная проверка шаблонов"] --> TEMPLATES["Два режима рендера без подключения к серверу"]
+~~~
+
+Роль `distro` и её шаблоны находятся в `ansible/roles/distro/`. Значения по умолчанию — в `defaults/main.yml`; задачи — в `tasks/`; шаблоны Kubernetes — в `templates/`; пустая схема новой БД — в `files/schema.sql`.
