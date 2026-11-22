@@ -65,7 +65,7 @@ Loki пока не входит в активный стек k3s. Файл ег�
 
 ~~~bash
 python3 -m pip install -r scripts/requirements-checks.txt
-(cd VKAlerts && go mod download)
+(cd Alerts && go mod download)
 bash scripts/check.sh
 ~~~
 
@@ -88,7 +88,7 @@ Deploy собирает версионированные образы из оч�
 
 ## Ресурсы приложения в k3s
 
-Это ER-схема Kubernetes-ресурсов в namespace `distro-space`, а не общая архитектура проекта. Системные и мониторинговые ресурсы здесь не перечислены.
+Это ER-схема Kubernetes-ресурсов в namespace `distro-space`.
 
 ~~~mermaid
 erDiagram
@@ -173,7 +173,7 @@ Prometheus собирает метрики кластера и приложен�
 
 ## Алерты и Telegram
 
-Правила приложения находятся в [k3s/monitoring/distro-space-alerts.yaml](k3s/monitoring/distro-space-alerts.yaml), маршрутизация — в [k3s/monitoring/alertmanager-config.yml](k3s/monitoring/alertmanager-config.yml), Go-код бота — в [VKAlerts/TelegramAlertBot.go](VKAlerts/TelegramAlertBot.go). Каталог `VKAlerts` сохранил историческое имя.
+Правила приложения находятся в [k3s/monitoring/distro-space-alerts.yaml](k3s/monitoring/distro-space-alerts.yaml), маршрутизация — в [k3s/monitoring/alertmanager-config.yml](k3s/monitoring/alertmanager-config.yml), Go-код бота — в [Alerts/TelegramAlertBot.go](Alerts/TelegramAlertBot.go).
 
 Бот при старте отправляет **«Бот запущен!»**. Алерты и сообщения о восстановлении отправляются на русском. Сейчас настроены правила для недоступности сайта и MySQL, проблем целей мониторинга, остановки контейнера и частых перезапусков.
 
@@ -182,7 +182,7 @@ Alertmanager вызывает внутренний webhook бота по адр�
 Локальные Go-тесты:
 
 ~~~bash
-cd VKAlerts
+cd Alerts
 GOPROXY=off GOSUMDB=off go test ./...
 ~~~
 

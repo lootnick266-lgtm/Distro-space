@@ -2,10 +2,10 @@ FROM golang:1.25-alpine
 
 WORKDIR /app
 
-COPY VKAlerts/go.mod VKAlerts/go.sum ./
+COPY Alerts/go.mod Alerts/go.sum ./
 RUN go mod download
 
-COPY VKAlerts/ ./
+COPY Alerts/ ./
 
 RUN go build -o bot .
 

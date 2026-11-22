@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
-      - name: Skip commits superseded by a newer main
+      - name: Decide whether the checked commit needs deployment
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -46,9 +46,39 @@ jobs:
           with urllib.request.urlopen(request, timeout=20) as response:
               current = json.load(response)['object']['sha']
           deploy = current == sha
+          skip_reason = 'outdated checked commit'
+          if deploy:
+              try:
+                  commit_request = urllib.request.Request(
+                      'https://api.github.com/repos/' + os.environ['REPOSITORY'] + '/commits/' + sha,
+                      headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                               'Accept': 'application/vnd.github+json'})
+                  with urllib.request.urlopen(commit_request, timeout=20) as response:
+                      commit = json.load(response)
+                  files = commit.get('files')
+                  if isinstance(files, list) and 0 < len(files) < 300:
+                      changed_paths = []
+                      for item in files:
+                          changed_paths.append(item.get('filename', ''))
+                          previous = item.get('previous_filename')
+                          if previous:
+                              changed_paths.append(previous)
+                      def is_documentation(path):
+                          normalized = path.strip('/').lower()
+                          return (normalized == 'docs' or normalized.startswith('docs/') or
+                                  ('/' not in normalized and
+                                   (normalized == 'readme' or normalized.startswith('readme.'))))
+                      if changed_paths and all(is_documentation(path) for path in changed_paths):
+                          deploy = False
+                          skip_reason = 'README/docs-only commit'
+              except Exception as error:
+                  print('Could not classify changed paths; deployment will proceed: ' + str(error))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write('deploy=' + str(deploy).lower() + '\n')
-          print('Deploying checked commit ' + sha if deploy else 'Skipping an outdated checked commit.')
+          if deploy:
+              print('Deploying checked commit ' + sha)
+          else:
+              print('Skipping ' + skip_reason + '.')
           PY
 
       - uses: actions/checkout@v4

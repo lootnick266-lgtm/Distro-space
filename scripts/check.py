@@ -176,7 +176,7 @@ def check_php():
 
 def check_go():
     env = dict(os.environ, GOPROXY='off', GOSUMDB='off', GOTOOLCHAIN='local')
-    module = ROOT / 'VKAlerts'
+    module = ROOT / 'Alerts'
     run(['go', 'mod', 'verify'], cwd=module, env=env)
     print(run(['go', 'test', '-count=1', './...'], cwd=module, env=env).strip())
     run(['go', 'vet', './...'], cwd=module, env=env)

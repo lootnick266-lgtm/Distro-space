@@ -39,11 +39,11 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.26.0'
-          cache-dependency-path: VKAlerts/go.sum
+          cache-dependency-path: Alerts/go.sum
       - name: Install YAML parser
         run: python3 -m pip install -r scripts/requirements-checks.txt
       - name: Prepare Go dependencies
-        working-directory: VKAlerts
+        working-directory: Alerts
         run: go mod download
       - name: Prepare check images
         run: |

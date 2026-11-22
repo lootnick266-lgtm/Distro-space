@@ -58,7 +58,7 @@ def main():
             bot = context / 'telegrambot'
             bot.mkdir()
             for name in ['TelegramAlertBot.go', 'go.mod', 'go.sum']:
-                shutil.copyfile(ROOT / 'VKAlerts' / name, bot / name)
+                shutil.copyfile(ROOT / 'Alerts' / name, bot / name)
             shutil.copyfile(ROOT / 'Docker/Dockerfile.telegrambot', context / 'Dockerfile.telegrambot')
         shutil.copytree(context, args.output, dirs_exist_ok=True)
         digest = hashlib.sha256()

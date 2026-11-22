@@ -43,6 +43,30 @@
       register: distro_context_result
       changed_when: false
 
+    - name: Find README files in the prepared deployment context
+      ansible.builtin.find:
+        paths: "{{ distro_build_context.path }}"
+        recurse: true
+        file_type: file
+        patterns: ['README*', 'readme*']
+      delegate_to: localhost
+      become: false
+      register: distro_context_readmes
+
+    - name: Check whether documentation directory entered the deployment context
+      ansible.builtin.stat:
+        path: "{{ distro_build_context.path }}/docs"
+      delegate_to: localhost
+      become: false
+      register: distro_context_docs
+
+    - name: Refuse to transfer README or documentation to the VPS
+      ansible.builtin.assert:
+        that:
+          - distro_context_readmes.matched | int == 0
+          - not distro_context_docs.stat.exists
+        fail_msg: "README and docs must stay out of the VPS deployment context."
+
     - name: Pack only the clean source directory for one SSH transfer
       ansible.builtin.command:
         argv:
