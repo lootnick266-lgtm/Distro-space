@@ -1,4 +1,6 @@
 grafana:
+  serviceMonitor:
+    path: /grafana/metrics
   service:
     type: ClusterIP
   ingress:
