@@ -5,7 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   forwardAuth:
-    address: http://nginx.distro-space.svc.cluster.local/src/controlls/php/grafana-auth.php
+    address: http://nginx.distro-space.svc.cluster.local/src/controlls/php/grafana_auth.php
     authRequestHeaders:
       - Cookie
     trustForwardHeader: false
