@@ -70,6 +70,8 @@
   until: >-
     '--accesslog=true' in distro_traefik_args.stdout and
     '--accesslog.format=json' in distro_traefik_args.stdout and
+    '--accesslog.filters.statuscodes=401-401' in distro_traefik_args.stdout and
+    '--accesslog.fields.headers.defaultmode=drop' in distro_traefik_args.stdout and
     '--accesslog.fields.headers.names.CF-Connecting-IP=keep' in distro_traefik_args.stdout
 
 - name: Wait for Traefik rollout after access logging changes

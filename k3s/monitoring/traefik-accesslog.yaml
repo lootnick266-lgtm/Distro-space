@@ -5,15 +5,15 @@ metadata:
   namespace: kube-system
 spec:
   valuesContent: |-
-    accessLog:
-      enabled: true
-      format: json
-      filters:
-        statusCodes:
-          - "401-401"
-      fields:
-        defaultMode: keep
-        headers:
-          defaultMode: drop
-          names:
-            CF-Connecting-IP: keep
+    logs:
+      access:
+        enabled: true
+        format: json
+        filters:
+          statuscodes: "401-401"
+        fields:
+          defaultmode: keep
+          headers:
+            defaultmode: drop
+            names:
+              CF-Connecting-IP: keep
