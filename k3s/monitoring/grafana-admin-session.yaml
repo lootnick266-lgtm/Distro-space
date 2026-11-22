@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: grafana-admin-session
+  namespace: monitoring
+spec:
+  forwardAuth:
+    address: http://nginx.distro-space.svc.cluster.local/src/controlls/php/grafana-auth.php
+    authRequestHeaders:
+      - Cookie
+    trustForwardHeader: false

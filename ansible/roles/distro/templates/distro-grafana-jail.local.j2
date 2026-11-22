@@ -1,0 +1,9 @@
+[traefik-grafana]
+enabled = true
+backend = polling
+filter = distro-grafana
+logpath = /var/log/containers/*_kube-system_traefik-*.log
+maxretry = 2
+findtime = 5m
+bantime = 20h
+action = distro-cloudflare-token

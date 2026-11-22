@@ -22,6 +22,8 @@ distro_mysql_root_password: ""
 distro_mysql_app_password: ""
 distro_mysql_exporter_password: ""
 distro_grafana_admin_password: ""
+distro_cloudflare_api_token: ""
+distro_cloudflare_zone_id: ""
 distro_db_name: chatbot_support
 distro_db_user: distro_app
 distro_protected_addresses: []

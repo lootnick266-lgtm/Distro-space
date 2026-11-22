@@ -42,5 +42,8 @@
     - name: Reconcile monitoring
       ansible.builtin.import_tasks: monitoring.yml
 
+    - name: Configure long-lived Cloudflare bans for Grafana login failures
+      ansible.builtin.import_tasks: grafana-protection.yml
+
     - name: Verify the deployed release
       ansible.builtin.import_tasks: verify.yml

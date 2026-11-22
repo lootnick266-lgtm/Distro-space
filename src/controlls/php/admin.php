@@ -114,6 +114,7 @@ $stats = [
                     <li><a href="/#faqLink">FAQ</a></li>
                     <li><a href="dashboard.php">Дашборд</a></li>
                     <li><a href="admin.php" style="color:#2c7da0; font-weight:bold;">Админ-панель</a></li>
+                    <li><a href="/grafana/" target="_blank" rel="noopener noreferrer">Grafana</a></li>
                 </ul>
             </nav>
             <div class="auth-buttons">

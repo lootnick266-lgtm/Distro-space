@@ -7,7 +7,7 @@
 
 - name: Install Fail2ban and its journal backend
   ansible.builtin.apt:
-    name: [fail2ban, python3-systemd, ufw]
+    name: [fail2ban, python3-systemd, ufw, python3]
     state: present
     update_cache: true
     cache_valid_time: 3600

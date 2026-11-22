@@ -51,6 +51,16 @@
 
 
 
+- name: Require Cloudflare credentials for Grafana abuse protection
+  ansible.builtin.assert:
+    that:
+      - distro_cloudflare_api_token | length > 0
+      - distro_cloudflare_zone_id is match('^[A-Fa-f0-9]{32}$')
+    fail_msg: "Provide a scoped Cloudflare Zone Firewall Services Edit token and zone ID."
+  no_log: true
+  diff: false
+  when: distro_update_only
+
 - name: Require Telegram credentials for an enabled update-only deployment
   ansible.builtin.assert:
     that:

@@ -1,6 +1,24 @@
 grafana:
   service:
     type: ClusterIP
+  ingress:
+    enabled: {{ distro_ingress_host_enabled | bool | to_json }}
+    ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: monitoring-grafana-cloudflare-only@kubernetescrd,monitoring-grafana-admin-session@kubernetescrd
+    hosts:
+      - {{ distro_site_host | to_json }}
+    path: /grafana
+    pathType: Prefix
+  grafana.ini:
+    server:
+      domain: {{ distro_site_host | to_json }}
+      root_url: "{{ 'https' if distro_ingress_host_enabled else 'http' }}://{{ distro_site_host }}/grafana/"
+      serve_from_sub_path: true
+    security:
+      disable_brute_force_login_protection: false
+      brute_force_login_protection_max_attempts: 5
+      disable_username_login_protection: false
   admin:
     existingSecret: distro-grafana-admin
     userKey: admin-user

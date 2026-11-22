@@ -1,0 +1,95 @@
+---
+- name: Verify Cloudflare token can manage IP access rules in the configured zone
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ distro_cloudflare_zone_id }}/firewall/access_rules/rules?per_page=1"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ distro_cloudflare_api_token }}"
+    return_content: false
+    status_code: 200
+  register: distro_cloudflare_api_check
+  changed_when: false
+  failed_when: not distro_cloudflare_api_check.json.success | default(false)
+  no_log: true
+  diff: false
+
+- name: Install the Cloudflare Fail2ban action
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/distro-cloudflare-token.conf"
+    dest: /etc/fail2ban/action.d/distro-cloudflare-token.conf
+    owner: root
+    group: root
+    mode: '0644'
+  register: distro_cloudflare_action
+
+- name: Install the Grafana login failure filter
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/distro-grafana-filter.conf"
+    dest: /etc/fail2ban/filter.d/distro-grafana.conf
+    owner: root
+    group: root
+    mode: '0644'
+  register: distro_grafana_filter
+
+- name: Install the Cloudflare ban helper
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/distro-cloudflare-ban.py"
+    dest: /usr/local/sbin/distro-cloudflare-ban.py
+    owner: root
+    group: root
+    mode: '0750'
+  register: distro_cloudflare_helper
+
+- name: Store the Cloudflare token in a root-only file
+  ansible.builtin.template:
+    src: distro-cloudflare.ini.j2
+    dest: /etc/fail2ban/distro-cloudflare.ini
+    owner: root
+    group: root
+    mode: '0600'
+  register: distro_cloudflare_credentials
+  no_log: true
+  diff: false
+
+- name: Configure the Grafana login failure jail
+  ansible.builtin.template:
+    src: distro-grafana-jail.local.j2
+    dest: /etc/fail2ban/jail.d/distro-grafana.local
+    owner: root
+    group: root
+    mode: '0644'
+  register: distro_grafana_jail
+
+- name: Validate Fail2ban configuration including the Grafana jail
+  ansible.builtin.command:
+    argv: [fail2ban-client, -t]
+  changed_when: false
+
+- name: Restart Fail2ban when Grafana protection changed
+  ansible.builtin.systemd_service:
+    name: fail2ban
+    enabled: true
+    state: restarted
+  when: >-
+    distro_cloudflare_action.changed or distro_grafana_filter.changed or
+    distro_cloudflare_helper.changed or distro_cloudflare_credentials.changed or
+    distro_grafana_jail.changed
+
+- name: Ensure Fail2ban is running when Grafana protection is unchanged
+  ansible.builtin.systemd_service:
+    name: fail2ban
+    enabled: true
+    state: started
+  when: >-
+    not (distro_cloudflare_action.changed or distro_grafana_filter.changed or
+    distro_cloudflare_helper.changed or distro_cloudflare_credentials.changed or
+    distro_grafana_jail.changed)
+
+- name: Verify the Grafana protection jail is active
+  ansible.builtin.command:
+    argv: [fail2ban-client, status, traefik-grafana]
+  register: distro_grafana_jail_status
+  changed_when: false
+  retries: 5
+  delay: 2
+  until: distro_grafana_jail_status.rc == 0

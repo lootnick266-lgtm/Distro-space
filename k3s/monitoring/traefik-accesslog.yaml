@@ -1,0 +1,19 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    accessLog:
+      enabled: true
+      format: json
+      filters:
+        statusCodes:
+          - "401-401"
+      fields:
+        defaultMode: keep
+        headers:
+          defaultMode: drop
+          names:
+            CF-Connecting-IP: keep

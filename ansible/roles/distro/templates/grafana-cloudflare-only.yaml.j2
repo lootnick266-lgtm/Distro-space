@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: grafana-cloudflare-only
+  namespace: monitoring
+spec:
+  ipAllowList:
+    sourceRange:
+{% for cidr in distro_cloudflare_ip_ranges %}
+      - {{ cidr | to_json }}
+{% endfor %}
