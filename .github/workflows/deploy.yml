@@ -72,7 +72,7 @@ jobs:
                           deploy = False
                           skip_reason = 'README/docs-only commit'
               except Exception as error:
-                  print('Could not classify changed paths; deployment will proceed: ' + str(error))
+                  print('Could not classify docs-only changes; deployment will proceed: ' + str(error))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write('deploy=' + str(deploy).lower() + '\n')
           if deploy:
@@ -105,7 +105,6 @@ jobs:
           VPS_USER: ${{ vars.VPS_USER || 'root' }}
           SITE_HOST: ${{ vars.SITE_HOST }}
           REGISTRY_OWNER: ${{ github.repository_owner }}
-          RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -134,7 +133,6 @@ jobs:
           if not re.fullmatch(r'[a-z_][a-z0-9_-]*', user):
               raise SystemExit('Invalid VPS_USER')
           namespace = os.environ['REGISTRY_OWNER'].lower()
-          tag = 'git-' + os.environ['RELEASE_SHA']
           site = os.environ.get('SITE_HOST', '').strip() or host
           try:
               ipaddress.ip_address(site)
@@ -165,11 +163,8 @@ jobs:
               ansible_ssh_private_key_file=str(key), ansible_ssh_common_args=ssh_args,
               distro_site_host=site, distro_ingress_host_enabled=domain,
               distro_registry_auth_enabled=True, distro_build_images=True,
-              distro_image_namespace=namespace, distro_image_tag=tag,
-              distro_nginx_image='ghcr.io/' + namespace + '/distro-nginx:' + tag,
-              distro_php_image='ghcr.io/' + namespace + '/distro-php:' + tag,
+              distro_image_namespace=namespace,
               distro_telegram_enabled=True,
-              distro_telegrambot_image='ghcr.io/' + namespace + '/distro-telegrambot:' + tag,
               distro_db_snapshot='',
               distro_cloudflare_zone_id=os.environ['CLOUDFLARE_ZONE_ID'].strip())
           inventory = {'all': {'children': {'distro': {'hosts': {'vps': variables}}}}}

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Prepare a clean, fingerprinted source context for the Ansible VPS build."""
+"""Prepare allow-listed, content-fingerprinted source for application images."""
 import argparse
 import hashlib
+import json
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import tempfile
@@ -11,17 +11,22 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / 'ansible/roles/distro/files'
 
+
+def fingerprint(name, paths):
+    digest = hashlib.sha256()
+    digest.update(name.encode() + b'\0')
+    for label, content in sorted(paths):
+        digest.update(label.encode() + b'\0')
+        digest.update(content)
+    return digest.hexdigest()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--namespace', required=True)
-    parser.add_argument('--tag', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--include-telegram', action='store_true')
     args = parser.parse_args()
-    if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', args.namespace):
-        parser.error('Invalid GHCR namespace')
-    if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}', args.tag) or args.tag == 'latest':
-        parser.error('Use an explicit version tag')
+
     names = subprocess.check_output(
         ['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'],
         cwd=ROOT).decode().split('\0')
@@ -60,14 +65,26 @@ def main():
             for name in ['TelegramAlertBot.go', 'go.mod', 'go.sum']:
                 shutil.copyfile(ROOT / 'Alerts' / name, bot / name)
             shutil.copyfile(ROOT / 'Docker/Dockerfile.telegrambot', context / 'Dockerfile.telegrambot')
+
+        files = [(p.relative_to(context).as_posix(), p.read_bytes())
+                 for p in sorted(context.rglob('*')) if p.is_file()]
+        php_files = [(n, b) for n, b in files if (
+            n == 'Dockerfile.php' or n in {'config.php', 'php-runtime.ini'} or
+            (n.startswith('src/') and n.endswith('.php')))]
+        nginx_files = [(n, b) for n, b in files if (
+            n in {'Dockerfile.nginx', 'nginx-site.conf'} or n.startswith('public/'))]
+        fingerprints = {
+            'php': fingerprint('php', php_files),
+            'nginx': fingerprint('nginx', nginx_files),
+        }
+        if args.include_telegram:
+            telegram_files = [(n, b) for n, b in files if (
+                n == 'Dockerfile.telegrambot' or n.startswith('telegrambot/'))]
+            fingerprints['telegrambot'] = fingerprint('telegrambot', telegram_files)
+
         shutil.copytree(context, args.output, dirs_exist_ok=True)
-        digest = hashlib.sha256()
-        digest.update((args.namespace + ':' + args.tag).encode())
-        for path in sorted(context.rglob('*')):
-            if path.is_file():
-                digest.update(path.relative_to(context).as_posix().encode() + b'\0')
-                digest.update(path.read_bytes())
-        print(digest.hexdigest())
+        print(json.dumps(fingerprints, sort_keys=True, separators=(',', ':')))
+
 
 if __name__ == '__main__':
     main()

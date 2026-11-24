@@ -15,16 +15,22 @@
       - distro_remote_root == '/opt/distro-space'
       - distro_telegram_enabled is boolean
       - distro_registry_auth_enabled is boolean
+      - distro_build_images is boolean
       - distro_monitoring_persistence is boolean
     fail_msg: "Use one NEW Ubuntu amd64 VM (4+ GiB, swap off). The source VM is protected."
 
-- name: Require explicit domain and registry image references
+- name: Require explicit site and database identifiers
   ansible.builtin.assert:
     that:
       - distro_site_host is match('^[a-zA-Z0-9][a-zA-Z0-9.-]+$')
       - distro_site_host not in ['distro.example.com', 'distro.local']
       - distro_db_name is match('^[a-zA-Z][a-zA-Z0-9_]{0,63}$')
       - distro_db_user is match('^[a-zA-Z][a-zA-Z0-9_]{0,31}$')
+    fail_msg: "Set a real site host and valid database identifiers."
+
+- name: Require explicit pinned image references when images are not built here
+  ansible.builtin.assert:
+    that:
       - distro_nginx_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
       - distro_php_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
       - "'REPLACE_ME' not in distro_nginx_image + distro_php_image"
@@ -32,7 +38,17 @@
       - not distro_telegram_enabled or distro_telegrambot_image is match('^[a-z0-9.-]+/[^ ]+[:@][^ ]+$')
       - not distro_telegram_enabled or 'REPLACE_ME' not in distro_telegrambot_image
       - not distro_telegram_enabled or ':latest' not in distro_telegrambot_image
-    fail_msg: "Set a real host and published versioned registry images in your private inventory."
+    fail_msg: "Set pinned registry images or enable content-addressed image builds."
+  when: not distro_build_images
+
+- name: Require registry inputs for content-addressed image builds
+  ansible.builtin.assert:
+    that:
+      - distro_image_namespace is match('^[a-z0-9][a-z0-9-]*$')
+      - distro_registry_server is match('^[a-z0-9.-]+(:[0-9]+)?$')
+      - distro_registry_auth_enabled
+    fail_msg: "Set the private registry namespace and authentication before building images."
+  when: distro_build_images
 
 - name: Require new external credentials without printing them
   ansible.builtin.assert:

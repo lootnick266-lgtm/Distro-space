@@ -53,6 +53,16 @@
   register: distro_application
   changed_when: "'created' in distro_application.stdout or 'configured' in distro_application.stdout"
 
+- name: Restart Telegram bot when its credentials changed and its image did not
+  ansible.builtin.command:
+    argv: "{{ distro_kubectl + ['-n', 'distro-space', 'rollout', 'restart', 'deployment/telegrambot'] }}"
+  changed_when: true
+  when:
+    - distro_update_only
+    - distro_telegram_enabled
+    - distro_telegram_credentials_changed | default(false)
+    - "'deployment.apps/telegrambot configured' not in distro_application.stdout"
+
 - name: Wait for MySQL and initial schema
   ansible.builtin.command:
     argv: "{{ distro_kubectl + ['-n', 'distro-space', 'rollout', 'status', 'statefulset/db', '--timeout=300s'] }}"
@@ -72,5 +82,5 @@
 - name: Wait for web workloads
   ansible.builtin.command:
     argv: "{{ distro_kubectl + ['-n', 'distro-space', 'rollout', 'status', 'deployment/' + item, '--timeout=300s'] }}"
-  loop: "{{ ['nginx', 'php'] + (['telegrambot'] if distro_telegram_enabled else []) }}"
+  loop: "{{ ['php', 'nginx'] + (['telegrambot'] if distro_telegram_enabled else []) }}"
   changed_when: false

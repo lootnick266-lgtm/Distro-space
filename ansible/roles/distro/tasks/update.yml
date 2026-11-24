@@ -27,6 +27,14 @@
       no_log: true
       diff: false
 
+    - name: Record whether Telegram credentials changed without exposing their values
+      ansible.builtin.set_fact:
+        distro_telegram_credentials_changed: >-
+          {{
+            'secret/telegrambot-secret configured' in distro_update_app_credentials.stdout or
+            'secret/telegrambot-secret created' in distro_update_app_credentials.stdout
+          }}
+
     - name: Update only Alertmanager routing, leaving Grafana and exporter passwords intact
       ansible.builtin.command:
         argv: "{{ distro_kubectl + ['apply', '-f', '-'] }}"

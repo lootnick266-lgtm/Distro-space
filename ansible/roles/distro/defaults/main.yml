@@ -42,7 +42,6 @@ distro_db_snapshot: ''
 # Optional daemonless registry build performed on the target VPS.
 distro_build_images: false
 distro_image_namespace: ''
-distro_image_tag: ''
 
 distro_kubectl: [/usr/local/bin/k3s, kubectl, --kubeconfig, "{{ distro_kubeconfig }}"]
 
