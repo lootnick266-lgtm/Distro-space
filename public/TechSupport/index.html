@@ -140,12 +140,12 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label>Email:</label>
-                    <input type="email" id="loginEmail" placeholder="user@example.com" autocomplete="off">
+                    <input type="email" id="loginEmail" placeholder="user@example.com" autocomplete="off" maxlength="100">
                     <div class="error-message" id="loginEmailError"></div>
                 </div>
                 <div class="form-group">
                     <label>Пароль:</label>
-                    <input type="password" id="loginPassword" placeholder="Не менее 4 символов">
+                    <input type="password" id="loginPassword" placeholder="Не менее 4 символов" maxlength="72">
                     <div class="error-message" id="loginPasswordError"></div>
                 </div>
                 <button type="submit" class="btn-primary full-width">Войти</button>
@@ -171,7 +171,7 @@
                 </div>
                 <div class="form-group">
                     <label>Пароль:</label>
-                    <input type="password" id="regPassword" placeholder="Не менее 4 символов">
+                    <input type="password" id="regPassword" placeholder="Не менее 8 символов" minlength="8" maxlength="72">
                     <div class="error-message" id="regPasswordError"></div>
                 </div>
                 <button type="submit" class="btn-primary full-width">Зарегистрироваться</button>
