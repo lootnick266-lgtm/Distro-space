@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Чатбот техподдержки — SmartSupport</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" id="siteFavicon" href="/assets/images/site-logo-light.jpg" data-light-href="/assets/images/site-logo-light.jpg" data-dark-href="/assets/images/site-logo-dark.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="style.css?v=visual-6">
     <link rel="stylesheet" href="assets/fontawesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="assets/fontawesome/css/solid.min.css">
 </head>
@@ -14,7 +15,7 @@
     <header class="main-header">
         <div class="container header-container">
             <div class="logo">
-                <span>Smart<span class="highlight">Support</span></span>
+                <span class="wordmark" data-text="SmartSupport">Smart<span class="highlight">Support</span></span>
             </div>
             <nav class="main-nav">
                 <ul>
@@ -26,8 +27,9 @@
                 </ul>
             </nav>
             <div class="auth-buttons">
+                <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="&#1055;&#1077;&#1088;&#1077;&#1082;&#1083;&#1102;&#1095;&#1080;&#1090;&#1100; &#1090;&#1077;&#1084;&#1091;"><i class="fas fa-moon" aria-hidden="true"></i><span>&#1058;&#1045;&#1052;&#1040;</span></button>
                 <button id="loginBtn" class="btn-outline"><i class="fas fa-sign-in-alt"></i> Вход</button>
-                <!-- ??????????? ???????? ?????????.
+                <!-- Регистрация.
                 <button id="registerBtn" class="btn-outline"><i class="fas fa-user-plus"></i> Регистрация</button>
                 -->
                 <button id="logoutBtn" class="btn-outline hidden"><i class="fas fa-sign-out-alt"></i> Выйти</button>
@@ -40,9 +42,12 @@
     <main class="main-content" id="mainContent">
         <!-- Секция приветствия -->
         <section class="hero-section" id="heroSection">
+            <div class="hero-banner-art" aria-hidden="true"><img class="banner-light" src="/assets/images/profile-banner-light.svg" alt=""><img class="banner-dark" src="/assets/images/profile-banner-dark.svg" alt=""></div>
             <div class="container">
-                <h1>24/7 Чат-бот техподдержки</h1>
+                <p class="hero-kicker"><span class="signal-dot"></span> DISTRO.SPACE / SUPPORT CHANNEL</p>
+                <h1><span class="hero-title-text" data-text="24/7 Чат-бот техподдержки">24/7 Чат-бот техподдержки</span></h1>
                 <p>Мгновенные ответы на вопросы по установке Linux и работе с Distro.space</p>
+                <div class="hero-chat-preview"><span class="preview-avatar"><i class="fas fa-robot" aria-hidden="true"></i></span><span class="preview-copy"><strong>БОТ НА ЛИНИИ</strong><span>Задай вопрос про Linux или Distro.space</span></span><span class="preview-live">ONLINE</span></div>
                 <div class="hero-buttons">
                     <button id="startChatHero" class="btn-primary"><i class="fas fa-comment-dots"></i> Начать диалог</button>
                     <button id="learnMoreBtn" class="btn-secondary">Как это работает?</button>
@@ -82,7 +87,7 @@
                 
                 <!-- Правая панель с сообщениями -->
                 <div class="chat-messages-area">
-                    <div class="messages-list" id="messagesList">
+                    <div class="messages-list" id="messagesList" role="log" aria-live="polite" aria-relevant="additions">
                         <div class="message bot-message">
                             <div class="avatar"><i class="fas fa-robot"></i></div>
                             <div class="bubble">Здравствуйте! Я бот техподдержки. Чем могу помочь?</div>
@@ -106,20 +111,25 @@
     </main>
 
 <!-- ФУТЕР -->
-<footer class="main-footer">
+<footer class="main-footer home-footer">
     <div class="container footer-container">
-        <div class="footer-col">
-            <h4>SmartSupport</h4>
-            <p>Чат-бот техподдержки 24/7</p>
+        <div class="footer-col footer-about">
+            <a class="footer-brand" href="/indexbase.html">Distro<span>.</span>space</a>
+            <p>Точка старта для знакомства с Linux и получения помощи.</p>
         </div>
         <div class="footer-col">
-            <h4>Контакты</h4>
-            <p><i class="fas fa-envelope"></i> нет </p>
+            <h4>НАВИГАЦИЯ</h4>
+            <a href="/indexbase.html">Главная</a>
+            <a href="/catalog.html">Каталог</a>
+            <a href="#faqSection" id="footerFaqLink">FAQ</a>
+        </div>
+        <div class="footer-col">
+            <h4>ПОДДЕРЖКА</h4>
+            <a href="/TechSupport/">SmartSupport</a>
+            <a href="/contacts.html">Контакты</a>
         </div>
     </div>
-    <div class="footer-bottom">
-        <p>© 2026 Support</p>
-    </div>
+    <div class="footer-bottom"><p class="footer-copyright">© 2026 Distro.space. Чат-бот помогает с Linux и Distro.space.</p></div>
 </footer>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
@@ -191,6 +201,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=theme-4"></script>
 </body>
 </html>

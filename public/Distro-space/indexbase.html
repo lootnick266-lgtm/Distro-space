@@ -1,234 +1,258 @@
 <!doctype html>
 <html lang="ru">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/images/Logo.jpg" type="image/x-icon" />
-  <link rel="stylesheet" href="/css/style1.css?v=shared-auth-2" />
-  <title>Distro.space — Установщик дистрибутивов</title>
-</head>
-<!-- шапка -->
-<header class="header">
-  <div class="container">
-    <div class="header-container">
-
-      <div class="header-logo">
-        
-  <img src="/assets/images/Logo.jpg" alt="Логотип" class="header-logo-img" width="50" loading="lazy" />
-        <span class="header-company-name">Distro.space</span>
-      </div>
-
-      <nav class="header-nav">
-        <ul class="header-nav-list">
-          <li class="headernav-item"><a href="/indexbase.html">Главная</a></li>
-          <li class="headernav-item"><a href="catalog.html">Каталог</a></li>
-          <li class="headernav-item"><a href="contacts.html">Контакты</a></li>
-          <li class="headernav-item"><a href="/TechSupport/">Техподдержка</a></li>
-          <li class="headernav-item dropdown">
-            <a href="#" class="dropdown-toggle">Меню ▼</a>
-            <ul class="dropdown-menu">
-              <li><a href="auth.html">Авторизация</a></li>
-              <li><a href="#" id="dropdownThemeToggle">Сменить тему</a></li>
-              <li><a href="catalog.html">Все дистрибутивы</a></li>
-            </ul>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="header-actions">
-        <button class="header-button button" id="loginBtn">Вход</button>
-        <!-- <button class="header-feedback-btn button">Обратная связь</button> -->
-      </div>
-    </div>
-  </div>
-</header>
-
-<body>
-
-
-  <!-- Интро с видео RuTube -->
-  <section class="intro">
-    <div class="container intro-container">
-      <div class="intro-video">
-     <iframe src="assets/images/Logo.jpg"
-          style="border: none;" allow="clipboard-write; autoplay" allowFullScreen></iframe>
-      </div>
-    </div>
-  </section>
-
-
-  <section class="about">
-    <div class="container about-container">
-      <div class="about-content">
-        <h2 class="about-title">О нашем сервисе</h2>
-        <p class="about-text">Мы помогаем легко установить любой дистрибутив Linux — через официальные ссылки или наш
-          универсальный установщик. Ваш выбор, ваша скорость, ваша свобода.</p>
-        <div class="about-text-full" id="aboutFullText">
-          Distro.space — это удобный сервис для установки Linux-дистрибутивов. Вы можете перейти на официальный сайт и
-          скачать образ самостоятельно, либо воспользоваться нашим установщиком: он автоматически загрузит выбранную
-          систему, создаст загрузочную флешку или настроит двойную загрузку.
-          Мы поддерживаем все популярные дистрибутивы: Ubuntu, Debian, Fedora, Arch, Kali, Gentoo и другие. Никакой
-          сложной настройки — просто выберите дистрибутив и следуйте инструкциям. Присоединяйтесь к сообществу
-          Linux-энтузиастов и ставьте системы без головной боли!
-        </div>
-        <button class="about-button button" id="aboutMoreBtn">Узнать больше</button>
-      </div>
-    </div>
-  </section>
-
-<!-- ГАЛЕРЕЯ (популярные дистрибутивы) -->
-<section class="gallery">
-  <div class="container gallery-container">
-    <h2 class="gallery-title">Популярные дистрибутивы</h2>
-    <div class="gallery-grid">
-      <div class="gallery-card">
-        <div class="gallery-image">
-          <img src="/assets/images/ubuntu-svgrepo-com.svg" alt="Ubuntu" loading="lazy" />
-        </div>
-        <h3 class="gallery-card-title">Ubuntu Linux</h3>
-        <p class="gallery-card-text">User-friendly дистрибутив, хорош для новичков</p>
-        <button class="gallery-card-button button" data-distro="ubuntu">Смотреть</button>
-      </div>
-      <div class="gallery-card">
-        <div class="gallery-image">
-          <img src="/assets/images/debian-svgrepo-com.svg" alt="Debian" loading="lazy" />
-        </div>
-        <h3 class="gallery-card-title">Debian Linux</h3>
-        <p class="gallery-card-text">Основа многих дистрибутивов</p>
-        <button class="gallery-card-button button" data-distro="debian">Смотреть</button>
-      </div>
-      <div class="gallery-card">
-        <div class="gallery-image">
-          <img src="/assets/images/kalilinux-svgrepo-com.svg" alt="Kali" loading="lazy" />
-        </div>
-        <h3 class="gallery-card-title">Kali Linux</h3>
-        <p class="gallery-card-text">Специализированный дистрибутив</p>
-        <button class="gallery-card-button button" data-distro="kali">Смотреть</button>
-      </div>
-      <div class="gallery-card">
-        <div class="gallery-image">
-          <img src="/assets/images/arch-linux-svgrepo-com.svg" alt="Arch" loading="lazy" />
-        </div>
-        <h3 class="gallery-card-title">Arch Linux</h3>
-        <p class="gallery-card-text">Выбор многих</p>
-        <button class="gallery-card-button button" data-distro="arch">Смотреть</button>
-      </div>
-      <div class="gallery-card">
-        <div class="gallery-image">
-          <img src="/assets/images/gentoo-svgrepo-com.svg" alt="Gentoo" loading="lazy" />
-        </div>
-        <h3 class="gallery-card-title">Gentoo Linux</h3>
-        <p class="gallery-card-text">Для любителей создавать с нуля</p>
-        <button class="gallery-card-button button" data-distro="gentoo">Смотреть</button>
-      </div>
-      <div class="gallery-card">
-        <div class="gallery-image">
-          <img src="/assets/images/fedora-svgrepo-com.svg" alt="Fedora" loading="lazy" />
-        </div>
-        <h3 class="gallery-card-title">Fedora Linux</h3>
-        <p class="gallery-card-text">Надёжный вариант</p>
-        <button class="gallery-card-button button" data-distro="fedora">Смотреть</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Модальное окно для дистрибутивов -->
-<div class="distro-modal" id="distroModal">
-  <div class="distro-modal-content">
-    <div class="distro-modal-header">
-      <h3 class="distro-modal-title" id="distroModalTitle">Ubuntu Linux</h3>
-      <span class="distro-modal-close">&times;</span>
-    </div>
-    <div class="distro-modal-body">
-      <p id="distroModalDesc">Описание дистрибутива</p>
-      <div class="distro-modal-buttons">
-        <button class="distro-install-btn button" id="installViaInstaller">Скачать через установщик</button>
-        <button class="distro-official-btn button" id="goToOfficialSite">Перейти на официальный сайт</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-  <!-- Аккордеон FAQ (3 секции) -->
-  <section class="faq">
-    <div class="container faq-container">
-      <h2 class="faq-title">Часто задаваемые вопросы</h2>
-      <div class="accordion">
-        <div class="accordion-item">
-          <div class="accordion-header">Как установить дистрибутив через ваш установщик?</div>
-          <div class="accordion-content">
-            <p>Скачайте установщик, выберите нужный дистрибутив из списка, нажмите «Установить» — и система
-              автоматически настроит загрузку и установку.</p>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <div class="accordion-header">Поддерживает ли установщик Windows?</div>
-          <div class="accordion-content">
-            <p>Да, наш установщик работает на Windows, macOS и Linux. Достаточно запустить исполняемый файл.</p>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <div class="accordion-header">Бесплатно ли пользоваться?</div>
-          <div class="accordion-content">
-            <p>Базовая версия установщика бесплатна. Расширенные функции (автоматическое резервное копирование, priority
-              support) доступны по подписке.</p>
-          </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Сравни популярные Linux-дистрибутивы и найди подходящий для себя." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="icon" id="siteFavicon" href="/assets/images/site-logo-light.jpg" data-light-href="/assets/images/site-logo-light.jpg" data-dark-href="/assets/images/site-logo-dark.jpg" type="image/jpeg" />
+    <link rel="stylesheet" href="css/style1.css?v=site-pages-8" />
+    <title>Distro.space — выбери свой Linux</title>
+  </head>
+  <body class="home-page">
+    <header class="header home-header">
+      <div class="container header-container">
+        <a class="header-logo" href="/indexbase.html" aria-label="Distro.space — главная"><span class="header-logo-mark"><img src="/assets/images/site-logo-light.jpg" data-light-src="/assets/images/site-logo-light.jpg" data-dark-src="/assets/images/site-logo-dark.jpg" alt="Distro.space" class="header-logo-img" width="50" height="50" /></span><span class="header-company-name">Distro<span class="brand-dot">.</span>space</span></a>
+        <button class="burger" type="button" aria-label="Открыть меню"><span class="burger-line"></span><span class="burger-line"></span><span class="burger-line"></span></button>
+        <nav class="header-nav" aria-label="Основная навигация">
+          <ul class="header-nav-list">
+            <li class="headernav-item">
+              <a href="/indexbase.html" aria-current="page">Главная</a>
+            </li>
+            <li class="headernav-item">
+              <a href="#distros">Дистрибутивы</a>
+            </li>
+            <li class="headernav-item">
+              <a href="#how-it-works">Как выбрать</a>
+            </li>
+            <li class="headernav-item">
+              <a href="contacts.html">Контакты</a>
+            </li>
+            <li class="headernav-item">
+              <a href="/TechSupport/">Техподдержка</a>
+            </li>
+            <li class="headernav-item dropdown">
+              <a href="#menu" class="dropdown-toggle" aria-haspopup="true">Ещё <span aria-hidden="true">⌄</span></a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="auth.html">Вход и регистрация</a>
+                </li>
+                <li>
+                  <a href="#theme" id="dropdownThemeToggle">Сменить тему</a>
+                </li>
+                <li>
+                  <a href="catalog.html">Полный каталог</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <button class="header-button button" id="loginBtn" type="button">Вход</button>
+          <!-- <button class="header-feedback-btn button" type="button">Обратная связь</button> -->
         </div>
       </div>
-    </div>
-  </section>
-
-<footer class="footer">
-    <div class="container footer-container">
-        <div class="footer-col">
-            <h4>О проекте</h4>
-            <p>Distro.space — установщик Linux-дистрибутивов. Быстро, просто, бесплатно.</p>
-        </div>
-        <div class="footer-col">
-            <h4>Навигация</h4>
-            <p><a href="indexbase.html">Главная</a></p>
-            <p><a href="catalog.html">Каталог</a></p>
-            <p><a href="contacts.html">Контакты</a></p>
-            <p><a href="auth.html">Авторизация</a></p>
-        </div>
-        <div class="footer-col">
-            <h4>Соцсети</h4>
-            <div class="footer-social">
-                <a href="#"><img src="/assets/images/Telegram_logo.svg.png" alt="Telegram"></a>
-                <a href="#"><img src="/assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK"></a>
-                <a href="#"><img src="/assets/images/Octicons-mark-github.svg.png" alt="GitHub"></a>
+    </header>
+    <main>
+      <section class="home-hero" id="home">
+        <div class="container home-hero-grid">
+          <div class="hero-copy-block">
+            <p class="hero-kicker"><span class="signal-dot"></span> LINUX DISTRO DISCOVERY</p>
+            <h1 class="hero-title">Найди свой Linux.<br /><span>Начни с выбора.</span></h1>
+            <p class="hero-lead">Сравни популярные дистрибутивы, разберись в их особенностях и перейди к официальной загрузке.</p>
+            <div class="hero-actions">
+              <a class="button hero-primary" href="#distros">Выбрать дистрибутив <span aria-hidden="true">↘</span></a>
+              <a class="hero-secondary" href="#how-it-works">Как это работает <span aria-hidden="true">→</span></a>
             </div>
+            <div class="hero-meta"><span><b>06</b> систем для знакомства</span><span class="hero-meta-divider" aria-hidden="true"></span><span>Официальные источники загрузки</span></div>
+          </div>
+          <div class="hero-visual">
+            <div class="visual-corner visual-corner-top"></div>
+            <div class="visual-corner visual-corner-bottom"></div>
+            <div class="visual-topline"><span>DISTRO.SPACE / BANNER</span><span>LIGHT ↔ DARK</span></div>
+            <div class="hero-banner-frame" role="img" aria-label="Баннер Distro.space с glitch-графикой и азбукой Морзе I WILL WIN."></div>
+            <div class="visual-terminal"><span class="terminal-prompt">&gt;_</span><span>theme signal / synchronized</span><span class="terminal-state">READY</span></div>
+          </div>
         </div>
-        <div class="footer-copyright">
-            © 2026 Distro-space. Все права защищены.
+        <a class="scroll-cue" href="#distros"><span></span> ПРОКРУТИ ВНИЗ</a>
+      </section>
+      <section class="home-distros" id="distros">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">01 / КАТАЛОГ</p>
+              <h2>С чего начнём?</h2>
+            </div>
+            <p class="section-intro">Шесть разных подходов к Linux. Открой карточку, чтобы посмотреть подробности и официальный источник.</p>
+          </div>
+          <div class="home-distro-grid">
+            <article class="home-distro-card">
+              <div class="distro-card-top"><span class="distro-number">01</span><span class="distro-tag">ДЛЯ СТАРТА</span></div><span class="distro-logo-frame"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Ubuntu_logo_black-orange.png" alt="Linux distribution logo" class="distro-logo" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>
+              <h3>Ubuntu</h3>
+              <p>Популярная система для повседневной работы и знакомства с Linux.</p>
+              <button class="distro-open" type="button" data-distro="ubuntu">Подробнее <span aria-hidden="true">↗</span></button>
+            </article>
+            <article class="home-distro-card">
+              <div class="distro-card-top"><span class="distro-number">02</span><span class="distro-tag">СТАБИЛЬНОСТЬ</span></div><span class="distro-logo-frame"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Debian_logo.png" alt="Linux distribution logo" class="distro-logo" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>
+              <h3>Debian</h3>
+              <p>Надёжная основа с большим сообществом и широкой поддержкой.</p>
+              <button class="distro-open" type="button" data-distro="debian">Подробнее <span aria-hidden="true">↗</span></button>
+            </article>
+            <article class="home-distro-card">
+              <div class="distro-card-top"><span class="distro-number">03</span><span class="distro-tag">БЕЗОПАСНОСТЬ</span></div><span class="distro-logo-frame"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Kali-2.0-website-logo-300x90.png" alt="Linux distribution logo" class="distro-logo" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>
+              <h3>Kali Linux</h3>
+              <p>Специализированный набор инструментов для изучения безопасности.</p>
+              <button class="distro-open" type="button" data-distro="kali">Подробнее <span aria-hidden="true">↗</span></button>
+            </article>
+            <article class="home-distro-card">
+              <div class="distro-card-top"><span class="distro-number">04</span><span class="distro-tag">ГИБКОСТЬ</span></div><span class="distro-logo-frame"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/ArchLinux.png" alt="Linux distribution logo" class="distro-logo" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>
+              <h3>Arch Linux</h3>
+              <p>Минималистичная система для тех, кто хочет собирать окружение сам.</p>
+              <button class="distro-open" type="button" data-distro="arch">Подробнее <span aria-hidden="true">↗</span></button>
+            </article>
+            <article class="home-distro-card">
+              <div class="distro-card-top"><span class="distro-number">05</span><span class="distro-tag">НАСТРОЙКА</span></div><span class="distro-logo-frame"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gentoo-icon.png" alt="Linux distribution logo" class="distro-logo" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>
+              <h3>Gentoo</h3>
+              <p>Система для тех, кому важны тонкая настройка и контроль над сборкой.</p>
+              <button class="distro-open" type="button" data-distro="gentoo">Подробнее <span aria-hidden="true">↗</span></button>
+            </article>
+            <article class="home-distro-card">
+              <div class="distro-card-top"><span class="distro-number">06</span><span class="distro-tag">РАБОЧАЯ СТАНЦИЯ</span></div><span class="distro-logo-frame"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Fedora-logo.png" alt="Linux distribution logo" class="distro-logo" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span>
+              <h3>Fedora</h3>
+              <p>Современный дистрибутив с актуальными технологиями Linux.</p>
+              <button class="distro-open" type="button" data-distro="fedora">Подробнее <span aria-hidden="true">↗</span></button>
+            </article>
+          </div>
+          <div class="catalog-link-wrap">
+            <a href="catalog.html" class="catalog-link">Открыть полный каталог <span aria-hidden="true">→</span></a>
+          </div>
         </div>
-    </div>
-</footer>
-
-  <!-- Модальное окно обратной связи -->
-  <div class="modal" id="feedbackModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">Форма обратной связи</h3>
-        <span class="modal-close">&times;</span>
+      </section>
+      <section class="home-how" id="how-it-works">
+        <div class="container how-layout">
+          <div class="how-heading">
+            <p class="section-kicker">02 / НАВИГАЦИЯ</p>
+            <h2>Три шага.<br /><span>Без лишнего шума.</span></h2>
+            <p>Не нужно разбираться во всём сразу. Начни с задачи, сравни варианты и переходи к первоисточнику.</p>
+          </div>
+          <div class="how-steps">
+            <article class="how-step"><span class="step-index">01</span>
+              <div>
+                <h3>Определи задачу</h3>
+                <p>Для повседневного компьютера, обучения или специализированных задач.</p>
+              </div><span class="step-mark">+</span>
+            </article>
+            <article class="how-step"><span class="step-index">02</span>
+              <div>
+                <h3>Изучи варианты</h3>
+                <p>Сравни краткие описания и открой подробности выбранной системы.</p>
+              </div><span class="step-mark">+</span>
+            </article>
+            <article class="how-step"><span class="step-index">03</span>
+              <div>
+                <h3>Перейди к источнику</h3>
+                <p>Ссылки на загрузку ведут на официальные сайты дистрибутивов.</p>
+              </div><span class="step-mark">+</span>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="home-faq" id="faq">
+        <div class="container faq-layout">
+          <div class="faq-heading">
+            <p class="section-kicker">03 / FAQ</p>
+            <h2>Коротко<br />о важном.</h2>
+          </div>
+          <div class="accordion">
+            <details class="accordion-item" open>
+              <summary class="accordion-header">Как выбрать первый дистрибутив?<span aria-hidden="true">+</span></summary>
+              <div class="accordion-content">
+                <p>Сначала реши, для чего тебе Linux: для повседневной работы, учёбы или экспериментов. Для первого знакомства сравни Ubuntu и Debian в карточках выше — там можно открыть подробности и перейти на официальный сайт.</p>
+              </div>
+            </details>
+            <details class="accordion-item">
+              <summary class="accordion-header">Где скачать образ системы?<span aria-hidden="true">+</span></summary>
+              <div class="accordion-content">
+                <p>Открой карточку и перейди на официальный сайт выбранного проекта. Так ты получишь образ из первоисточника.</p>
+              </div>
+            </details>
+            <details class="accordion-item">
+              <summary class="accordion-header">Установщик уже скачивает дистрибутив?<span aria-hidden="true">+</span></summary>
+              <div class="accordion-content">
+                <p>Нет. Сейчас эта функция демонстрационная. Для загрузки используй ссылку на официальный сайт дистрибутива.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer home-footer">
+      <div class="container footer-container">
+        <div class="footer-col footer-about">
+          <a class="footer-brand" href="/indexbase.html">Distro<span>.</span>space</a>
+          <p>Точка старта для знакомства с Linux-дистрибутивами.</p>
+          <div class="footer-social" aria-label="Социальные сети">
+            <a href="https://github.com/lootnick266-lgtm/Distro-space" target="_blank" rel="noopener noreferrer" aria-label="Репозиторий Distro-space на GitHub"><img src="/assets/images/Octicons-mark-github.svg.png" alt="GitHub" width="24" height="24"></a>
+            <span class="social-icon"><img src="/assets/images/Telegram_logo.svg.png" alt="Telegram" width="24" height="24"></span>
+            <span class="social-icon"><img src="/assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK" width="24" height="24"></span>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h2>Навигация</h2>
+          <a href="#distros">Дистрибутивы</a>
+          <a href="#how-it-works">Как выбрать</a>
+          <a href="catalog.html">Полный каталог</a>
+        </div>
+        <div class="footer-col">
+          <h2>Связаться</h2>
+          <a href="contacts.html">Контакты</a>
+          <a href="/TechSupport/">Техподдержка</a>
+        </div>
+        <details class="image-credits">
+          <summary>Источники логотипов</summary>
+          <p>Изображения: <a href="https://commons.wikimedia.org/wiki/File:Ubuntu_logo_black-orange.png" target="_blank" rel="noopener noreferrer">Ubuntu</a>, <a href="https://commons.wikimedia.org/wiki/File:The_Linux_Mint_Logo.svg" target="_blank" rel="noopener noreferrer">Linux Mint</a>, <a href="https://commons.wikimedia.org/wiki/File:Zorin-os-logo.png" target="_blank" rel="noopener noreferrer">Zorin OS</a>, <a href="https://commons.wikimedia.org/wiki/File:Debian_logo.png" target="_blank" rel="noopener noreferrer">Debian</a>, <a href="https://commons.wikimedia.org/wiki/File:ArchLinux.png" target="_blank" rel="noopener noreferrer">Arch Linux</a>, <a href="https://commons.wikimedia.org/wiki/File:Gentoo-icon.png" target="_blank" rel="noopener noreferrer">Gentoo</a>, <a href="https://commons.wikimedia.org/wiki/File:Fedora-logo.png" target="_blank" rel="noopener noreferrer">Fedora</a>, <a href="https://commons.wikimedia.org/wiki/File:OpenSUSE_Logo.svg" target="_blank" rel="noopener noreferrer">openSUSE</a>, <a href="https://commons.wikimedia.org/wiki/File:Kali-2.0-website-logo-300x90.png" target="_blank" rel="noopener noreferrer">Kali Linux</a>, <a href="https://commons.wikimedia.org/wiki/File:Parrot_OS_logo%2C_2023.svg" target="_blank" rel="noopener noreferrer">Parrot OS</a>, <a href="https://commons.wikimedia.org/wiki/File:Tails-logo-flat.svg" target="_blank" rel="noopener noreferrer">Tails</a>, <a href="https://commons.wikimedia.org/wiki/File:SteamOS_wordmark.svg" target="_blank" rel="noopener noreferrer">SteamOS</a>. Условия использования указаны на страницах файлов.</p>
+        </details>
+        <p class="footer-copyright">© 2026 Distro.space. Информация о дистрибутивах и ссылки — для ознакомления.</p>
       </div>
-      <form class="modal-form" id="modalFeedbackForm">
-        <input type="text" class="modal-input" placeholder="Ваше имя *" required>
-        <input type="tel" class="modal-input" placeholder="Ваш телефон *" required>
-        <input type="email" class="modal-input" placeholder="Ваш Email *" required>
-        <button type="submit" class="modal-submit button">Отправить</button>
-        <div class="gif-spinner" style="display: none;"> Отправка...</div>
-      </form>
+    </footer>
+    <div class="distro-modal" id="distroModal">
+      <div class="distro-modal-content">
+        <div class="distro-modal-header">
+          <div>
+            <p class="section-kicker">DISTRO / DETAILS</p>
+            <h2 class="distro-modal-title" id="distroModalTitle">Ubuntu Linux</h2>
+          </div>
+          <button class="distro-modal-close" type="button" aria-label="Закрыть окно">&times;</button>
+        </div>
+        <div class="distro-modal-body">
+          <div class="distro-modal-icon"><img id="distroModalIcon" src="https://commons.wikimedia.org/wiki/Special:FilePath/Ubuntu_logo_black-orange.png" onerror="this.hidden=true" alt="" width="72" height="72" /></div>
+          <p id="distroModalDesc">Описание дистрибутива</p>
+          <div class="distro-modal-info">
+            <p><strong>Категория:</strong> <span id="distroModalCategory"></span></p>
+            <p><strong>Основа:</strong> <span id="distroModalBased"></span></p>
+          </div>
+          <p class="modal-source-note">Для загрузки открой официальный сайт проекта.</p>
+          <div class="distro-modal-buttons">
+            <button class="distro-official-btn button" id="goToOfficialSite" type="button">Перейти на официальный сайт <span aria-hidden="true">↗</span></button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <script src="/js/script1.js?v=forms-hidden-1"></script>
-</body>
-
+    <!-- Форма обратной связи сохранена; кнопка открытия временно отключена. -->
+    <div class="modal" id="feedbackModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Форма обратной связи</h2>
+          <button class="modal-close" type="button" aria-label="Закрыть окно">&times;</button>
+        </div>
+        <form class="modal-form" id="modalFeedbackForm"><input type="text" class="modal-input" placeholder="Ваше имя *" required /><input type="tel" class="modal-input" placeholder="Ваш телефон *" required /><input type="email" class="modal-input" placeholder="Ваш Email *" required />
+          <button type="submit" class="modal-submit button">Отправить</button>
+          <div class="form-loading-status" role="status" aria-live="polite" style="display: none;">Отправка...</div>
+        </form>
+      </div>
+    </div>
+    <script src="/js/script1.js?v=ui-responsive-4"></script>
+  </body>
 </html>

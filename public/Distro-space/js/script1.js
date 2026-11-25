@@ -17,6 +17,7 @@ if (burger && headerNav) {
 }
 
 const logoImg = document.querySelector('.header-logo-img');
+const faviconLink = document.getElementById('siteFavicon');
 if (logoImg && headerNav) {
   logoImg.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -27,13 +28,15 @@ if (logoImg && headerNav) {
 const body = document.body;
 
 function applyTheme(theme) {
-  if (theme === 'dark') {
-    body.classList.add('dark-theme');
-    localStorage.setItem('theme', 'dark');
-  } else {
-    body.classList.remove('dark-theme');
-    localStorage.setItem('theme', 'light');
-  }
+  const isDark = theme === 'dark';
+  body.classList.toggle('dark-theme', isDark);
+
+  const logoSource = isDark ? logoImg?.dataset.darkSrc : logoImg?.dataset.lightSrc;
+  const faviconSource = isDark ? faviconLink?.dataset.darkHref : faviconLink?.dataset.lightHref;
+  if (logoSource) logoImg.src = logoSource;
+  if (faviconSource) faviconLink.href = faviconSource;
+
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
 function toggleTheme() {
@@ -63,24 +66,25 @@ if (dropdownThemeToggle) {
   });
 }
 
-function showGifSpinner(form) {
-  let spinnerContainer = form.querySelector('.gif-spinner-container');
-  if (!spinnerContainer) {
-    spinnerContainer = document.createElement('div');
-    spinnerContainer.className = 'gif-spinner-container';
-    spinnerContainer.innerHTML = `
-      <img src="assets/gif/Gif-loader.gif" alt="Загрузка..." class="gif-spinner-img">
-      <span>Отправка...</span>
-    `;
-    form.appendChild(spinnerContainer);
+function showLoadingStatus(form) {
+  let status = form.querySelector('.form-loading-status');
+  if (!status) {
+    status = document.createElement('p');
+    status.className = 'form-loading-status';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    status.textContent = 'Отправка...';
+    form.appendChild(status);
   }
-  spinnerContainer.style.display = 'flex';
+  status.hidden = false;
+  status.style.display = 'inline-block';
 }
 
-function hideGifSpinner(form) {
-  const spinnerContainer = form.querySelector('.gif-spinner-container');
-  if (spinnerContainer) {
-    spinnerContainer.style.display = 'none';
+function hideLoadingStatus(form) {
+  const status = form.querySelector('.form-loading-status');
+  if (status) {
+    status.hidden = true;
+    status.style.display = 'none';
   }
 }
 
@@ -88,12 +92,17 @@ const modal = document.getElementById('feedbackModal');
 const feedbackBtn = document.querySelector('.header-feedback-btn');
 const closeModalBtn = document.querySelector('.modal-close');
 
+function setModalOpen(modalElement, isOpen) {
+  if (!modalElement) return;
+  modalElement.style.display = isOpen ? 'flex' : 'none';
+  modalElement.classList.toggle('modal-vhs-open', isOpen);
+}
 function openModal() {
-  if (modal) modal.style.display = 'flex';
+  if (modal) setModalOpen(modal, true);
 }
 
 function closeModal() {
-  if (modal) modal.style.display = 'none';
+  if (modal) setModalOpen(modal, false);
 }
 
 if (feedbackBtn) feedbackBtn.addEventListener('click', openModal);
@@ -139,12 +148,12 @@ if (modalForm) {
       return;
     }
     
-    showGifSpinner(modalForm);
+    showLoadingStatus(modalForm);
     
     setTimeout(() => {
       alert(`Спасибо, ${name}! Мы свяжемся с вами в ближайшее время.`);
       modalForm.reset();
-      hideGifSpinner(modalForm);
+      hideLoadingStatus(modalForm);
       closeModal();
     }, 1500);
   });
@@ -161,14 +170,14 @@ if (accordionHeaders.length) {
 }
 
 const dropdownToggle = document.querySelector('.dropdown-toggle');
-if (dropdownToggle && window.innerWidth <= 768) {
+if (dropdownToggle) {
   dropdownToggle.addEventListener('click', (e) => {
-    e.preventDefault();
-    const parent = dropdownToggle.closest('.dropdown');
-    parent.classList.toggle('active');
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      e.preventDefault();
+      dropdownToggle.closest('.dropdown')?.classList.toggle('active');
+    }
   });
 }
-
 const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
 const registerTab = document.querySelector('.auth-tab[data-tab="register"]');
 const loginForm = document.getElementById('loginForm');
@@ -202,11 +211,11 @@ const mainContactForm = document.querySelector('.contact-form');
 if (mainContactForm) {
   mainContactForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    showGifSpinner(mainContactForm);
+    showLoadingStatus(mainContactForm);
     setTimeout(() => {
       alert('Сообщение отправлено!');
       mainContactForm.reset();
-      hideGifSpinner(mainContactForm);
+      hideLoadingStatus(mainContactForm);
     }, 1500);
   });
 }
@@ -230,18 +239,18 @@ if (aboutMoreBtn && aboutFullText) {
 
 if (document.getElementById('catalogGrid') || document.querySelector('[data-distro]')) {
   const catalogDistros = [
-    { id: 'ubuntu', name: 'Ubuntu Linux', category: 'beginner', based: 'Debian', officialUrl: 'https://ubuntu.com/download/desktop', icon: 'assets/images/ubuntu-svgrepo-com.svg', desc: 'Ubuntu — самый популярный дистрибутив для начинающих. Простой в установке, огромное сообщество, множество готовых программ. Идеален для повседневного использования, работы и учёбы.' },
-    { id: 'linuxmint', name: 'Linux Mint', category: 'beginner', based: 'Ubuntu', officialUrl: 'https://linuxmint.com/download.php', icon: 'assets/images/linux-mint-svgrepo-com.svg', desc: 'Linux Mint — дистрибутив, который славится своей простотой и удобством. Похож на Windows, легко освоить. Отличный выбор для новичков и тех, кто ценит стабильность.' },
-    { id: 'zorin', name: 'Zorin OS', category: 'beginner', based: 'Ubuntu', officialUrl: 'https://zorin.com/os/download/', icon: 'assets/images/zorin-svgrepo-com.svg', desc: 'Zorin OS — дистрибутив с интерфейсом, напоминающим Windows. Легко настраивается, работает быстро даже на старых компьютерах. Отличный выбор для перехода с Windows.' },
-    { id: 'debian', name: 'Debian Linux', category: 'advanced', based: 'Independent', officialUrl: 'https://www.debian.org/download', icon: 'assets/images/debian-svgrepo-com.svg', desc: 'Debian — стабильный и надёжный дистрибутив, основа многих систем. Идеален для серверов и опытных пользователей, ценящих стабильность выше всего.' },
-    { id: 'arch', name: 'Arch Linux', category: 'advanced', based: 'Independent', officialUrl: 'https://archlinux.org/download/', icon: 'assets/images/arch-linux-svgrepo-com.svg', desc: 'Arch Linux — дистрибутив для опытных пользователей, которые хотят собрать систему "под себя". Полный контроль, свежие версии программ, но требует знаний.' },
-    { id: 'gentoo', name: 'Gentoo Linux', category: 'advanced', based: 'Independent', officialUrl: 'https://www.gentoo.org/downloads/', icon: 'assets/images/gentoo-svgrepo-com.svg', desc: 'Gentoo — для энтузиастов, любящих компилировать из исходников. Максимальная оптимизация под ваше железо. Требует времени и терпения.' },
-    { id: 'fedora', name: 'Fedora Linux', category: 'advanced', based: 'Independent', officialUrl: 'https://fedoraproject.org/workstation/download', icon: 'assets/images/fedora-svgrepo-com.svg', desc: 'Fedora — современный дистрибутив от Red Hat. Свежие версии программ, отлично подходит для разработчиков и любителей новых технологий.' },
-    { id: 'opensuse', name: 'openSUSE', category: 'advanced', based: 'Independent', officialUrl: 'https://www.opensuse.org/', icon: 'assets/images/opensuse-svgrepo-com.svg', desc: 'openSUSE — мощный дистрибутив с отличными инструментами настройки (YaST). Подходит и для начинающих, и для опытных пользователей.' },
-    { id: 'kali', name: 'Kali Linux', category: 'special', based: 'Debian', officialUrl: 'https://www.kali.org/get-kali/', icon: 'assets/images/kalilinux-svgrepo-com.svg', desc: 'Kali Linux — специализированный дистрибутив для тестирования на проникновение. Содержит сотни инструментов для кибербезопасности.' },
-    { id: 'parrot', name: 'Parrot OS', category: 'special', based: 'Debian', officialUrl: 'https://www.parrotsec.org/download/', icon: 'assets/images/parrot-svgrepo-com.svg', desc: 'Parrot OS — дистрибутив для безопасности, приватности и разработки. Включает инструменты для пентеста, анонимности и программирования.' },
-    { id: 'tails', name: 'Tails', category: 'special', based: 'Debian', officialUrl: 'https://tails.net/download/index.ru.html', icon: 'assets/images/tails-svgrepo-com.svg', desc: 'Tails — дистрибутив для анонимности. Весь трафик идёт через Tor, не оставляет следов на компьютере. Идеален для конфиденциальной работы.' },
-    { id: 'steamos', name: 'SteamOS', category: 'special', based: 'Arch', officialUrl: 'https://store.steampowered.com/steamos/download', icon: 'assets/images/steamos-svgrepo-com.svg', desc: 'SteamOS — дистрибутив от Valve для игр. Оптимизирован для запуска Steam и игр. Отличный выбор для игровой консоли или HTPC.' }
+    { id:'ubuntu',name:'Ubuntu Linux',category:'beginner',based:'Debian',officialUrl:'https://ubuntu.com/download/desktop',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Ubuntu_logo_black-orange.png',desc:'Ubuntu — дружелюбный дистрибутив для повседневной работы и учёбы. У него простая установка, большое сообщество и широкий выбор программ.' },
+    { id:'linuxmint',name:'Linux Mint',category:'beginner',based:'Ubuntu',officialUrl:'https://linuxmint.com/download.php',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/The_Linux_Mint_Logo.svg',desc:'Linux Mint предлагает привычное рабочее окружение и простое освоение. Хороший вариант для перехода с Windows и повседневных задач.' },
+    { id:'zorin',name:'Zorin OS',category:'beginner',based:'Ubuntu',officialUrl:'https://zorin.com/os/download/',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Zorin-os-logo.png',desc:'Zorin OS рассчитана на удобный переход с Windows: интерфейс настраивается, а базовые задачи доступны сразу после установки.' },
+    { id:'debian',name:'Debian Linux',category:'advanced',based:'Independent',officialUrl:'https://www.debian.org/download',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Debian_logo.png',desc:'Debian известен стабильной основой и большим архивом пакетов. Его используют на рабочих станциях и серверах.' },
+    { id:'arch',name:'Arch Linux',category:'advanced',based:'Independent',officialUrl:'https://archlinux.org/download/',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/ArchLinux.png',desc:'Arch Linux даёт контроль над составом системы и свежими пакетами. Установка и настройка требуют самостоятельной работы.' },
+    { id:'gentoo',name:'Gentoo Linux',category:'advanced',based:'Independent',officialUrl:'https://www.gentoo.org/downloads/',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Gentoo-icon.png',desc:'Gentoo позволяет гибко собирать систему под свои требования. Подходит тем, кто хочет глубоко разбираться в настройке Linux.' },
+    { id:'fedora',name:'Fedora Linux',category:'advanced',based:'Independent',officialUrl:'https://fedoraproject.org/workstation/download',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Fedora-logo.png',desc:'Fedora предлагает современные версии программ и технологий в настольной системе от сообщества Fedora и Red Hat.' },
+    { id:'opensuse',name:'openSUSE',category:'advanced',based:'Independent',officialUrl:'https://www.opensuse.org/',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/OpenSUSE_Logo.svg',desc:'openSUSE сочетает инструменты настройки, включая YaST, и несколько вариантов системы для разных сценариев использования.' },
+    { id:'kali',name:'Kali Linux',category:'special',based:'Debian',officialUrl:'https://www.kali.org/get-kali/',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Kali-2.0-website-logo-300x90.png',desc:'Kali Linux создан для тестирования безопасности и содержит инструменты аудита. Используй его только на системах, на проверку которых есть разрешение.' },
+    { id:'parrot',name:'Parrot OS',category:'special',based:'Debian',officialUrl:'https://www.parrotsec.org/download/',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Parrot_OS_logo%2C_2023.svg',desc:'Parrot OS объединяет инструменты для безопасности, приватности и разработки. Доступны разные редакции под свои задачи.' },
+    { id:'tails',name:'Tails',category:'special',based:'Debian',officialUrl:'https://tails.net/download/index.ru.html',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/Tails-logo-flat.svg',desc:'Tails — переносимая система, ориентированная на приватность. Она направляет сетевые соединения через Tor и рассчитана на запуск с USB-носителя.' },
+    { id:'steamos',name:'SteamOS',category:'special',based:'Arch',officialUrl:'https://store.steampowered.com/steamos/download',icon:'https://commons.wikimedia.org/wiki/Special:FilePath/SteamOS_wordmark.svg',desc:'SteamOS — система Valve для игровых устройств и Steam. Её доступность и совместимость зависят от поддерживаемого оборудования.' }
   ];
 
   function renderCatalog(filter = 'all') {
@@ -255,12 +264,11 @@ if (document.getElementById('catalogGrid') || document.querySelector('[data-dist
     grid.innerHTML = filtered.map(distro => `
       <div class="gallery-card catalog-card" data-id="${distro.id}" data-category="${distro.category}">
         <div class="gallery-image">
-          <img src="${distro.icon}" alt="${distro.name}" loading="lazy" onerror="this.src='assets/images/linux.png'">
+          <img src="${distro.icon}" alt="${distro.name}" loading="lazy" onerror="this.hidden=true">
         </div>
         <h3 class="gallery-card-title">${distro.name}</h3>
         <p class="gallery-card-text">${distro.desc.substring(0, 100)}...</p>
-        <div class="catalog-card-badge ${distro.category}">${distro.category === 'beginner' ? ' Для начинающих' : distro.category === 'advanced' ? ' Для опытных' : ' Специализированный'}</div>
-        <button class="gallery-card-button button catalog-view-btn" data-id="${distro.id}">Подробнее</button>
+        <div class="catalog-card-badge ${distro.category}">${distro.category === 'beginner' ? 'Для начинающих' : distro.category === 'advanced' ? 'Для опытных' : 'Специализированный'}</div><button class="gallery-card-button button catalog-view-btn" data-id="${distro.id}">Подробнее</button>
       </div>
     `).join('');
 
@@ -285,17 +293,15 @@ if (document.getElementById('catalogGrid') || document.querySelector('[data-dist
               <span class="distro-modal-close">&times;</span>
             </div>
             <div class="distro-modal-body">
-              <div class="distro-modal-icon">
-                <img id="distroModalIcon" src="assets/images/Logo.jpg" alt="Логотип" width="80">
-              </div>
+              <div class="distro-modal-icon"><img id="distroModalIcon" src="https://commons.wikimedia.org/wiki/Special:FilePath/Ubuntu_logo_black-orange.png" onerror="this.hidden=true" alt="Логотип" width="80"></div>
               <p id="distroModalDesc">Описание дистрибутива</p>
               <div class="distro-modal-info">
-                <p><strong> Категория:</strong> <span id="distroModalCategory"></span></p>
-                <p><strong> Основа:</strong> <span id="distroModalBased"></span></p>
+                <p><strong>Категория:</strong> <span id="distroModalCategory"></span></p>
+                <p><strong>Основа:</strong> <span id="distroModalBased"></span></p>
               </div>
               <div class="distro-modal-buttons">
-                <button class="distro-install-btn button" id="installViaInstaller"> Скачать через установщик</button>
-                <button class="distro-official-btn button" id="goToOfficialSite"> Перейти на официальный сайт</button>
+                <button class="distro-install-btn button" id="installViaInstaller">Загрузить дистрибутив</button>
+                <button class="distro-official-btn button" id="goToOfficialSite">Официальный сайт</button>
               </div>
             </div>
           </div>
@@ -318,18 +324,18 @@ if (document.getElementById('catalogGrid') || document.querySelector('[data-dist
           if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); modalClose.click(); }
         });
         modalClose.addEventListener('click', () => {
-          modal.style.display = 'none';
+          setModalOpen(modal, false);
           if (modal.opener) modal.opener.focus();
         });
       }
       
       window.addEventListener('click', (e) => {
-        if (e.target === modal) { modal.style.display = 'none'; if (modal.opener) modal.opener.focus(); }
+        if (e.target === modal) { setModalOpen(modal, false); if (modal.opener) modal.opener.focus(); }
       });
       
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.style.display === 'flex') {
-          modal.style.display = 'none';
+          setModalOpen(modal, false);
           if (modal.opener) modal.opener.focus();
         }
       });
@@ -341,8 +347,8 @@ if (document.getElementById('catalogGrid') || document.querySelector('[data-dist
         installBtn.addEventListener('click', () => {
           const name = modal.dataset.currentName;
           if (name) {
-            alert(`Установщик ${name} будет скачан автоматически.\n(Демо-режим: в реальном проекте здесь запускался бы установщик)`);
-            modal.style.display = 'none';
+            alert("Установщик " + name + " будет скачан автоматически. В демо-режиме загрузка не подключена.");
+            setModalOpen(modal, false);
           }
         });
       }
@@ -352,7 +358,7 @@ if (document.getElementById('catalogGrid') || document.querySelector('[data-dist
           const url = modal.dataset.currentUrl;
           if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
-            modal.style.display = 'none';
+            setModalOpen(modal, false);
           }
         });
       }
@@ -366,11 +372,8 @@ if (document.getElementById('catalogGrid') || document.querySelector('[data-dist
     
     if (title) title.textContent = distro.name;
     if (desc) desc.textContent = distro.desc;
-    if (icon) icon.src = distro.icon;
-    if (category) {
-      const catText = distro.category === 'beginner' ? ' Для начинающих' : distro.category === 'advanced' ? ' Для опытных' : ' Специализированный';
-      category.textContent = catText;
-    }
+    if (icon) { icon.hidden = false; icon.onerror = () => { icon.hidden = true; }; icon.src = distro.icon; }
+    if (category) { const catText = distro.category === 'beginner' ? 'Для начинающих' : distro.category === 'advanced' ? 'Для опытных' : 'Специализированный'; category.textContent = catText; }
     if (based) based.textContent = distro.based;
     
     modal.dataset.currentDistro = distro.id;
@@ -378,7 +381,7 @@ if (document.getElementById('catalogGrid') || document.querySelector('[data-dist
     modal.dataset.currentName = distro.name;
     
     modal.opener = document.activeElement;
-    modal.style.display = 'flex';
+    setModalOpen(modal, true);
     const closeButton = modal.querySelector('.distro-modal-close');
     if (closeButton) closeButton.focus();
   }
@@ -537,26 +540,6 @@ if (!document.querySelector('#distroModalStyles')) {
     body.dark-theme .distro-official-btn:hover {
       background-color: plum;
       color: #1e1e1e;
-    }
-    .gif-spinner-container {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.8);
-      padding: 20px 30px;
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      z-index: 2000;
-      color: white;
-      font-family: 'Raleway', sans-serif;
-    }
-    .gif-spinner-img {
-      width: 60px;
-      height: 60px;
     }
     .success-animation {
       position: fixed;

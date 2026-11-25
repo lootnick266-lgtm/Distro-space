@@ -93,20 +93,20 @@ $stats = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель — SmartSupport</title>
-    <link rel="stylesheet" href="/TechSupport/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="/script.js"></script>
+    <title>Панель управления — Distro.space</title>
+    <link rel="icon" id="siteFavicon" href="/assets/images/site-logo-light.jpg" data-light-href="/assets/images/site-logo-light.jpg" data-dark-href="/assets/images/site-logo-dark.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="/TechSupport/style.css?v=admin-1">
+    <link rel="stylesheet" href="/TechSupport/assets/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/TechSupport/assets/fontawesome/css/solid.min.css">
 
 </head>
 
-<body>
+<body class="admin-page">
     <header class="main-header">
         <div class="container header-container">
-            <div class="logo">
-                <i class="fas fa-robot"></i>
-                <span>Smart<span class="highlight">Support</span></span>
-            </div>
+            <a class="logo admin-wordmark" href="/indexbase.html" aria-label="Distro.space — главная">
+                <span class="wordmark" data-text="DISTRO.SPACE">DISTRO.<span class="highlight">SPACE</span></span>
+            </a>
             <nav class="main-nav">
                 <ul>
                     <li><a href="/">Главная</a></li>
@@ -117,10 +117,9 @@ $stats = [
                     <li><a href="/grafana/" target="_blank" rel="noopener noreferrer">Grafana</a></li>
                 </ul>
             </nav>
-            <div class="auth-buttons">
-                <span class="user-greeting">Администратор:
-                    <?php echo htmlspecialchars($_SESSION['user_name']); ?>
-                </span>
+            <div class="auth-buttons admin-account">
+                <span class="admin-identity"><span class="admin-signal">ADMIN</span><span><?php echo htmlspecialchars($_SESSION['user_name']); ?></span></span>
+                <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Переключить тему"><i class="fas fa-moon" aria-hidden="true"></i><span>ТЕМА</span></button>
                 <button onclick="window.location.href='auth.php?action=logout'" class="btn-outline">Выйти</button>
             </div>
         </div>
@@ -128,7 +127,12 @@ $stats = [
 
     <main class="main-content">
         <div class="container">
-            <h1><i class="fas fa-shield-alt"></i> Панель администратора</h1>
+            <section class="admin-hero">
+                <p class="admin-kicker"><span class="admin-signal-dot"></span> SMARTSUPPORT / CONTROL ROOM</p>
+                <h1><span class="admin-glitch" data-text="Панель администратора">Панель администратора</span></h1>
+                <p class="admin-hero-copy">Обращения, база знаний и журнал действий — в одном рабочем пространстве.</p>
+                <div class="admin-hero-meta"><span>ПОЛЬЗОВАТЕЛЬ: <?php echo htmlspecialchars($_SESSION['user_name']); ?></span><span>ДОСТУП: ADMIN</span></div>
+            </section>
 
             <?php if ($message): ?>
             <div class="success-notification">
@@ -180,7 +184,7 @@ $stats = [
             <!-- Вкладка: Заявки -->
             <div id="tab-requests" class="tab-content active">
                 <h2>Заявки техподдержки</h2>
-                <table class="admin-table">
+                <div class="admin-table-wrap"><table class="admin-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -226,21 +230,20 @@ $stats = [
                                             : '' ; ?>>Завершена</option>
                                     </select>
                                     <input type="hidden" name="action" value="update_status">
-                                    <input type="text" name="admin_response" placeholder="Ответ пользователю"
-                                        style="width:150px;">
+                                    <input type="text" name="admin_response" placeholder="Ответ пользователю" class="admin-response-input">
                                     <button type="submit" class="btn-small">Обновить</button>
                                 </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
+                </table></div>
             </div>
 
             <!-- Вкладка: База знаний -->
             <div id="tab-knowledge" class="tab-content">
                 <h2>База знаний бота</h2>
-                <form method="POST" style="background:#f8fafc; padding:20px; border-radius:16px; margin-bottom:30px;">
+                <form method="POST" class="admin-rule-form">
                     <h3>Добавить новое правило</h3>
                     <div class="form-group"><label>Ключевые слова (через запятую)</label><input type="text"
                             name="keywords" required></div>
@@ -255,7 +258,7 @@ $stats = [
                 </form>
 
                 <h3>Существующие правила</h3>
-                <table class="admin-table">
+                <div class="admin-table-wrap"><table class="admin-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -287,13 +290,13 @@ $stats = [
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
+                </table></div>
             </div>
 
             <!-- Вкладка: Логи -->
             <div id="tab-logs" class="tab-content">
                 <h2>Логи действий пользователей</h2>
-                <table class="admin-table">
+                <div class="admin-table-wrap"><table class="admin-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -324,10 +327,9 @@ $stats = [
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
+                </table></div>
             </div>
 
-            <!-- Вкладка: Экспорт/Импорт -->
             <!-- Вкладка: Экспорт/Импорт -->
             <div id="tab-export" class="tab-content">
                 <h2>Экспорт и импорт данных</h2>
@@ -357,16 +359,39 @@ $stats = [
         </div>
     </main>
 
-    <footer class="main-footer">
+    <footer class="main-footer admin-footer">
         <div class="container footer-container">
-            <div class="footer-col">
-                <h4>SmartSupport</h4>
-                <p>Административная панель</p>
-            </div>
+            <div class="footer-col"><a class="footer-brand" href="/indexbase.html">Distro<span>.space</span></a><p>Рабочее пространство поддержки проекта.</p></div>
+            <div class="footer-col"><h4>НАВИГАЦИЯ</h4><a href="/indexbase.html">Главная</a><a href="/TechSupport/">Техподдержка</a><a href="dashboard.php">Дашборд</a></div>
+            <div class="footer-col"><h4>УПРАВЛЕНИЕ</h4><a href="admin.php">Панель администратора</a><a href="/grafana/" target="_blank" rel="noopener noreferrer">Мониторинг Grafana</a></div>
         </div>
+        <div class="footer-bottom"><p class="footer-copyright">DISTRO.SPACE / ADMIN CONSOLE</p></div>
     </footer>
 
     <script>
+        (() => {
+            const button = document.getElementById('themeToggle');
+            const favicon = document.getElementById('siteFavicon');
+            const applyTheme = theme => {
+                const dark = theme === 'dark';
+                document.body.classList.toggle('dark-theme', dark);
+                button.setAttribute('aria-pressed', String(dark));
+                button.setAttribute('aria-label', dark ? 'Включить светлую тему' : 'Включить тёмную тему');
+                button.innerHTML = `<i class="fas fa-${dark ? 'sun' : 'moon'}" aria-hidden="true"></i><span>${dark ? 'СВЕТЛАЯ' : 'ТЁМНАЯ'}</span>`;
+                favicon.href = dark ? favicon.dataset.darkHref : favicon.dataset.lightHref;
+            };
+            const saved = localStorage.getItem('theme');
+            applyTheme(saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+            button.addEventListener('click', () => {
+                const next = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+                localStorage.setItem('theme', next);
+                applyTheme(next);
+            });
+            window.addEventListener('storage', event => {
+                if (event.key === 'theme') applyTheme(event.newValue || 'light');
+            });
+        })();
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));

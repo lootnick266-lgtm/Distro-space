@@ -1,99 +1,104 @@
 <!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" href="assets/images/linux.png" type="image/x-icon">
-  <link rel="stylesheet" href="/css/style1.css?v=shared-auth-2">
-  <title>Контакты — Distro.space</title>
-</head>
- <header class="header">
-    <div class="container">
-        <div class="header-container">
-
-         <div class="header-logo">
-           <img src="assets/images/Logo.jpg" alt="Логотип" class="header-logo-img" width="50" loading="lazy" />
-        <span class="header-company-name">Distro.space</span>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Связь с командой Distro.space через службу поддержки.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" id="siteFavicon" href="/assets/images/site-logo-light.jpg" data-light-href="/assets/images/site-logo-light.jpg" data-dark-href="/assets/images/site-logo-dark.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="/css/style1.css?v=site-pages-8">
+    <title>Контакты — Distro.space</title>
+  </head>
+  <body class="site-page contact-page">
+    <header class="header site-header">
+      <div class="container header-container">
+        <a class="header-logo" href="/indexbase.html" aria-label="Distro.space — главная"> <span class="header-logo-mark"> <img src="/assets/images/site-logo-light.jpg" data-light-src="/assets/images/site-logo-light.jpg" data-dark-src="/assets/images/site-logo-dark.jpg" alt="" class="header-logo-img" width="50" height="50"> </span> <span class="header-company-name">Distro<span class="brand-dot">.</span>space</span></a>
+        <button class="burger" type="button" aria-label="Открыть меню"> <span class="burger-line"> </span> <span class="burger-line"> </span> <span class="burger-line"> </span></button>
+        <nav class="header-nav" aria-label="Основная навигация">
+          <ul class="header-nav-list">
+            <li class="headernav-item">
+              <a href="/indexbase.html">Главная</a>
+            </li>
+            <li class="headernav-item">
+              <a href="/catalog.html">Каталог</a>
+            </li>
+            <li class="headernav-item">
+              <a href="/contacts.html">Контакты</a>
+            </li>
+            <li class="headernav-item">
+              <a href="/TechSupport/">Техподдержка</a>
+            </li>
+            <li class="headernav-item dropdown">
+              <a href="#menu" class="dropdown-toggle" aria-haspopup="true">Ещё <span aria-hidden="true">⌄</span></a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="/auth.html">Вход</a>
+                </li>
+                <li>
+                  <a href="#theme" id="dropdownThemeToggle">Сменить тему</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <button class="header-button button" id="loginBtn" type="button">Вход</button>
         </div>
-
-          <nav class="header-nav">
-            <ul class="header-nav-list">
-              <li class="headernav-item"><a href="indexbase.html">Главная</a></li>
-              <li class="headernav-item"><a href="catalog.html">Каталог</a></li>
-              <li class="headernav-item"><a href="contacts.html">Контакты</a></li>
-              <li class="headernav-item dropdown">
-                <a href="#" class="dropdown-toggle">Меню ▼</a>
-                <ul class="dropdown-menu">
-                  <li><a href="auth.html">Авторизация</a></li>
-                  <li><a href="#" id="dropdownThemeToggle">Сменить тему</a></li>
-                  <li><a href="catalog.html">Все дистрибутивы</a></li>
-                </ul>
-              </li>
-            </ul>
-          </nav>
-
-          <div class="header-actions">
-            <button class="header-button button" id="loginBtn">Вход</button>
-            <!-- <button class="header-feedback-btn button">Обратная связь</button> -->
+      </div>
+    </header>
+    <main>
+      <section class="contact">
+        <div class="container contact-layout">
+          <div class="contact-heading">
+            <p class="site-kicker"> <span class="signal-dot"> </span> DISTRO.SPACE / CONTACT</p>
+            <h1 class="contact-title">На связи.</h1>
+            <p class="contact-lead">Вопросы по сайту и Linux можно передать через службу поддержки.</p>
+          </div>
+          <div class="contact-wrapper">
+            <article class="contact-info">
+              <p class="contact-channel">SUPPORT CHANNEL / 01</p>
+              <h2>Техподдержка</h2>
+              <p>Открой TechSupport, чтобы начать диалог с ботом или посмотреть разделы помощи.</p>
+              <a class="contact-support-link" href="/TechSupport/">Открыть TechSupport <span aria-hidden="true">↗</span></a>
+              <div class="contact-status"> <span class="signal-dot"> </span> SUPPORT ENTRYPOINT / ONLINE</div>
+            </article>
+            <!-- Форма контактов отключена; сообщения направляются в TechSupport.<form class="contact-form" id="mainContactForm">
+                                    <input type="text" class="contact-input" placeholder="Ваше имя" required>
+                                    <input type="email" class="contact-input" placeholder="Ваш Email" required>
+                                    <textarea class="contact-textarea" placeholder="Ваше сообщение" rows="5" required>
+                                    </textarea>
+                                    <button type="submit" class="contact-button button">Отправить</button>
+                                    </form>-->
           </div>
         </div>
+      </section>
+    </main>
+    <footer class="footer site-footer">
+      <div class="container footer-container">
+        <div class="footer-col footer-about">
+          <a class="footer-brand" href="/indexbase.html">Distro<span>.</span>space</a>
+          <p>Точка старта для знакомства с Linux-дистрибутивами.</p>
+          <div class="footer-social" aria-label="Социальные сети">
+            <a href="https://github.com/lootnick266-lgtm/Distro-space" target="_blank" rel="noopener noreferrer" aria-label="Репозиторий Distro-space на GitHub"> <img src="/assets/images/Octicons-mark-github.svg.png" alt="GitHub" width="24" height="24"></a>
+            <span class="social-icon"><img src="/assets/images/Telegram_logo.svg.png" alt="Telegram" width="24" height="24"></span>
+            <span class="social-icon"><img src="/assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK" width="24" height="24"></span>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h2>Навигация</h2>
+          <a href="/indexbase.html">Главная</a>
+          <a href="/catalog.html">Каталог</a>
+          <a href="/contacts.html">Контакты</a>
+        </div>
+        <div class="footer-col">
+          <h2>Поддержка</h2>
+          <a href="/TechSupport/">Открыть TechSupport</a>
+        </div>
+        <p class="footer-copyright">© 2026 Distro.space</p>
       </div>
-  </header>
-<body>
-  
-
-  <section class="contact">
-    <div class="container">
-      <h2 class="contact-title">Свяжитесь с нами</h2>
-      <div class="contact-wrapper">
-        <div class="contact-info">
-          <h3>Контакты</h3>
-          <p>📞 телеграм бот: присутствует</p>
-        </div>
-        <!--
-<form class="contact-form" id="mainContactForm">
-          <input type="text" placeholder="Ваше имя" class="contact-input" required>
-          <input type="email" placeholder="Ваш Email" class="contact-input" required>
-          <textarea placeholder="Ваше сообщение" class="contact-textarea" rows="5" required></textarea>
-          <button type="submit" class="contact-button button">Отправить</button>
-          <div class="gif-spinner" style="display: none;">Отправка...</div>
-        </form>
--->
-      </div>
-    </div>
-  </section>
-
-
-
- <footer class="footer">
-    <div class="container footer-container">
-        <div class="footer-col">
-            <h4>О проекте</h4>
-            <p>Distro.space — установщик Linux-дистрибутивов. Быстро, просто, бесплатно.</p>
-        </div>
-        <div class="footer-col">
-            <h4>Навигация</h4>
-            <p><a href="indexbase.html">Главная</a></p>
-            <p><a href="catalog.html">Каталог</a></p>
-            <p><a href="contacts.html">Контакты</a></p>
-            <p><a href="auth.html">Авторизация</a></p>
-        </div>
-        <div class="footer-col">
-            <h4>Соцсети</h4>
-            <div class="footer-social">
-                <a href="#"><img src="assets/images/Telegram_logo.svg.png" alt="Telegram"></a>
-                <a href="#"><img src="assets/images/VK_Compact_Logo_(2021-present).svg.png" alt="VK"></a>
-                <a href="#"><img src="assets/images/Octicons-mark-github.svg.png" alt="GitHub"></a>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            © 2026 Distro-space. Все права защищены.
-        </div>
-    </div>
-</footer>
-  <script src="/js/script1.js?v=forms-hidden-1"></script>
-</body>
+    </footer>
+    <script src="/js/script1.js?v=ui-responsive-4"></script>
+  </body>
 </html>
